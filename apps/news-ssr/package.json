@@ -1,0 +1,8 @@
+{
+  "name": "news-ssr",
+  "private": true,
+  "version": "3.0.2",
+  "type": "module",
+  "scripts": { "start": "node src/server.js" },
+  "dependencies": { "express": "4.22.3", "react": "18.3.1", "react-dom": "18.3.1" }
+}

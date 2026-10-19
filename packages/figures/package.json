@@ -1,0 +1,8 @@
+{
+  "name": "@mfe/figures",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Figuras isométricas hechas con el kit de la skill anatomy (MIT). Se generan a SVG en el build.",
+  "scripts": { "build": "node build.mjs" }
+}

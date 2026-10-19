@@ -1,0 +1,16 @@
+{
+  "name": "mfe-anatomia",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Una app que enseña micro-frontends siendo ella misma un micro-frontend.",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "figures": "npm run build -w @mfe/figures",
+    "build": "npm run figures && npm run build -w catalog -w player -w guide-ssg -w shell",
+    "start": "concurrently -k -n shell,catalog,player,news,guide -c white,blue,cyan,yellow,green \"npm run preview -w shell\" \"npm run preview -w catalog\" \"npm run preview -w player\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\"",
+    "dev": "npm run build && concurrently -k -n shell,catalog,player,news,guide -c white,blue,cyan,yellow,green \"npm run dev -w shell\" \"npm run preview -w catalog\" \"npm run preview -w player\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
