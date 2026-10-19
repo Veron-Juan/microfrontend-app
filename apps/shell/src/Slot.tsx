@@ -1,10 +1,18 @@
-import React from "react";
-import { byId, hostOf } from "./registry.js";
-import { reload, setBroken, setFocus, useStore } from "./store.js";
+import type { ReactNode } from "react";
+import { byId, hostOf, type AppId } from "./registry.ts";
+import { reload, setBroken, setFocus, useStore } from "./store.ts";
 
 // Envuelve cada pieza de la página. Con el inspector encendido dibuja su borde y su ficha:
 // quién la sirve, desde dónde, con qué tipo de render y cuánto tardó.
-export function Slot({ id, children, className = "", tools = true }) {
+interface SlotProps {
+  id: AppId;
+  children: ReactNode;
+  className?: string;
+  /** Muestra los botones para volver a pedir o tirar el remote. */
+  tools?: boolean;
+}
+
+export function Slot({ id, children, className = "", tools = true }: SlotProps) {
   const app = byId[id];
   const inspector = useStore((s) => s.inspector);
   const focus = useStore((s) => s.focus);

@@ -1,17 +1,40 @@
-/* global __URLS__ */
+import type { RenderMode } from "@mfe/contracts";
+
 // Registro de micro-frontends: la "fuente de verdad" del shell sobre quién sirve qué.
 // En una empresa grande esto suele venir de un servicio (discovery) y no de un archivo.
 // Las URLs pueden ser relativas (vista previa estática): se resuelven contra la página.
-export const URLS = Object.fromEntries(Object.entries(__URLS__).map(([key, url]) => [key, new URL(url, document.baseURI).href]));
+export const URLS = Object.fromEntries(
+  Object.entries(__URLS__).map(([key, url]) => [key, new URL(url, document.baseURI).href]),
+) as Record<keyof typeof __URLS__, string>;
 export const PREVIEW = __PREVIEW__;
 
-export const RENDER = {
+export type AppId = "shell" | "news" | "catalog" | "player" | "guide";
+
+export interface MicroFrontend {
+  id: AppId;
+  /** Nombre del paquete o servicio. */
+  name: string;
+  title: string;
+  render: RenderMode;
+  version: string;
+  team: string;
+  composition: string;
+  /** Origen desde el que se sirve. */
+  url: string;
+  /** Lo que el shell pide: remoteEntry.js o la URL del fragmento. */
+  entry?: string;
+  /** "remote/Expuesto" para Module Federation; ausente en los fragmentos. */
+  module?: string;
+  what: string;
+}
+
+export const RENDER: Record<RenderMode, { label: string; name: string; where: string; when: string }> = {
   CSR: { label: "CSR", name: "Client-Side Rendering", where: "en el navegador", when: "después de descargar el JavaScript" },
   SSR: { label: "SSR", name: "Server-Side Rendering", where: "en un servidor", when: "en cada request" },
   SSG: { label: "SSG", name: "Static Site Generation", where: "en el build (CI)", when: "una vez por deploy" },
 };
 
-export const APPS = [
+export const APPS: MicroFrontend[] = [
   {
     id: "shell",
     name: "shell",
@@ -76,5 +99,5 @@ export const APPS = [
 ];
 
 export const REMOTES = APPS.filter((app) => app.id !== "shell");
-export const byId = Object.fromEntries(APPS.map((app) => [app.id, app]));
-export const hostOf = (url) => new URL(url).host;
+export const byId = Object.fromEntries(APPS.map((app) => [app.id, app])) as Record<AppId, MicroFrontend>;
+export const hostOf = (url: string) => new URL(url).host;

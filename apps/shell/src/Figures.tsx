@@ -1,12 +1,38 @@
-import React, { useEffect, useRef } from "react";
-import { FIGURES } from "@mfe/figures/dist/figures.js";
-import { lineOnTop, translateAlong } from "@mfe/figures/kit/iso-kit.mjs";
-import { byId } from "./registry.js";
-import { setFocus, store, useStore } from "./store.js";
+import { useEffect, useRef, type RefObject } from "react";
+import type { RenderMode } from "@mfe/contracts";
+import { FIGURES } from "@mfe/figures/figures";
+import { lineOnTop, translateAlong, type Projection } from "@mfe/figures/kit";
+import { byId, type AppId } from "./registry.ts";
+import { setFocus, store, useStore, type State } from "./store.ts";
 
 const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function Plate({ fig, title, hint, readoutRef, keys, caption, stageRef, svg, label, onClick }) {
+// Busca una pieza de la figura por su data-part. Si falta, el SVG generado y este código se desalinearon.
+function part(root: Element, name: string): SVGElement {
+  const found = root.querySelector<SVGElement>(`[data-part="${name}"]`);
+  if (!found) throw new Error(`La figura no tiene la pieza "${name}"`);
+  return found;
+}
+
+interface LegendKey {
+  render: RenderMode;
+  label: string;
+}
+
+interface PlateProps {
+  fig: string;
+  title: string;
+  hint: string;
+  label: string;
+  svg: string;
+  keys: LegendKey[];
+  caption: string;
+  readoutRef: RefObject<HTMLSpanElement>;
+  stageRef: RefObject<HTMLDivElement>;
+  onClick?: () => void;
+}
+
+function Plate({ fig, title, hint, readoutRef, keys, caption, stageRef, svg, label, onClick }: PlateProps) {
   return (
     <figure className="iso-figure">
       <div className="iso-plate">
@@ -22,7 +48,7 @@ function Plate({ fig, title, hint, readoutRef, keys, caption, stageRef, svg, lab
         <span className="iso-keys">
           {keys.map((key) => (
             <span className="iso-key" key={key.label}>
-              <i className="key-dot" data-render={key.render} data-mark={key.mark} />
+              <i className="key-dot" data-render={key.render} />
               {key.label}
             </span>
           ))}
@@ -33,18 +59,23 @@ function Plate({ fig, title, hint, readoutRef, keys, caption, stageRef, svg, lab
   );
 }
 
+type Tick = (dt: number, stage: HTMLDivElement, readout: HTMLSpanElement) => void;
+
 // Corre un bucle de animación solo mientras la figura está en pantalla.
-function useLoop(stageRef, tick) {
+function useLoop(stageRef: RefObject<HTMLDivElement>, readoutRef: RefObject<HTMLSpanElement>, tick: Tick) {
   const tickRef = useRef(tick);
   tickRef.current = tick;
   useEffect(() => {
+    const stage = stageRef.current;
+    const readout = readoutRef.current;
+    if (!stage || !readout) return undefined;
     let frame = 0;
     let last = 0;
     let visible = false;
-    const step = (now) => {
+    const step = (now: number) => {
       const dt = last ? Math.min((now - last) / 1000, 1 / 20) : 1 / 60;
       last = now;
-      tickRef.current(dt, now);
+      tickRef.current(dt, stage, readout);
       frame = visible ? requestAnimationFrame(step) : 0;
     };
     const observer = new IntersectionObserver(([entry]) => {
@@ -54,55 +85,72 @@ function useLoop(stageRef, tick) {
         frame = requestAnimationFrame(step);
       }
     });
-    observer.observe(stageRef.current);
+    observer.observe(stage);
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [stageRef]);
+  }, [stageRef, readoutRef]);
 }
 
+const say = (readout: HTMLElement, text: string) => {
+  if (readout.textContent !== text) readout.textContent = text;
+};
+
 // ── Fig 1: el rack ────────────────────────────────────────────────────────────────
+interface ModuleMotion {
+  at: number;
+  fan: number;
+  spin: number;
+  count: number;
+}
+
 export function RackFigure() {
-  const stage = useRef(null);
-  const readout = useRef(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const readout = useRef<HTMLSpanElement>(null);
   const { P, TRAVEL, SLOTS, FAN } = FIGURES.rack.data;
-  const motion = useRef(Object.fromEntries(SLOTS.map((slot) => [slot.id, { at: TRAVEL, fan: 0, spin: 0, count: 0 }])));
+  const motion = useRef<Record<string, ModuleMotion>>(Object.fromEntries(SLOTS.map((slot) => [slot.id, { at: TRAVEL, fan: 0, spin: 0, count: 0 }])));
 
   useEffect(() => {
     const svg = stage.current;
-    const enter = (event) => {
-      const group = event.target.closest?.("[data-slot]");
-      setFocus(group ? group.dataset.slot : null);
+    if (!svg) return undefined;
+    const enter = (event: PointerEvent) => {
+      const group = (event.target as Element).closest<SVGElement>("[data-slot]");
+      setFocus(group ? (group.dataset.slot as AppId) : null);
     };
+    const leave = () => setFocus(null);
     svg.addEventListener("pointerover", enter);
-    svg.addEventListener("pointerleave", () => setFocus(null));
-    return () => svg.removeEventListener("pointerover", enter);
+    svg.addEventListener("pointerleave", leave);
+    return () => {
+      svg.removeEventListener("pointerover", enter);
+      svg.removeEventListener("pointerleave", leave);
+    };
   }, []);
 
-  useLoop(stage, (dt) => {
+  useLoop(stage, readout, (dt, svg, out) => {
     const { loads, focus } = store.get();
     const still = calm();
     let plugged = 0;
     for (const slot of SLOTS) {
-      const m = motion.current[slot.id];
-      const load = loads[slot.id];
+      const id = slot.id as AppId;
+      const m = motion.current[id];
+      const load = loads[id];
       const status = load?.status ?? "idle";
       if (status === "ready") plugged += 1;
       const target = status === "ready" ? 0 : status === "loading" ? TRAVEL * 0.5 : TRAVEL;
       m.at = still ? target : m.at + (target - m.at) * (1 - Math.exp(-dt / 0.22));
-      const group = stage.current.querySelector(`[data-part="mod-${slot.id}"]`);
-      group.setAttribute("transform", translateAlong(P, [0, m.at, 0]));
+      part(svg, `mod-${id}`).setAttribute("transform", translateAlong(P, [0, m.at, 0]));
       const plug = Math.abs(m.at) < 0.6 && status === "ready";
-      stage.current.querySelector(`[data-part="led-${slot.id}"]`).dataset.on = String(plug);
-      const body = stage.current.querySelector(`[data-part="body-${slot.id}"] .iso-solid`);
-      if (focus === slot.id) body.setAttribute("data-lit", "");
-      else body.removeAttribute("data-lit");
-      const trace = stage.current.querySelector(`[data-part="trace-${slot.id}"]`);
-      trace.dataset.tone = plug ? (focus === slot.id ? "lit" : "mid") : "faint";
+      part(svg, `led-${id}`).dataset.on = String(plug);
+      const body = part(svg, `body-${id}`).querySelector(".iso-solid");
+      if (focus === id) body?.setAttribute("data-lit", "");
+      else body?.removeAttribute("data-lit");
+      const trace = part(svg, `trace-${id}`);
+      trace.dataset.tone = plug ? (focus === id ? "lit" : "mid") : "faint";
       if (plug && !still) trace.setAttribute("data-flow", "");
       else trace.removeAttribute("data-flow");
-      if (FAN[slot.id]) {
+      const fan = FAN[id];
+      if (fan) {
         // El ventilador acelera en cada request nueva al servidor SSR.
         if ((load?.count ?? 0) !== m.count) {
           m.count = load?.count ?? 0;
@@ -110,17 +158,16 @@ export function RackFigure() {
         }
         m.spin += ((plug ? 1.2 : 0) - m.spin) * (1 - Math.exp(-dt / 0.9));
         m.fan += still ? 0 : m.spin * dt;
-        const [x, y, z] = FAN[slot.id];
-        stage.current.querySelector(`[data-part="fan-${slot.id}"]`).setAttribute("d", fanBlades(P, x, y, z, m.fan));
+        part(svg, `fan-${id}`).setAttribute("d", fanBlades(P, fan[0], fan[1], fan[2], m.fan));
       }
     }
     let text = `${plugged}/${SLOTS.length} módulos enchufados`;
-    if (focus && byId[focus] && focus !== "shell") {
+    if (focus && focus !== "shell") {
       const app = byId[focus];
       const load = loads[focus];
       text = `${app.name} · ${app.render} · ${load?.status === "ready" ? load.ms + " ms" : load?.status === "error" ? "caído" : "cargando"}`;
     }
-    if (readout.current.textContent !== text) readout.current.textContent = text;
+    say(out, text);
   });
 
   return (
@@ -142,7 +189,7 @@ export function RackFigure() {
   );
 }
 
-function fanBlades(P, cx, cy, z, turn) {
+function fanBlades(P: Projection, cx: number, cy: number, z: number, turn: number) {
   let d = "";
   for (let i = 0; i < 5; i++) {
     const a = turn + (i / 5) * Math.PI * 2;
@@ -152,14 +199,20 @@ function fanBlades(P, cx, cy, z, turn) {
 }
 
 // ── Fig 2: tres carriles ──────────────────────────────────────────────────────────
-const serverTiming = (header) =>
+const serverTiming = (header: string | undefined) =>
   (header ?? "").split(",").reduce((sum, part) => sum + Number(part.match(/dur=([\d.]+)/)?.[1] ?? 0), 0);
 
-// El modelo: cuánto tarda cada fase, con números medidos en esta página.
-export function renderModel(loads) {
-  const news = loads.news;
-  const guide = loads.guide;
-  const catalog = loads.catalog;
+/** Cuánto tarda cada fase de un carril, en milisegundos medidos en esta página. */
+export interface LaneModel {
+  server: number;
+  transfer: number;
+  browser: number;
+  ready: boolean;
+}
+export type RenderModel = Record<RenderMode, LaneModel>;
+
+export function renderModel(loads: State["loads"]): RenderModel {
+  const { news, guide, catalog } = loads;
   const ssrServer = Math.round(serverTiming(news?.headers?.["server-timing"]));
   return {
     SSG: { server: 0, transfer: guide?.ms ?? 0, browser: 0, ready: guide?.status === "ready" },
@@ -167,16 +220,23 @@ export function renderModel(loads) {
     CSR: { server: 0, transfer: catalog?.ms ?? 0, browser: catalog?.painted ?? 0, ready: catalog?.status === "ready" },
   };
 }
-const total = (lane) => lane.server + lane.transfer + lane.browser;
-const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const total = (lane: LaneModel) => lane.server + lane.transfer + lane.browser;
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+interface Run {
+  t: number;
+  model: RenderModel | null;
+  scale: number;
+  hold: number;
+}
 
 export function RenderFigure() {
-  const stage = useRef(null);
-  const readout = useRef(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const readout = useRef<HTMLSpanElement>(null);
   const { P, LANES, START, END, PLUNGER_REST, PLUNGER_LOW } = FIGURES.render.data;
-  const run = useRef({ t: 0, model: null, scale: 1, hold: 0 });
+  const run = useRef<Run>({ t: 0, model: null, scale: 1, hold: 0 });
   const loads = useStore((s) => s.loads);
-  const ready = ["news", "guide", "catalog"].every((id) => loads[id]?.status === "ready");
+  const ready = (["news", "guide", "catalog"] as const).every((id) => loads[id]?.status === "ready");
 
   const restart = () => {
     const model = renderModel(store.get().loads);
@@ -189,17 +249,16 @@ export function RenderFigure() {
     if (ready) restart();
   }, [ready]);
 
-  useLoop(stage, (dt) => {
+  useLoop(stage, readout, (dt, svg, out) => {
     const r = run.current;
-    const svg = stage.current;
     if (!r.model) {
-      readout.current.textContent = "esperando las primeras cargas…";
+      say(out, "esperando las primeras cargas…");
       return;
     }
     const still = calm();
     r.t += dt * 1000;
     let done = 0;
-    const parts = [];
+    const parts: string[] = [];
     for (const lane of LANES) {
       const m = r.model[lane.id];
       const t = still ? Infinity : r.t / r.scale; // tiempo "real" simulado, en ms
@@ -207,29 +266,27 @@ export function RenderFigure() {
       const arrive = server + m.transfer;
       const end = arrive + m.browser;
       const travel = Math.min(1, Math.max(0, (t - server) / Math.max(m.transfer, 0.001)));
-      const car = svg.querySelector(`[data-part="car-${lane.id}"]`);
-      car.setAttribute("transform", translateAlong(P, [START + (END - START) * ease(travel) - START, 0, 0]));
+      part(svg, `car-${lane.id}`).setAttribute("transform", translateAlong(P, [(END - START) * ease(travel), 0, 0]));
       if (lane.id === "SSR") {
         // La prensa baja y sube durante el tiempo de servidor.
         const press = server ? Math.min(1, Math.max(0, t / server)) : 1;
         const depth = Math.sin(Math.PI * press);
-        svg.querySelector('[data-part="plunger-SSR"]').setAttribute("transform", translateAlong(P, [0, 0, -(PLUNGER_REST - PLUNGER_LOW) * (t < server ? depth : 0)]));
+        part(svg, "plunger-SSR").setAttribute("transform", translateAlong(P, [0, 0, -(PLUNGER_REST - PLUNGER_LOW) * (t < server ? depth : 0)]));
         const printed = t >= server * 0.5;
-        svg.querySelector('[data-part="blank-SSR"]').dataset.on = String(!printed);
-        svg.querySelector('[data-part="page-SSR"]').dataset.on = String(printed);
+        part(svg, "blank-SSR").dataset.on = String(!printed);
+        part(svg, "page-SSR").dataset.on = String(printed);
       }
-      if (lane.id === "CSR") svg.querySelector('[data-part="blocks-CSR"]').dataset.on = String(t < arrive + m.browser * 0.5);
-      const rows = svg.querySelectorAll(`[data-part="paint-${lane.id}"] [data-row]`);
+      if (lane.id === "CSR") part(svg, "blocks-CSR").dataset.on = String(t < arrive + m.browser * 0.5);
+      const rows = part(svg, `paint-${lane.id}`).querySelectorAll<SVGElement>("[data-row]");
       rows.forEach((row, i) => {
         const on = lane.id === "CSR" ? t >= arrive + (m.browser * (i + 1)) / rows.length : t >= arrive;
         row.dataset.on = String(on);
       });
-      svg.querySelector(`[data-part="led-${lane.id}"]`).dataset.on = String(t >= end);
+      part(svg, `led-${lane.id}`).dataset.on = String(t >= end);
       if (t >= end) done += 1;
       parts.push(`${lane.id} ${Math.round(end)} ms`);
     }
-    const text = parts.join(" · ");
-    if (readout.current.textContent !== text) readout.current.textContent = text;
+    say(out, parts.join(" · "));
     if (done === LANES.length && !still) {
       r.hold += dt;
       if (r.hold > 2.4) restart();

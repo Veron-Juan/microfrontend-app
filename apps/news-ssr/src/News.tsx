@@ -1,31 +1,50 @@
-import { createElement as h } from "react";
-
 // Componente React que solo se ejecuta en el servidor. El navegador recibe HTML ya armado.
-export function News({ rendered, requestId, served, scores, headlines, timing }) {
-  return h("section", { className: "nws", "data-request": requestId },
-    h("style", null, CSS),
-    h("header", { className: "nws-head" },
-      h("h3", null, "Novedades en vivo"),
-      h("span", { className: "nws-stamp" }, "renderizado en el servidor a las ", h("b", null, rendered)),
-    ),
-    h("div", { className: "nws-grid" },
-      h("ul", { className: "nws-scores" },
-        scores.map((match) =>
-          h("li", { key: match.home },
-            h("span", { className: "nws-min" }, match.minute + "'"),
-            h("span", { className: "nws-team" }, match.home),
-            h("b", null, match.goals[0] + " – " + match.goals[1]),
-            h("span", { className: "nws-team nws-away" }, match.away),
-          ),
-        ),
-      ),
-      h("ol", { className: "nws-lines" }, headlines.map((line) => h("li", { key: line }, line))),
-    ),
-    h("footer", { className: "nws-foot" },
-      h("span", null, "request ", h("code", null, requestId)),
-      h("span", null, "request nº ", served, " de este servidor"),
-      h("span", null, "API de marcadores ", timing.data, " ms"),
-    ),
+
+export interface Score {
+  home: string;
+  away: string;
+  minute: number;
+  goals: [home: number, away: number];
+}
+
+export interface NewsProps {
+  rendered: string;
+  requestId: string;
+  served: number;
+  scores: Score[];
+  headlines: string[];
+  timing: { data: number; render: number };
+}
+
+export function News({ rendered, requestId, served, scores, headlines, timing }: NewsProps) {
+  return (
+    <section className="nws" data-request={requestId}>
+      <style>{CSS}</style>
+      <header className="nws-head">
+        <h3>Novedades en vivo</h3>
+        <span className="nws-stamp">renderizado en el servidor a las <b>{rendered}</b></span>
+      </header>
+      <div className="nws-grid">
+        <ul className="nws-scores">
+          {scores.map((match) => (
+            <li key={match.home}>
+              <span className="nws-min">{match.minute + "'"}</span>
+              <span className="nws-team">{match.home}</span>
+              <b>{match.goals[0] + " – " + match.goals[1]}</b>
+              <span className="nws-team nws-away">{match.away}</span>
+            </li>
+          ))}
+        </ul>
+        <ol className="nws-lines">
+          {headlines.map((line) => <li key={line}>{line}</li>)}
+        </ol>
+      </div>
+      <footer className="nws-foot">
+        <span>request <code>{requestId}</code></span>
+        <span>request nº {served} de este servidor</span>
+        <span>API de marcadores {timing.data} ms</span>
+      </footer>
+    </section>
   );
 }
 

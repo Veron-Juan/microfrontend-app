@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { on, type PlayDetail, type RemoteMeta } from "@mfe/contracts";
 
-export const meta = { name: "player", version: "2.1.3", team: "Equipo Reproducción", render: "CSR" };
+export const meta: RemoteMeta = { name: "player", version: "2.1.3", team: "Equipo Reproducción", render: "CSR" };
 
 const CSS = `
 .ply{font-family:Inter,system-ui,sans-serif;display:grid;gap:12px}
@@ -18,34 +19,32 @@ const CSS = `
 .ply-ctrl button{font:11px ui-monospace,monospace;padding:6px 10px;border-radius:6px;border:1px solid var(--anatomy-faint,#2a2a2a);background:transparent;color:var(--anatomy-strong,#e6e6e6);cursor:pointer}
 `;
 
-const clock = (seconds) => {
+const clock = (seconds: number) => {
   const s = Math.max(0, Math.floor(seconds));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
 
 export default function Player() {
-  const [show, setShow] = useState(null);
+  const [show, setShow] = useState<PlayDetail | null>(null);
   const [position, setPosition] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [latency, setLatency] = useState(null);
+  const [latency, setLatency] = useState<number | null>(null);
   const frame = useRef(0);
 
   // El reproductor solo conoce el contrato del evento, no al emisor.
   useEffect(() => {
-    const onPlay = (event) => {
-      setShow(event.detail);
+    return on("mfe:play", (detail) => {
+      setShow(detail);
       setPosition(0);
       setPaused(false);
-      setLatency(Date.now() - event.detail.at);
-    };
-    window.addEventListener("mfe:play", onPlay);
-    return () => window.removeEventListener("mfe:play", onPlay);
+      setLatency(Date.now() - detail.at);
+    });
   }, []);
 
   useEffect(() => {
     if (!show || paused) return undefined;
     let last = performance.now();
-    const tick = (now) => {
+    const tick = (now: number) => {
       // Avanza 60× más rápido que el tiempo real para que se note el progreso.
       setPosition((value) => Math.min(show.length, value + ((now - last) / 1000) * 60));
       last = now;
@@ -72,7 +71,7 @@ export default function Player() {
       </div>
       <div className="ply-ctrl">
         <span>{show ? `${clock(position)} / ${clock(show.length)}` : "--:-- / --:--"}</span>
-        <span>{latency === null ? "sin eventos aún" : `recibido de "${show.from}" en ${latency} ms`}</span>
+        <span>{latency === null || !show ? "sin eventos aún" : `recibido de "${show.from}" en ${latency} ms`}</span>
         <button disabled={!show} onClick={() => setPaused((value) => !value)}>{paused ? "Reanudar" : "Pausa"}</button>
       </div>
     </section>

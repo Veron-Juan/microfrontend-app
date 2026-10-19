@@ -6,17 +6,21 @@
   "scripts": {
     "dev": "vite --port 5000 --strictPort",
     "build": "vite build",
-    "preview": "vite preview --port 5000 --strictPort"
+    "preview": "vite preview --port 5000 --strictPort",
+    "typecheck": "tsc -p ."
   },
   "dependencies": {
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@module-federation/runtime": "2.9.2",
-    "@mfe/figures": "*"
+    "@mfe/figures": "*",
+    "@mfe/contracts": "*"
   },
   "devDependencies": {
     "@module-federation/vite": "1.23.5",
     "@vitejs/plugin-react": "4.7.0",
-    "vite": "6.4.4"
+    "vite": "6.4.4",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7"
   }
 }

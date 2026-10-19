@@ -2,7 +2,13 @@
 // la pantalla del usuario. SSG: la página ya estaba impresa y apilada antes de la request.
 // SSR: una prensa la imprime en el momento en que llega la request. CSR: viaja una caja de
 // piezas sueltas y la página se arma en la pantalla. Los tiempos los mide el shell en vivo.
-import * as k from "./kit/iso-kit.mjs";
+import * as k from "./kit/iso-kit.ts";
+
+export type LaneId = "SSR" | "SSG" | "CSR";
+export interface Lane {
+  id: LaneId;
+  y: number;
+}
 
 export const WIDTH = 640;
 export const HEIGHT = 420;
@@ -11,12 +17,12 @@ const PLATE = { x: -150, y: -80, w: 250, d: 160, r: 9 };
 const PLATE_H = 10;
 const FOOT_H = 5;
 
-export const LANES = [
+export const LANES: Lane[] = [
   { id: "SSR", y: -50 },
   { id: "SSG", y: 0 },
   { id: "CSR", y: 50 },
 ];
-const TONE = { CSR: "blue", SSR: "amber", SSG: "green" };
+const TONE: Record<LaneId, string> = { CSR: "blue", SSR: "amber", SSG: "green" };
 const RAIL_H = 2.5;
 const CAR = { w: 24, d: 22, h: 3.5 };
 export const START = -88; // centro del carro en el servidor
@@ -35,11 +41,12 @@ export const P = k.fitProjection(
   { pad: 24, azimuth: 52 },
 );
 
-const at = (point) => k.iso(point, P);
-const S = (paths, style) => k.solidSvg(paths, style);
-const L = (d, style) => k.lineSvg(d, style);
-const D = (points, style) => k.dotsSvg(points, style);
-const faceRect = (x, y0, y1, z0, z1) => k.pathOf([[x, y0, z0], [x, y1, z0], [x, y1, z1], [x, y0, z1]].map(at), true);
+const at = (point: k.Point3) => k.iso(point, P);
+const atAll = (points: k.Point3[]) => points.map(at);
+const S = (paths: k.SolidPaths, style?: k.SolidStyle) => k.solidSvg(paths, style);
+const L = (d: string, style?: k.LineStyle) => k.lineSvg(d, style);
+const D = (points: k.Flat[], style?: Parameters<typeof k.dotsSvg>[1]) => k.dotsSvg(points, style);
+const faceRect = (x: number, y0: number, y1: number, z0: number, z1: number) => k.pathOf(atAll([[x, y0, z0], [x, y1, z0], [x, y1, z1], [x, y0, z1]]), true);
 
 function base() {
   const out = [`<path class="iso-halo" d="${k.haloOf(PLATE, -PLATE_H - FOOT_H, PLATE_H, P)}"/>`];
@@ -59,8 +66,8 @@ function base() {
   return out.join("");
 }
 
-function track(lane) {
-  const out = [];
+function track(lane: Lane) {
+  const out: string[] = [];
   const { y } = lane;
   for (const dy of [-CAR.d / 2 + 2, CAR.d / 2 - 4.4]) {
     const rail = { x: START - 14, y: y + dy, w: END - START + 28, d: 2.4, r: 0.6 };
@@ -75,8 +82,8 @@ function track(lane) {
   return out.join("");
 }
 
-function pageLines(x, y, z, printed) {
-  const out = [];
+function pageLines(x: number, y: number, z: number, printed: boolean) {
+  const out: string[] = [];
   out.push(S(k.slabOf({ x: x - 9, y: y - 8, w: 18, d: 16, r: 0.8 }, z, PAGE_H, P, 2, 0.2), { tone: "hi", crease: "lo" }));
   if (printed) {
     const top = z + PAGE_H;
@@ -86,7 +93,7 @@ function pageLines(x, y, z, printed) {
   return out.join("");
 }
 
-function carriage(lane) {
+function carriage(lane: Lane) {
   const { y } = lane;
   const cx = START;
   const plan = { x: cx - CAR.w / 2, y: y - CAR.d / 2, w: CAR.w, d: CAR.d, r: 1.6 };
@@ -111,10 +118,10 @@ function carriage(lane) {
 }
 
 // Lo que está detrás del carro (se pinta antes) y lo que queda delante (después).
-function machine(lane) {
+function machine(lane: Lane) {
   const { y } = lane;
-  const back = [];
-  const front = [];
+  const back: string[] = [];
+  const front: string[] = [];
   if (lane.id === "SSG") {
     // El "CDN": un cargador con copias idénticas ya impresas.
     const box = { x: -134, y: y - 13, w: 26, d: 26, r: 2 };
@@ -154,9 +161,9 @@ function machine(lane) {
   return { back: back.join(""), front: front.join("") };
 }
 
-function screen(lane) {
+function screen(lane: Lane) {
   const { y } = lane;
-  const out = [];
+  const out: string[] = [];
   const foot = { x: SCREEN_X - 10, y: y - 11, w: 18, d: 22, r: 2 };
   out.push(`<path class="iso-halo" d="${k.haloOf(foot, 0, 3, P)}" style="filter:blur(5px)"/>`);
   out.push(S(k.slabOf(foot, 0, 2.5, P, 3, 0.5), { tone: "mid", crease: "lo" }));

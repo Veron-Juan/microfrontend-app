@@ -2,7 +2,14 @@
 // micro-frontend es un módulo que se enchufa en su ranura. Un módulo entra cuando su remote
 // termina de cargar, su LED se enciende con el color de su tipo de render, y sale si su
 // servidor cae. Lo que mueve el dibujo es el estado real de carga del shell.
-import * as k from "./kit/iso-kit.mjs";
+import * as k from "./kit/iso-kit.ts";
+
+export type Render = "CSR" | "SSR" | "SSG";
+export interface Slot {
+  id: string;
+  x: number;
+  render: Render;
+}
 
 export const WIDTH = 640;
 export const HEIGHT = 400;
@@ -23,18 +30,18 @@ const MOD_TOP = MOD_Z + MOD.h;
 export const TRAVEL = 36; // cuánto sale un módulo desenchufado (unidades de mundo)
 
 // Ranuras de izquierda a derecha, en el mismo orden en que aparecen en la página.
-export const SLOTS = [
+export const SLOTS: Slot[] = [
   { id: "news", x: -78, render: "SSR" },
   { id: "catalog", x: -26, render: "CSR" },
   { id: "player", x: 26, render: "CSR" },
   { id: "guide", x: 78, render: "SSG" },
 ];
-const TONE = { CSR: "blue", SSR: "amber", SSG: "green" };
+const TONE: Record<Render, string> = { CSR: "blue", SSR: "amber", SSG: "green" };
 
 export const P = k.fitProjection(
   [
     ...k.boxCorners(PLATE, -PLATE_H - FOOT_H, 0),
-    ...k.boxCorners({ x: -118, y: -64, w: 236, d: 22 }, 0, BACK_H + 7),
+    ...k.boxCorners({ x: -118, y: -64, w: 236, d: 22, r: 3 }, 0, BACK_H + 7),
     [SLOTS[0].x - MOD.w / 2, MOD_Y + MOD.d + TRAVEL, MOD_TOP],
   ],
   WIDTH,
@@ -42,10 +49,11 @@ export const P = k.fitProjection(
   { pad: 26, azimuth: 58 },
 );
 
-const at = (point) => k.iso(point, P);
-const S = (paths, style) => k.solidSvg(paths, style);
-const L = (d, style) => k.lineSvg(d, style);
-const D = (points, style) => k.dotsSvg(points, style);
+const at = (point: k.Point3) => k.iso(point, P);
+const atAll = (points: k.Point3[]) => points.map(at);
+const S = (paths: k.SolidPaths, style?: k.SolidStyle) => k.solidSvg(paths, style);
+const L = (d: string, style?: k.LineStyle) => k.lineSvg(d, style);
+const D = (points: k.Flat[], style?: Parameters<typeof k.dotsSvg>[1]) => k.dotsSvg(points, style);
 
 function base() {
   const out = [`<path class="iso-halo" d="${k.haloOf(PLATE, -PLATE_H - FOOT_H, PLATE_H, P)}"/>`];
@@ -76,7 +84,7 @@ function base() {
 }
 
 function rails() {
-  const out = [];
+  const out: string[] = [];
   for (const slot of SLOTS) {
     for (const dx of [-MOD.w / 2 + 1.5, MOD.w / 2 - 3.5]) {
       const rail = { x: slot.x + dx, y: MOD_Y, w: 2, d: MOD.d + TRAVEL - 2, r: 0.6 };
@@ -128,8 +136,8 @@ function backplane() {
 }
 
 // Hardware que distingue a cada tipo de módulo, sobre su cara superior.
-function hardware(slot, plan) {
-  const out = [];
+function hardware(slot: Slot, plan: k.Plan) {
+  const out: string[] = [];
   const top = MOD_TOP;
   const cx = slot.x;
   if (slot.render === "CSR") {
@@ -152,7 +160,7 @@ function hardware(slot, plan) {
     out.push(L(k.ring(cx, fy, 8, top + 2.6, P, 48), { tone: "lo" }));
     out.push(`<path class="iso-line" data-part="fan-${slot.id}" data-tone="hi" d="${fanBlades(cx, fy, top + 2.6, 0)}"/>`);
     out.push(S(k.cylinder(cx, fy, 1.8, top + 2.6, 0.8, P, 16), { tone: "hi" }));
-    out.push(D(k.corners({ x: cx - 9.5, y: fy - 9.5, w: 19, d: 19 }, 0.6).map(([x, y]) => at([x, y, top])), { size: 0.4, tone: "lo" }));
+    out.push(D(k.corners({ x: cx - 9.5, y: fy - 9.5, w: 19, d: 19, r: 0 }, 0.6).map(([x, y]) => at([x, y, top])), { size: 0.4, tone: "lo" }));
   } else {
     // Una pila de hojas ya impresas: este módulo se generó antes, en el build.
     for (let i = 0; i < 4; i++) {
@@ -166,17 +174,17 @@ function hardware(slot, plan) {
   return out.join("");
 }
 
-export function fanBlades(cx, cy, z, turn) {
-  const out = [];
+export function fanBlades(cx: number, cy: number, z: number, turn: number) {
+  const out: string[] = [];
   for (let i = 0; i < 5; i++) {
     const a = turn + (i / 5) * Math.PI * 2;
     out.push(k.lineOnTop([cx + Math.cos(a) * 2.2, cy + Math.sin(a) * 2.2], [cx + Math.cos(a + 0.5) * 7.6, cy + Math.sin(a + 0.5) * 7.6], z, P));
   }
   return out.join("");
 }
-export const FAN = Object.fromEntries(SLOTS.filter((slot) => slot.render === "SSR").map((slot) => [slot.id, [slot.x, MOD_Y + 22, MOD_TOP + 2.6]]));
+export const FAN: Record<string, k.Point3> = Object.fromEntries(SLOTS.filter((slot) => slot.render === "SSR").map((slot) => [slot.id, [slot.x, MOD_Y + 22, MOD_TOP + 2.6] as k.Point3]));
 
-function module(slot) {
+function module(slot: Slot) {
   const plan = { x: slot.x - MOD.w / 2, y: MOD_Y, w: MOD.w, d: MOD.d, r: 2 };
   const out = [`<path class="iso-halo" d="${k.haloOf(k.insetPlan(plan, 2), MOD_Z, 0.1, P)}" style="filter:blur(5px)"/>`];
   out.push(`<g data-part="body-${slot.id}">${S(k.slabOf(plan, MOD_Z, MOD.h, P, 3, 0.8), { tone: "mid", crease: "lo", inner: L(k.sideSeam(plan, MOD_Z + 12, P, 3), { tone: "faint" }) + L(k.sideSeam(plan, MOD_TOP - 6, P, 3), { tone: "faint" }) })}</g>`);
@@ -188,11 +196,11 @@ function module(slot) {
   out.push(hardware(slot, plan));
   // Cara lateral: rejilla de ranuras cerradas y una placa con la "etiqueta" del equipo dueño.
   const side = plan.x + plan.w;
-  const slotPath = (y0, y1, z, h) => k.pathOf([[side, y0, z], [side, y1, z], [side, y1, z + h], [side, y0, z + h]].map(at), true);
+  const slotPath = (y0: number, y1: number, z: number, h: number) => k.pathOf(atAll([[side, y0, z], [side, y1, z], [side, y1, z + h], [side, y0, z + h]]), true);
   out.push(L([0, 1, 2, 3, 4].map((i) => slotPath(plan.y + 34, plan.y + 58, MOD_Z + 16 + i * 4.4, 1.6)).join(""), { tone: "lo" }));
   out.push(L(slotPath(plan.y + 8, plan.y + 26, MOD_Z + 22, 18), { tone: "lo" }));
   out.push(L([0, 1, 2].map((i) => k.segment([side, plan.y + 11, MOD_Z + 36 - i * 4.5], [side, plan.y + 23 - i * 3, MOD_Z + 36 - i * 4.5], P)).join(""), { tone: "faint", free: true }));
-  out.push(D([[side, plan.y + 10, MOD_Z + 24], [side, plan.y + 24, MOD_Z + 24]].map(at), { size: 0.4, tone: "lo" }));
+  out.push(D(atAll([[side, plan.y + 10, MOD_Z + 24], [side, plan.y + 24, MOD_Z + 24]]), { size: 0.4, tone: "lo" }));
   // LED de estado: se enciende con el color del tipo de render.
   const led = [slot.x + 7, plan.y + plan.d - 6];
   out.push(S(k.cylinder(led[0], led[1], 2.2, MOD_TOP, 0.9, P, 20), { tone: "lo" }));

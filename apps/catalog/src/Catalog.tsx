@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { emit, type RemoteMeta, type Show } from "@mfe/contracts";
 
-export const meta = { name: "catalog", version: "1.4.0", team: "Equipo Descubrimiento", render: "CSR" };
+export const meta: RemoteMeta = { name: "catalog", version: "1.4.0", team: "Equipo Descubrimiento", render: "CSR" };
 
-const SHOWS = [
+const SHOWS: Show[] = [
   { id: "f1", title: "Final continental", kind: "Deportes", length: 5400, hue: 210 },
   { id: "d2", title: "Andes profundos", kind: "Documental", length: 3000, hue: 150 },
   { id: "s3", title: "La frontera", kind: "Serie", length: 2700, hue: 20 },
@@ -32,18 +33,18 @@ const CSS = `
 .cat-foot{margin-top:12px;font:11px ui-monospace,monospace;color:var(--anatomy-muted,#8c8c90)}
 `;
 
-const minutes = (seconds) => Math.round(seconds / 60) + " min";
+const minutes = (seconds: number) => Math.round(seconds / 60) + " min";
 
 export default function Catalog() {
   const [kind, setKind] = useState("Todo");
-  const [sent, setSent] = useState(null);
+  const [sent, setSent] = useState<string | null>(null);
   const kinds = ["Todo", ...new Set(SHOWS.map((show) => show.kind))];
   const shown = kind === "Todo" ? SHOWS : SHOWS.filter((show) => show.kind === kind);
 
   // Comunicación entre micro-frontends: el catálogo no conoce al reproductor.
   // Solo publica un evento del contrato compartido ("mfe:play") en el bus del navegador.
-  const play = (show) => {
-    window.dispatchEvent(new CustomEvent("mfe:play", { detail: { ...show, from: meta.name, at: Date.now() } }));
+  const play = (show: Show) => {
+    emit("mfe:play", { ...show, from: meta.name, at: Date.now() });
     setSent(show.title);
   };
 

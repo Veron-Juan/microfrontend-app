@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
-import "@mfe/figures/dist/iso.css";
-import { APPS, PREVIEW, REMOTES, RENDER, byId, hostOf } from "./registry.js";
-import { FederatedRemote, FragmentRemote } from "./remotes.jsx";
-import { Slot } from "./Slot.jsx";
-import { RackFigure, RenderFigure } from "./Figures.jsx";
-import { CONTRACT, watchBus } from "./bus.js";
-import { reload, setBroken, store, toggleInspector, useStore } from "./store.js";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
+import type { RenderMode } from "@mfe/contracts";
+import "@mfe/figures/iso.css";
+import { APPS, PREVIEW, REMOTES, byId, hostOf, type AppId } from "./registry.ts";
+import { FederatedRemote, FragmentRemote } from "./remotes.tsx";
+import { Slot } from "./Slot.tsx";
+import { RackFigure, RenderFigure } from "./Figures.tsx";
+import { CONTRACT, watchBus } from "./bus.ts";
+import { reload, setBroken, toggleInspector, useStore, type Load } from "./store.ts";
 
-const SECTIONS = [
+const SECTIONS: [id: string, label: string][] = [
   ["que-es", "Qué es"],
   ["demo", "La demo en vivo"],
   ["composicion", "Cómo se compone"],
@@ -18,7 +19,7 @@ const SECTIONS = [
   ["cuando", "¿Cuándo conviene?"],
 ];
 
-const Remote = ({ id }) => {
+const Remote = ({ id }: { id: AppId }) => {
   const app = byId[id];
   return app.module ? <FederatedRemote app={app} /> : <FragmentRemote app={app} />;
 };
@@ -35,8 +36,9 @@ export default function App() {
     } catch {}
   }, [theme]);
   useEffect(() => {
-    const onKey = (event) => {
-      if (event.key === "i" && !event.metaKey && !event.ctrlKey && !/input|textarea/i.test(event.target.tagName)) toggleInspector();
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (event.key === "i" && !event.metaKey && !event.ctrlKey && !/input|textarea/i.test(target?.tagName ?? "")) toggleInspector();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -118,7 +120,15 @@ function LiveCount() {
   );
 }
 
-function Section({ id, n, title, kicker, children }) {
+interface SectionProps {
+  id: string;
+  n: number;
+  title: string;
+  kicker?: string;
+  children: ReactNode;
+}
+
+function Section({ id, n, title, kicker, children }: SectionProps) {
   return (
     <section className="lesson" id={id} aria-labelledby={`${id}-t`}>
       <header className="lesson-head">
@@ -131,7 +141,7 @@ function Section({ id, n, title, kicker, children }) {
   );
 }
 
-function Chip({ render }) {
+function Chip({ render }: { render: RenderMode }) {
   return <span className="chip" data-render={render}>{render}</span>;
 }
 
@@ -200,7 +210,7 @@ function WhatIs() {
   );
 }
 
-function Card({ title, children, tag }) {
+function Card({ title, children, tag }: { title: string; children: ReactNode; tag?: ReactNode }) {
   return (
     <div className="card">
       <h3>{title} {tag}</h3>
@@ -257,7 +267,7 @@ function AppsTable() {
         </thead>
         <tbody>
           {APPS.map((app) => {
-            const load = app.id === "shell" ? { status: "ready" } : loads[app.id];
+            const load: Load | undefined = app.id === "shell" ? { status: "ready" } : loads[app.id];
             return (
               <tr key={app.id}>
                 <td><b>{app.name}</b> <span className="muted">@{load?.meta?.version ?? app.version}</span></td>
@@ -299,7 +309,7 @@ function Composition() {
         </Card>
       </div>
       <Waterfall />
-      <pre className="code"><code>{`// apps/shell/vite.config.js
+      <pre className="code"><code>{`// apps/shell/vite.config.ts
 federation({
   name: "shell",
   remotes: {
@@ -309,8 +319,8 @@ federation({
   shared: { react: { singleton: true }, "react-dom": { singleton: true } },
 })
 
-// apps/shell/src/remotes.jsx
-const { default: Catalog } = await loadRemote("catalog/Catalog");
+// apps/shell/src/remotes.tsx
+const { default: Catalog } = await loadRemote<RemoteModule>("catalog/Catalog");
 const html = await fetch("http://localhost:5003/fragment/news").then((r) => r.text());`}</code></pre>
     </Section>
   );
@@ -318,8 +328,11 @@ const html = await fetch("http://localhost:5003/fragment/news").then((r) => r.te
 
 function Waterfall() {
   const loads = useStore((s) => s.loads);
-  const rows = REMOTES.map((app) => ({ app, load: loads[app.id] })).filter(({ load }) => load?.start != null);
-  const t0 = Math.min(...rows.map(({ load }) => load.start), Infinity);
+  const rows = REMOTES.flatMap((app) => {
+    const load = loads[app.id];
+    return load?.start != null ? [{ app, load, start: load.start }] : [];
+  });
+  const t0 = Math.min(...rows.map(({ start }) => start), Infinity);
   const t1 = Math.max(...rows.map(({ load }) => load.end ?? performance.now()), t0 + 1);
   const span = Math.max(t1 - t0, 1);
   return (
@@ -328,14 +341,14 @@ function Waterfall() {
         <span>Cascada de carga · esta página</span>
         <span className="muted">las cuatro cargas corren en paralelo</span>
       </figcaption>
-      {rows.map(({ app, load }) => (
+      {rows.map(({ app, load, start }) => (
         <div className="wf-row" key={app.id}>
           <span className="wf-name">{app.name}</span>
           <span className="wf-track">
             <i
               data-render={app.render}
               data-status={load.status}
-              style={{ left: ((load.start - t0) / span) * 100 + "%", width: Math.max(1.5, (((load.end ?? t1) - load.start) / span) * 100) + "%" }}
+              style={{ left: ((start - t0) / span) * 100 + "%", width: Math.max(1.5, (((load.end ?? t1) - start) / span) * 100) + "%" }}
             />
           </span>
           <span className="wf-ms">{load.status === "ready" ? `${load.ms} ms` : load.status === "error" ? "error" : "…"}</span>
@@ -401,7 +414,15 @@ function Experiment() {
   );
 }
 
-function ExperimentCard({ id, load, rows, children }) {
+interface ExperimentCardProps {
+  id: AppId;
+  load: Load | undefined;
+  /** Cabeceras a mostrar: [nombre de la cabecera, etiqueta]. */
+  rows: [header: string, label: string][];
+  children: ReactNode;
+}
+
+function ExperimentCard({ id, load, rows, children }: ExperimentCardProps) {
   const app = byId[id];
   return (
     <div className="card exp">
@@ -411,10 +432,10 @@ function ExperimentCard({ id, load, rows, children }) {
         <dd>{load?.status === "ready" ? `${load.ms} ms${load.cached ? " · desde caché" : ""}` : load?.status ?? "…"}</dd>
         {id === "news" && <><dt>requests</dt><dd>{load?.count ?? 0}</dd></>}
         {rows.map(([key, label]) => (
-          <React.Fragment key={key}>
+          <Fragment key={key}>
             <dt>{label}</dt>
             <dd>{load?.headers?.[key] ?? "—"}</dd>
-          </React.Fragment>
+          </Fragment>
         ))}
         {id === "catalog" && <><dt>archivos</dt><dd>{load?.files ?? "—"} desde {hostOf(app.url)}</dd></>}
       </dl>
@@ -469,13 +490,23 @@ function Communication() {
 }
 
 // ── 06 · Dependencias compartidas ────────────────────────────────────────────────
+interface Share {
+  owner: string;
+  scopeName: string;
+  pkg: string;
+  version: string;
+  from?: string;
+  loaded: boolean;
+  used: number;
+}
+
 function Shared() {
   const loads = useStore((s) => s.loads);
-  const [shares, setShares] = useState([]);
+  const [shares, setShares] = useState<Share[]>([]);
   useEffect(() => {
     // Lee el registro de dependencias compartidas del runtime de Module Federation.
     const scope = globalThis.__FEDERATION__?.__SHARE__ ?? {};
-    const list = [];
+    const list: Share[] = [];
     for (const [owner, scopes] of Object.entries(scope)) {
       for (const [scopeName, pkgs] of Object.entries(scopes ?? {})) {
         for (const [pkg, versions] of Object.entries(pkgs ?? {})) {

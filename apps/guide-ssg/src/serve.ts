@@ -8,13 +8,13 @@ import { fileURLToPath } from "node:url";
 // solo entrega lo que generó el build, con ETag y caché.
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "dist");
 const PORT = Number(process.env.PORT ?? 5004);
-const TYPES = { ".html": "text/html; charset=utf-8", ".json": "application/json" };
-const meta = JSON.parse(await readFile(join(ROOT, "build.json"), "utf8").catch(() => "{}"));
+const TYPES: Record<string, string> = { ".html": "text/html; charset=utf-8", ".json": "application/json" };
+const meta: { builtAt?: string; version?: string } = JSON.parse(await readFile(join(ROOT, "build.json"), "utf8").catch(() => "{}"));
 
 createServer(async (req, res) => {
-  const path = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^([/\\])+/, "");
+  const path = normalize(decodeURIComponent(new URL(req.url ?? "/", "http://x").pathname)).replace(/^([/\\])+/, "");
   const file = join(ROOT, path === "" ? "index.html" : path);
-  const headers = {
+  const headers: Record<string, string> = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Expose-Headers": "ETag, Last-Modified, X-Render-Mode, X-Built-At, X-App-Version, Age, Cache-Control",
   };

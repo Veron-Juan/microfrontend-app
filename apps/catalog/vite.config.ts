@@ -13,7 +13,7 @@ export default defineConfig({
       dts: false,
       filename: "remoteEntry.js",
       manifest: true,
-      exposes: { "./Catalog": "./src/Catalog.jsx" },
+      exposes: { "./Catalog": "./src/Catalog.tsx" },
       shared: {
         react: { singleton: true, requiredVersion: "^18.3.1" },
         "react-dom": { singleton: true, requiredVersion: "^18.3.1" },

@@ -13,7 +13,7 @@ export default defineConfig({
       dts: false,
       filename: "remoteEntry.js",
       manifest: true,
-      exposes: { "./Player": "./src/Player.jsx" },
+      exposes: { "./Player": "./src/Player.tsx" },
       shared: {
         react: { singleton: true, requiredVersion: "^18.3.1" },
         "react-dom": { singleton: true, requiredVersion: "^18.3.1" },

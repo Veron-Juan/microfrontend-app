@@ -3,6 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Figuras isométricas hechas con el kit de la skill anatomy (MIT). Se generan a SVG en el build.",
-  "scripts": { "build": "node build.mjs" }
+  "description": "Figuras isométricas hechas con el kit de la skill anatomy (MIT, en kit/). Se generan a SVG en el build.",
+  "scripts": {
+    "build": "tsx build.ts",
+    "typecheck": "tsc -p ."
+  },
+  "exports": {
+    "./kit": "./kit/iso-kit.ts",
+    "./figures": {
+      "types": "./dist/figures.d.ts",
+      "default": "./dist/figures.js"
+    },
+    "./iso.css": "./dist/iso.css"
+  }
 }

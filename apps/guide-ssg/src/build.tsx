@@ -2,9 +2,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { performance } from "node:perf_hooks";
-import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Guide } from "./Guide.js";
+import { Guide, type Channel } from "./Guide.tsx";
 
 // Static Site Generation: este script corre UNA vez, en CI, antes del deploy.
 // Lo que sale de aquí son archivos .html que cualquier CDN puede servir.
@@ -12,7 +11,7 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "dist");
 const t0 = performance.now();
 
 const hours = ["18:00", "19:00", "20:00", "21:00", "22:00", "23:00"];
-const channels = [
+const channels: Channel[] = [
   { number: 101, name: "Deportes 1", slots: [{ title: "Previa", span: 1 }, { title: "Final continental", span: 2 }, { title: "Resumen", span: 1 }, { title: "Análisis", span: 2 }] },
   { number: 205, name: "Docs", slots: [{ title: "Andes profundos", span: 2 }, { title: "Océanos", span: 1 }, { title: "Ciudades", span: 2 }, { title: "Archivo", span: 1 }] },
   { number: 310, name: "Series", slots: [{ title: "La frontera T2", span: 1 }, { title: "La frontera T2", span: 1 }, { title: "Estreno", span: 3 }, { title: "Clásicos", span: 1 }] },
@@ -22,9 +21,9 @@ const channels = [
 
 const builtAt = new Date();
 const built = builtAt.toLocaleDateString("es", { day: "2-digit", month: "short" }) + " a las " + builtAt.toLocaleTimeString("es", { hour12: false });
-renderToStaticMarkup(h(Guide, { built, channels, hours, buildMs: 0 }));
+renderToStaticMarkup(<Guide built={built} channels={channels} hours={hours} buildMs={0} />);
 const buildMs = Math.max(1, Math.round(performance.now() - t0));
-const fragment = renderToStaticMarkup(h(Guide, { built, channels, hours, buildMs }));
+const fragment = renderToStaticMarkup(<Guide built={built} channels={channels} hours={hours} buildMs={buildMs} />);
 
 mkdirSync(join(OUT, "fragment"), { recursive: true });
 writeFileSync(join(OUT, "fragment", "guide.html"), fragment);

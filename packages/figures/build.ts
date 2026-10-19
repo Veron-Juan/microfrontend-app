@@ -1,9 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import * as k from "./kit/iso-kit.mjs";
-import * as rack from "./rack.mjs";
-import * as render from "./render.mjs";
+import * as k from "./kit/iso-kit.ts";
+import * as rack from "./rack.ts";
+import * as render from "./render.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, "dist");
@@ -12,11 +12,24 @@ mkdirSync(OUT, { recursive: true });
 const figures = { rack: rack.build(), render: render.build() };
 const css = k.ISO_CSS + "\n" + readFileSync(join(HERE, "extra.css"), "utf8");
 
-writeFileSync(join(OUT, "figures.js"), `// Generado por packages/figures/build.mjs. No editar a mano.\nexport const FIGURES = ${JSON.stringify(figures)};\n`);
+writeFileSync(join(OUT, "figures.js"), `// Generado por packages/figures/build.ts. No editar a mano.\nexport const FIGURES = ${JSON.stringify(figures)};\n`);
+// Los tipos salen de los mismos módulos que dibujan, así el shell no puede desalinearse de las figuras.
+writeFileSync(
+  join(OUT, "figures.d.ts"),
+  `// Generado por packages/figures/build.ts. No editar a mano.
+import type { Projection, Point3 } from "../kit/iso-kit.ts";
+import type { Slot } from "../rack.ts";
+import type { Lane } from "../render.ts";
+export declare const FIGURES: {
+  rack: { svg: string; data: { P: Projection; TRAVEL: number; SLOTS: Slot[]; FAN: Record<string, Point3> } };
+  render: { svg: string; data: { P: Projection; LANES: Lane[]; START: number; END: number; PLUNGER_REST: number; PLUNGER_LOW: number } };
+};
+`,
+);
 writeFileSync(join(OUT, "iso.css"), css);
 
 // Páginas sueltas para revisar cada figura fuera del shell.
-for (const theme of ["dark", "light"]) {
+for (const theme of ["dark", "light"] as const) {
   for (const [name, fig] of Object.entries(figures)) {
     const body = k.plateHtml({ fig: "Fig", title: name, hint: "preview", readout: "", body: `<div class="iso-stage">${fig.svg}</div>` });
     const page = k.pageHtml({ title: name, theme, body, width: 900 }).replace("</style>", readFileSync(join(HERE, "extra.css"), "utf8") + "</style>");

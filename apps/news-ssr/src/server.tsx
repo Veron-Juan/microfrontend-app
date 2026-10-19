@@ -1,9 +1,8 @@
 import express from "express";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
-import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
-import { News } from "./News.js";
+import { News, type NewsProps, type Score } from "./News.tsx";
 
 const PORT = Number(process.env.PORT ?? 5003);
 const VERSION = "3.0.2";
@@ -11,7 +10,7 @@ const app = express();
 let served = 0;
 
 // CORS: el shell vive en otro origen y necesita leer también las cabeceras de diagnóstico.
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   res.set({
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Expose-Headers": "X-Rendered-At, X-Request-Id, X-Render-Mode, X-App-Version, Server-Timing",
@@ -19,7 +18,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const TEAMS = [["Lima", "Quito"], ["Bogotá", "Caracas"], ["Santiago", "Montevideo"]];
+const TEAMS: [home: string, away: string][] = [["Lima", "Quito"], ["Bogotá", "Caracas"], ["Santiago", "Montevideo"]];
 const HEADLINES = [
   "Se confirma la transmisión en 4K de la final",
   "Nuevo documental sobre la cordillera llega el viernes",
@@ -30,10 +29,10 @@ const HEADLINES = [
 ];
 
 // Simula la consulta a una API de marcadores: datos que cambian en cada request.
-async function fetchLiveData(now) {
+async function fetchLiveData(now: number): Promise<Pick<NewsProps, "scores" | "headlines">> {
   await new Promise((done) => setTimeout(done, 30 + Math.random() * 50));
   const minute = Math.floor(now / 60000) % 90;
-  const scores = TEAMS.map(([home, away], index) => ({
+  const scores: Score[] = TEAMS.map(([home, away], index) => ({
     home,
     away,
     minute: (minute + index * 17) % 90 + 1,
@@ -53,13 +52,13 @@ async function renderFragment() {
   served += 1;
   const timing = { data: Math.round(t1 - t0), render: 0 };
   const rendered = new Date(now).toLocaleTimeString("es", { hour12: false }) + "." + String(now % 1000).padStart(3, "0");
-  const html = renderToString(h(News, { rendered, requestId, served, timing, ...data }));
+  const html = renderToString(<News rendered={rendered} requestId={requestId} served={served} timing={timing} {...data} />);
   timing.render = Math.round((performance.now() - t1) * 10) / 10;
   return { html, now, requestId, timing };
 }
 
 // El fragmento: HTML sin <html> ni <body>, listo para incrustarse en el shell.
-app.get("/fragment/news", async (req, res) => {
+app.get("/fragment/news", async (_req, res) => {
   const { html, now, requestId, timing } = await renderFragment();
   res.set({
     "Content-Type": "text/html; charset=utf-8",
@@ -74,11 +73,11 @@ app.get("/fragment/news", async (req, res) => {
 });
 
 // La misma app vista sola, como página completa.
-app.get("/", async (req, res) => {
+app.get("/", async (_req, res) => {
   const { html } = await renderFragment();
   res.type("html").send(`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>news-ssr · standalone</title></head><body style="margin:0;padding:24px;background:#0b0b0b;color:#a3a3a3"><p style="font:12px ui-monospace,monospace;color:#6e6e6e">Remote <b>news-ssr</b> corriendo solo. Recarga y verás otra hora y otro id: cada request se renderiza de nuevo.</p>${html}</body></html>`);
 });
 
-app.get("/health", (req, res) => res.json({ ok: true, name: "news-ssr", version: VERSION, served }));
+app.get("/health", (_req, res) => res.json({ ok: true, name: "news-ssr", version: VERSION, served }));
 
 app.listen(PORT, () => console.log(`news-ssr (SSR) escuchando en http://localhost:${PORT}`));

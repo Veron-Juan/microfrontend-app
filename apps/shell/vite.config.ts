@@ -13,7 +13,7 @@ export default defineConfig({
     federation({
       name: "shell",
       dts: false,
-      // En la vista previa estática las URLs son relativas: los remotes se registran en runtime (remotes.jsx).
+      // En la vista previa estática las URLs son relativas: los remotes se registran en runtime (remotes.tsx).
       remotes: process.env.PREVIEW ? {} : {
         catalog: { type: "module", name: "catalog", entry: CATALOG + "remoteEntry.js", entryGlobalName: "catalog", shareScope: "default" },
         player: { type: "module", name: "player", entry: PLAYER + "remoteEntry.js", entryGlobalName: "player", shareScope: "default" },
