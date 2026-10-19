@@ -1,6 +1,15 @@
-/* Toques propios sobre el kit anatomy: un color por tipo de render (el color ES el tema aquí). */
-.iso{--mfe-csr:#6b9bff;--mfe-ssr:#f5a524;--mfe-ssg:#3dd68c;--anatomy-blue:var(--mfe-csr);--anatomy-green:var(--mfe-ssg)}
-.iso[data-theme="light"]{--mfe-csr:#3e63dd;--mfe-ssr:#c27c0e;--mfe-ssg:#218358}
-.iso-line[data-tone="amber"]{stroke:var(--mfe-ssr)}
-[data-on]{transition:opacity .45s var(--anatomy-ease)}
-[data-on="false"]{opacity:0}
+/* Toques propios sobre el kit anatomy: un color por tipo de render (el color ES el tema aquí).
+   Los colores salen de @mfe/design-tokens; los valores de respaldo sirven para las páginas sueltas de dist/. */
+.iso {
+  --anatomy-blue: var(--mfe-csr, #6b9bff);
+  --anatomy-green: var(--mfe-ssg, #3dd68c);
+}
+.iso-line[data-tone="amber"] {
+  stroke: var(--mfe-ssr, #f5a524);
+}
+[data-on] {
+  transition: opacity 0.45s var(--anatomy-ease);
+}
+[data-on="false"] {
+  opacity: 0;
+}

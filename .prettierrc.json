@@ -1,0 +1,32 @@
+{
+  "printWidth": 120,
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindStylesheet": "./apps/shell/src/styles.css",
+  "tailwindFunctions": ["cx"],
+  "overrides": [
+    {
+      "files": "apps/catalog/**",
+      "options": {
+        "tailwindStylesheet": "./apps/catalog/src/catalog.css"
+      }
+    },
+    {
+      "files": "apps/player/**",
+      "options": {
+        "tailwindStylesheet": "./apps/player/src/player.css"
+      }
+    },
+    {
+      "files": "apps/news-ssr/**",
+      "options": {
+        "tailwindStylesheet": "./apps/news-ssr/src/news.css"
+      }
+    },
+    {
+      "files": "apps/guide-ssg/**",
+      "options": {
+        "tailwindStylesheet": "./apps/guide-ssg/src/guide.css"
+      }
+    }
+  ]
+}

@@ -4,13 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Anatomía de un micro-frontend</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect x=%273%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%23f5a524%27/%3E%3Crect x=%278%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%236b9bff%27/%3E%3Crect x=%2713%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%236b9bff%27/%3E%3Crect x=%2718%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%233dd68c%27/%3E%3C/svg%3E" />
-    <meta name="description" content="Una app que enseña la arquitectura micro-frontend siendo ella misma un micro-frontend: shell, remotes con Module Federation y fragmentos SSR y SSG." />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect x=%273%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%23f5a524%27/%3E%3Crect x=%278%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%236b9bff%27/%3E%3Crect x=%2713%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%236b9bff%27/%3E%3Crect x=%2718%27 y=%278%27 width=%274%27 height=%2712%27 fill=%27%233dd68c%27/%3E%3C/svg%3E"
+    />
+    <meta
+      name="description"
+      content="Una app que enseña la arquitectura micro-frontend siendo ella misma un micro-frontend: shell, remotes con Module Federation y fragmentos SSR y SSG."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <script>
-      let t = null; try { t = localStorage.getItem("mfe-theme"); } catch {} document.documentElement.dataset.theme = t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      let t = null;
+      try {
+        t = localStorage.getItem("mfe-theme");
+      } catch {}
+      document.documentElement.dataset.theme =
+        t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     </script>
   </head>
   <body>

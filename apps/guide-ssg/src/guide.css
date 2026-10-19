@@ -1,0 +1,9 @@
+/*
+ * CSS del fragmento guide-ssg. Prefijo `gde` y sin preflight: el reset lo pone el shell, y como
+ * todas las clases de este remote empiezan con `gde:`, su CSS nunca choca con el del shell ni
+ * con el de otros remotes que estén en la misma página.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) prefix(gde);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@mfe/design-tokens/theme.css";

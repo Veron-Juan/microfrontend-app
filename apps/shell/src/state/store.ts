@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { BusEventName, BusEvents, RemoteMeta } from "@mfe/contracts";
-import type { AppId } from "./registry.ts";
+import type { AppId } from "../mfe/registry.ts";
 
 export type LoadStatus = "idle" | "loading" | "ready" | "error";
 
@@ -45,7 +45,7 @@ export interface State {
 
 // Un store mínimo del shell. Solo el shell lo usa: los remotes no comparten estado,
 // se comunican por eventos (ver bus.ts). Esa separación es una regla clave de la arquitectura.
-let state: State = {
+export const initialState: State = {
   inspector: false,
   focus: null,
   broken: {},
@@ -53,6 +53,7 @@ let state: State = {
   loads: {},
   events: [],
 };
+let state = initialState;
 const listeners = new Set<() => void>();
 
 export const store = {
@@ -69,7 +70,8 @@ export const store = {
   },
 };
 
-export const useStore = <T,>(select: (s: State) => T): T => useSyncExternalStore(store.subscribe, () => select(store.get()));
+export const useStore = <T>(select: (s: State) => T): T =>
+  useSyncExternalStore(store.subscribe, () => select(store.get()));
 
 export function markLoad(id: AppId, patch: Partial<Load>) {
   store.set((s) => ({ loads: { ...s.loads, [id]: { status: "idle", ...s.loads[id], ...patch } } }));

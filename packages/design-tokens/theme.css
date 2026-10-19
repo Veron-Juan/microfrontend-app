@@ -1,0 +1,77 @@
+/*
+ * Design tokens compartidos por todas las apps.
+ *
+ * Es lo único de estilos que comparten los equipos: valores, no clases. Cada app compila su
+ * propio CSS con Tailwind a partir de estos tokens, así que un remote se ve consistente con
+ * el shell sin depender del CSS del shell (y sin que un deploy de uno rompa al otro).
+ *
+ * Las variables --mfe-* cambian con el tema ([data-theme] en <html>). @theme inline hace que
+ * las utilidades lean la variable en el lugar donde se usan, así que un remote prefijado
+ * (cat:bg-card) y el shell (bg-card) resuelven al mismo color.
+ */
+
+:root,
+[data-theme="light"] {
+  --mfe-page: #f2f2ef;
+  --mfe-card: #fbfbfa;
+  --mfe-text: #57575a;
+  --mfe-strong: #18181a;
+  --mfe-muted: #8c8c90;
+  --mfe-mid: #8a8a8f;
+  --mfe-lo: #b4b4b8;
+  --mfe-faint: #d4d4d6;
+  --mfe-danger: #e5484d;
+  --mfe-csr: #3e63dd;
+  --mfe-ssr: #c27c0e;
+  --mfe-ssg: #218358;
+  --mfe-lift:
+    inset 0 1px 0 0 #ffffff, 0 0 0 1px #0000000f, 0 1px 1px -0.5px #0000000a, 0 3px 3px -1.5px #0000000a,
+    0 6px 6px -3px #0000000a, 0 12px 12px -6px #0000000a;
+}
+
+[data-theme="dark"] {
+  --mfe-page: #0b0b0b;
+  --mfe-card: #131313;
+  --mfe-text: #a3a3a3;
+  --mfe-strong: #e6e6e6;
+  --mfe-muted: #8c8c90;
+  --mfe-mid: #6a6a6a;
+  --mfe-lo: #3e3e3e;
+  --mfe-faint: #2a2a2a;
+  --mfe-danger: #ff6b6b;
+  --mfe-csr: #6b9bff;
+  --mfe-ssr: #f5a524;
+  --mfe-ssg: #3dd68c;
+  --mfe-lift:
+    inset 0 1px 0 0 #ffffff0a, inset 0 0 0 1px #ffffff06, 0 0 0 1px #00000026, 0 1px 1px -0.5px #00000014,
+    0 3px 3px -1.5px #00000014, 0 6px 6px -3px #00000014, 0 12px 12px -6px #00000014;
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "EB Garamond", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-page: var(--mfe-page);
+  --color-card: var(--mfe-card);
+  --color-text: var(--mfe-text);
+  --color-strong: var(--mfe-strong);
+  --color-muted: var(--mfe-muted);
+  --color-mid: var(--mfe-mid);
+  --color-lo: var(--mfe-lo);
+  --color-faint: var(--mfe-faint);
+  --color-danger: var(--mfe-danger);
+  /* Bordes: el gris medio con transparencia, para que funcionen sobre cualquier fondo. */
+  --color-line: color-mix(in srgb, var(--mfe-mid) 35%, transparent);
+  --color-line-soft: color-mix(in srgb, var(--mfe-mid) 18%, transparent);
+
+  /* Un color por tipo de render: es el hilo conductor visual de toda la lección. */
+  --color-csr: var(--mfe-csr);
+  --color-ssr: var(--mfe-ssr);
+  --color-ssg: var(--mfe-ssg);
+
+  --shadow-lift: var(--mfe-lift);
+  --ease-out-soft: cubic-bezier(0.32, 0.72, 0, 1);
+}

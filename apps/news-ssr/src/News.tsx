@@ -1,11 +1,7 @@
+/** @jsxRuntime automatic */
 // Componente React que solo se ejecuta en el servidor. El navegador recibe HTML ya armado.
-
-export interface Score {
-  home: string;
-  away: string;
-  minute: number;
-  goals: [home: number, away: number];
-}
+// (El pragma de arriba fija el runtime de JSX aunque tsx no vea este tsconfig, p. ej. en los tests.)
+import type { Score } from "./live-data.ts";
 
 export interface NewsProps {
   rendered: string;
@@ -18,52 +14,47 @@ export interface NewsProps {
 
 export function News({ rendered, requestId, served, scores, headlines, timing }: NewsProps) {
   return (
-    <section className="nws" data-request={requestId}>
-      <style>{CSS}</style>
-      <header className="nws-head">
-        <h3>Novedades en vivo</h3>
-        <span className="nws-stamp">renderizado en el servidor a las <b>{rendered}</b></span>
+    <section className="nws:grid nws:gap-3.5 nws:font-sans" data-request={requestId}>
+      <header className="nws:flex nws:flex-wrap nws:items-baseline nws:justify-between nws:gap-3">
+        <h3 className="nws:m-0 nws:text-[15px] nws:font-semibold nws:text-strong">Novedades en vivo</h3>
+        <span className="nws:font-mono nws:text-[11px] nws:leading-[normal] nws:text-muted">
+          renderizado en el servidor a las <b className="nws:font-medium nws:text-ssr">{rendered}</b>
+        </span>
       </header>
-      <div className="nws-grid">
-        <ul className="nws-scores">
+      <div className="nws:grid nws:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] nws:gap-4.5 nws:max-sm:grid-cols-1">
+        <ul className="nws:m-0 nws:grid nws:list-none nws:gap-1.5 nws:p-0">
           {scores.map((match) => (
-            <li key={match.home}>
-              <span className="nws-min">{match.minute + "'"}</span>
-              <span className="nws-team">{match.home}</span>
-              <b>{match.goals[0] + " – " + match.goals[1]}</b>
-              <span className="nws-team nws-away">{match.away}</span>
+            <li
+              key={match.home}
+              className="nws:grid nws:grid-cols-[34px_1fr_auto_1fr] nws:items-center nws:gap-2 nws:rounded-lg nws:border nws:border-faint nws:px-2.5 nws:py-2 nws:text-[13px] nws:text-text"
+            >
+              <span className="nws:font-mono nws:text-[11px] nws:leading-[normal] nws:text-ssr">{`${match.minute}'`}</span>
+              <span>{match.home}</span>
+              <b className="nws:font-mono nws:text-[14px] nws:leading-[normal] nws:font-semibold nws:text-strong nws:tabular-nums">
+                {`${match.goals[0]} – ${match.goals[1]}`}
+              </b>
+              <span className="nws:text-right">{match.away}</span>
             </li>
           ))}
         </ul>
-        <ol className="nws-lines">
-          {headlines.map((line) => <li key={line}>{line}</li>)}
+        <ol className="nws:m-0 nws:grid nws:list-none nws:gap-1.5 nws:p-0 nws:[counter-reset:n]">
+          {headlines.map((line) => (
+            <li
+              key={line}
+              className="nws:relative nws:pl-6.5 nws:font-serif nws:text-[15px] nws:leading-[1.35] nws:text-strong nws:[counter-increment:n] nws:before:absolute nws:before:top-0.75 nws:before:left-0 nws:before:font-mono nws:before:text-[10px] nws:before:leading-[normal] nws:before:text-muted nws:before:content-[counter(n,decimal-leading-zero)]"
+            >
+              {line}
+            </li>
+          ))}
         </ol>
       </div>
-      <footer className="nws-foot">
-        <span>request <code>{requestId}</code></span>
+      <footer className="nws:flex nws:flex-wrap nws:gap-4 nws:font-mono nws:text-[11px] nws:leading-[normal] nws:text-muted">
+        <span>
+          request <code className="nws:font-mono nws:text-text">{requestId}</code>
+        </span>
         <span>request nº {served} de este servidor</span>
         <span>API de marcadores {timing.data} ms</span>
       </footer>
     </section>
   );
 }
-
-const CSS = `
-.nws{font-family:Inter,system-ui,sans-serif;display:grid;gap:14px}
-.nws-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.nws-head h3{margin:0;font-size:15px;font-weight:600;color:var(--anatomy-strong,#e6e6e6)}
-.nws-stamp{font:11px ui-monospace,monospace;color:var(--anatomy-muted,#8c8c90)}
-.nws-stamp b{color:var(--mfe-ssr,#f5a524);font-weight:500}
-.nws-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px}
-@media (max-width:640px){.nws-grid{grid-template-columns:1fr}}
-.nws-scores,.nws-lines{margin:0;padding:0;list-style:none;display:grid;gap:6px}
-.nws-scores li{display:grid;grid-template-columns:34px 1fr auto 1fr;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--anatomy-faint,#2a2a2a);border-radius:8px;font-size:13px;color:var(--anatomy-text,#a3a3a3)}
-.nws-scores b{font:600 14px ui-monospace,monospace;color:var(--anatomy-strong,#e6e6e6);font-variant-numeric:tabular-nums}
-.nws-min{font:11px ui-monospace,monospace;color:var(--mfe-ssr,#f5a524)}
-.nws-away{text-align:right}
-.nws-lines{counter-reset:n}
-.nws-lines li{counter-increment:n;font:15px/1.35 "EB Garamond",Georgia,serif;color:var(--anatomy-strong,#e6e6e6);padding-left:26px;position:relative}
-.nws-lines li::before{content:counter(n,decimal-leading-zero);position:absolute;left:0;top:3px;font:10px ui-monospace,monospace;color:var(--anatomy-muted,#8c8c90)}
-.nws-foot{display:flex;gap:16px;flex-wrap:wrap;font:11px ui-monospace,monospace;color:var(--anatomy-muted,#8c8c90)}
-.nws-foot code{color:var(--anatomy-text,#a3a3a3)}
-`;

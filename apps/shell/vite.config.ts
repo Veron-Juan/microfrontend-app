@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { federation } from "@module-federation/vite";
 
 // Dónde vive cada app. En producción cada URL es un deploy independiente (otro dominio, otro CDN).
@@ -10,14 +11,29 @@ const PLAYER = process.env.PLAYER_URL ?? "http://localhost:5002/";
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     federation({
       name: "shell",
       dts: false,
       // En la vista previa estática las URLs son relativas: los remotes se registran en runtime (remotes.tsx).
-      remotes: process.env.PREVIEW ? {} : {
-        catalog: { type: "module", name: "catalog", entry: CATALOG + "remoteEntry.js", entryGlobalName: "catalog", shareScope: "default" },
-        player: { type: "module", name: "player", entry: PLAYER + "remoteEntry.js", entryGlobalName: "player", shareScope: "default" },
-      },
+      remotes: process.env.PREVIEW
+        ? {}
+        : {
+            catalog: {
+              type: "module",
+              name: "catalog",
+              entry: CATALOG + "remoteEntry.js",
+              entryGlobalName: "catalog",
+              shareScope: "default",
+            },
+            player: {
+              type: "module",
+              name: "player",
+              entry: PLAYER + "remoteEntry.js",
+              entryGlobalName: "player",
+              shareScope: "default",
+            },
+          },
       shared: {
         react: { singleton: true, requiredVersion: "^18.3.1" },
         "react-dom": { singleton: true, requiredVersion: "^18.3.1" },

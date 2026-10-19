@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Los contratos entre micro-frontends: nombres y formas de los eventos del bus y la ficha que expone cada remote.",
-  "exports": { ".": "./index.ts" },
-  "scripts": { "typecheck": "tsc -p ." }
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  }
 }

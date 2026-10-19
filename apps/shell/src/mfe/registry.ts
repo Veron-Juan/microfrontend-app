@@ -10,7 +10,7 @@ export const PREVIEW = __PREVIEW__;
 
 export type AppId = "shell" | "news" | "catalog" | "player" | "guide";
 
-export interface MicroFrontend {
+interface AppInfo {
   id: AppId;
   /** Nombre del paquete o servicio. */
   name: string;
@@ -21,22 +21,36 @@ export interface MicroFrontend {
   composition: string;
   /** Origen desde el que se sirve. */
   url: string;
-  /** Lo que el shell pide: remoteEntry.js o la URL del fragmento. */
-  entry?: string;
-  /** "remote/Expuesto" para Module Federation; ausente en los fragmentos. */
-  module?: string;
-  what: string;
 }
 
-export const RENDER: Record<RenderMode, { label: string; name: string; where: string; when: string }> = {
-  CSR: { label: "CSR", name: "Client-Side Rendering", where: "en el navegador", when: "después de descargar el JavaScript" },
-  SSR: { label: "SSR", name: "Server-Side Rendering", where: "en un servidor", when: "en cada request" },
-  SSG: { label: "SSG", name: "Static Site Generation", where: "en el build (CI)", when: "una vez por deploy" },
-};
+/** El shell: no se carga, es quien carga a los demás. */
+export interface HostApp extends AppInfo {
+  kind: "host";
+}
 
-export const APPS: MicroFrontend[] = [
+/** Un remote de Module Federation: el shell descarga su remoteEntry.js y monta un componente. */
+export interface FederatedApp extends AppInfo {
+  kind: "federated";
+  /** URL de su remoteEntry.js. */
+  entry: string;
+  /** "remote/Expuesto", como se le pide a loadRemote(). */
+  module: `${string}/${string}`;
+}
+
+/** Un remote que entrega HTML ya renderizado (SSR o SSG): el shell lo pide con fetch y lo inserta. */
+export interface FragmentApp extends AppInfo {
+  kind: "fragment";
+  /** URL del fragmento HTML. */
+  entry: string;
+}
+
+export type RemoteApp = FederatedApp | FragmentApp;
+export type MicroFrontend = HostApp | RemoteApp;
+
+export const APPS: readonly MicroFrontend[] = [
   {
     id: "shell",
+    kind: "host",
     name: "shell",
     title: "Shell",
     render: "CSR",
@@ -44,10 +58,10 @@ export const APPS: MicroFrontend[] = [
     team: "Equipo Plataforma",
     composition: "Host",
     url: URLS.shell,
-    what: "Layout, navegación, lecciones e inspector. Decide qué remote va en cada lugar.",
   },
   {
     id: "news",
+    kind: "fragment",
     name: "news-ssr",
     title: "Novedades",
     render: "SSR",
@@ -56,10 +70,10 @@ export const APPS: MicroFrontend[] = [
     composition: "Fragmento HTML",
     url: URLS.news,
     entry: URLS.news + (PREVIEW ? "fragment/news.html" : "fragment/news"),
-    what: "Marcadores y titulares que cambian todo el tiempo: se renderizan en el servidor en cada request.",
   },
   {
     id: "catalog",
+    kind: "federated",
     name: "catalog",
     title: "Catálogo",
     render: "CSR",
@@ -69,10 +83,10 @@ export const APPS: MicroFrontend[] = [
     module: "catalog/Catalog",
     url: URLS.catalog,
     entry: URLS.catalog + "remoteEntry.js",
-    what: "Interactivo y con filtros: un componente React que se descarga y se ejecuta en el navegador.",
   },
   {
     id: "player",
+    kind: "federated",
     name: "player",
     title: "Reproductor",
     render: "CSR",
@@ -82,10 +96,10 @@ export const APPS: MicroFrontend[] = [
     module: "player/Player",
     url: URLS.player,
     entry: URLS.player + "remoteEntry.js",
-    what: "Estado vivo (posición, pausa) y escucha eventos del catálogo: necesita JavaScript en el cliente.",
   },
   {
     id: "guide",
+    kind: "fragment",
     name: "guide-ssg",
     title: "Guía",
     render: "SSG",
@@ -94,10 +108,11 @@ export const APPS: MicroFrontend[] = [
     composition: "Fragmento HTML estático",
     url: URLS.guide,
     entry: URLS.guide + "fragment/guide.html",
-    what: "La grilla cambia una vez al día: se genera en el build y se sirve como archivo desde un CDN.",
   },
 ];
 
-export const REMOTES = APPS.filter((app) => app.id !== "shell");
+export const REMOTES = APPS.filter((app): app is RemoteApp => app.kind !== "host");
 export const byId = Object.fromEntries(APPS.map((app) => [app.id, app])) as Record<AppId, MicroFrontend>;
+
+/** "http://localhost:5001/" → "localhost:5001" */
 export const hostOf = (url: string) => new URL(url).host;

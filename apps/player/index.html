@@ -1,8 +1,14 @@
 <!doctype html>
-<html lang="es">
-  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>player · standalone</title></head>
-  <body style="margin:0;background:#0b0b0b;color:#e6e6e6;font-family:system-ui;padding:24px">
-    <p style="font:12px ui-monospace,monospace;color:#6e6e6e">Remote <b>player</b> corriendo solo. El shell lo consume desde <code>/remoteEntry.js</code>.</p>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>player · standalone</title>
+  </head>
+  <body class="bg-page p-6 font-sans text-strong">
+    <p class="my-3 font-mono text-xs text-mid">
+      Remote <b>player</b> corriendo solo. El shell lo consume desde <code>/remoteEntry.js</code>.
+    </p>
     <div id="root"></div>
     <script type="module" src="/src/standalone.tsx"></script>
   </body>

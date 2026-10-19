@@ -17,7 +17,7 @@ compuestas en vivo por un shell. Con el **inspector** (tecla `I`) ves qué app s
 
 ## Correrlo
 
-Requiere Node 20 o superior.
+Requiere Node 22 o superior (hay un `.nvmrc`).
 
 ```bash
 npm install
@@ -26,15 +26,22 @@ npm run dev      # construye los remotes y levanta los 5 servidores
 ```
 
 `npm run build && npm start` hace lo mismo pero sirviendo también el shell ya construido.
-`npm run typecheck` corre `tsc` en todos los paquetes.
 
-| App | Puerto | Render | Composición | Código |
-|---|---|---|---|---|
-| shell | 5000 | CSR | host de Module Federation | `apps/shell` |
-| catalog | 5001 | CSR | remote de Module Federation | `apps/catalog` |
-| player | 5002 | CSR | remote de Module Federation | `apps/player` |
-| news-ssr | 5003 | SSR | fragmento HTML (Express + `renderToString`) | `apps/news-ssr` |
-| guide-ssg | 5004 | SSG | fragmento HTML estático (`renderToStaticMarkup` en el build) | `apps/guide-ssg` |
+| Comando             | Qué hace                                                        |
+| ------------------- | --------------------------------------------------------------- |
+| `npm run check`     | Todo lo de abajo junto. Es lo que corre la CI en cada push.     |
+| `npm run lint`      | ESLint (typescript-eslint estricto + reglas de hooks de React). |
+| `npm run typecheck` | `tsc` en todos los paquetes.                                    |
+| `npm test`          | Tests unitarios con el runner nativo de Node (`node:test`).     |
+| `npm run format`    | Prettier, que además ordena las clases de Tailwind.             |
+
+| App       | Puerto | Render | Composición                                                  | Código           |
+| --------- | ------ | ------ | ------------------------------------------------------------ | ---------------- |
+| shell     | 5000   | CSR    | host de Module Federation                                    | `apps/shell`     |
+| catalog   | 5001   | CSR    | remote de Module Federation                                  | `apps/catalog`   |
+| player    | 5002   | CSR    | remote de Module Federation                                  | `apps/player`    |
+| news-ssr  | 5003   | SSR    | fragmento HTML (Express + `renderToString`)                  | `apps/news-ssr`  |
+| guide-ssg | 5004   | SSG    | fragmento HTML estático (`renderToStaticMarkup` en el build) | `apps/guide-ssg` |
 
 Cada remote también se puede abrir solo en su puerto: así lo desarrollaría su equipo sin el shell.
 
@@ -59,6 +66,37 @@ Todo el monorepo es TypeScript estricto (`tsconfig.base.json`, y cada paquete lo
 - Del lado del shell, `loadRemote<RemoteModule>()` tipa lo que expone cada remote, y `__FEDERATION__` está declarado en
   `apps/shell/src/vite-env.d.ts`.
 
+## Estilos: Tailwind en un micro-frontend
+
+Tailwind CSS v4 en todas las apps, con una regla: **se comparten valores, no CSS**.
+
+- **`packages/design-tokens`** (`@mfe/design-tokens`) define la paleta, las tipografías y un color por tipo de render
+  como tema de Tailwind (`@theme inline`), con modo claro y oscuro sobre `<html data-theme>`. Es el design system.
+- **Cada app compila su propio CSS** a partir de esos tokens. Ninguna depende del CSS de otra, así que un deploy del
+  catálogo no puede romper los estilos del shell, ni al revés.
+- **Solo el shell** carga el reset de Tailwind (preflight). Los remotes usan un **prefijo** propio (`cat:`, `ply:`,
+  `nws:`, `gde:`) y no traen reset: sus clases nunca chocan con las del shell ni con las de otro remote.
+- Los remotes de Vite importan su CSS como texto (`import styles from "./catalog.css?inline"`) y lo renderizan dentro de
+  su componente, así viaja con el módulo por Module Federation. Los de SSR y SSG lo compilan con
+  `compileTailwind()` (`@mfe/design-tokens/compile`) y lo incrustan en el fragmento HTML.
+- El costo: todos deben usar la misma versión mayor de Tailwind, porque comparten sus variables internas (`--tw-*`).
+
+## Cómo está organizado el shell
+
+```
+apps/shell/src
+├── main.tsx          registra los remotes, escucha el bus y monta la app
+├── App.tsx           layout de la página
+├── mfe/              todo lo de micro-frontends: registro, Module Federation, fragmentos, fallback
+├── inspector/        el borde y la ficha de cada pieza (Slot) y el contador de remotes
+├── figures/          las dos figuras animadas, su modelo (con tests) y el bucle de animación
+├── lessons/          una sección de la lección por archivo, y el índice que las numera
+├── layout/           barra superior, índice lateral, tema y atajo de teclado
+├── ui/               componentes chicos reutilizables (Button, Card, Chip, Table…)
+├── state/            el store mínimo del shell (con tests)
+└── lib/              utilidades puras (con tests)
+```
+
 ## Cómo está hecho
 
 - **Module Federation** (`@module-federation/vite`): el shell declara `catalog` y `player` como remotes y los carga con
@@ -66,7 +104,8 @@ Todo el monorepo es TypeScript estricto (`tsconfig.base.json`, y cada paquete lo
 - **Fragmentos HTML**: el shell hace `fetch` al fragmento y lo inserta. En producción esto suele hacerse en el servidor
   o en el edge (ESI/SSI); aquí se hace en el navegador para que la request se vea.
 - **Contrato de eventos**: `packages/contracts/index.ts`. Es la única "API" entre catálogo y reproductor; el shell solo lo escucha (`apps/shell/src/bus.ts`).
-- **Fallos aislados**: los remotes federados van dentro de un error boundary; los fragmentos, en un `try/catch` del fetch.
+- **Fallos aislados**: los remotes federados van dentro de un error boundary (`mfe/RemoteBoundary.tsx`); los fragmentos,
+  en un `try/catch` del fetch (`mfe/fragments.ts`).
   "Tirar" apunta el remote a `localhost:5999`, donde no hay nadie, así que la falla es real.
 
 ## Las figuras

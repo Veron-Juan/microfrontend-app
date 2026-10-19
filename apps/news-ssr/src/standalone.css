@@ -1,0 +1,18 @@
+/*
+ * Solo para GET /: la página completa que se ve sin el shell. Pone el reset (preflight) y el
+ * fondo que en producción aporta el shell. No genera utilidades: esas viajan en el fragmento.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) prefix(nws);
+@import "tailwindcss/preflight.css" layer(base);
+@import "@mfe/design-tokens/theme.css";
+
+@layer base {
+  body {
+    @apply nws:m-0 nws:bg-page nws:p-6 nws:font-sans nws:text-text;
+  }
+
+  body > p {
+    @apply nws:my-3 nws:font-mono nws:text-xs nws:text-mid;
+  }
+}

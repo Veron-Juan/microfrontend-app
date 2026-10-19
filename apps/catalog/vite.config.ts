@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { federation } from "@module-federation/vite";
 
 // Remote "catalog": lo construye y despliega su propio equipo.
@@ -8,6 +9,7 @@ export default defineConfig({
   base: process.env.PUBLIC_URL ?? "http://localhost:5001/",
   plugins: [
     react(),
+    tailwindcss(),
     federation({
       name: "catalog",
       dts: false,

@@ -4,10 +4,18 @@
   "version": "1.0.7",
   "type": "module",
   "scripts": {
-    "build": "tsx src/build.tsx",
+    "build": "tsx src/build.ts",
     "start": "tsx src/serve.ts",
     "typecheck": "tsc -p ."
   },
-  "dependencies": { "react": "18.3.1", "react-dom": "18.3.1" },
-  "devDependencies": { "@types/react": "18.3.31", "@types/react-dom": "18.3.7" }
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@mfe/design-tokens": "*"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "tailwindcss": "4.3.3"
+  }
 }

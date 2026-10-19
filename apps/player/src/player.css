@@ -1,0 +1,21 @@
+/*
+ * CSS del remote "player". Todas las utilidades llevan el prefijo ply: (ply:grid, ply:text-muted)
+ * para que nunca choquen con las del shell ni con las de otros remotes que comparten la página.
+ * No incluye preflight: el reset global es del shell; un remote no debe tocar estilos fuera de
+ * su propio árbol. Los valores salen de los tokens compartidos (@mfe/design-tokens).
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) prefix(ply);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@mfe/design-tokens/theme.css";
+
+@theme {
+  /* Punto rojo de "en vivo". El nombre del keyframe lleva prefijo a mano: Tailwind no lo prefija. */
+  --animate-blink: ply-blink 1.4s infinite;
+
+  @keyframes ply-blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+}

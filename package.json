@@ -1,8 +1,9 @@
 {
   "name": "mfe-anatomia",
   "private": true,
+  "type": "module",
   "version": "1.0.0",
-  "description": "Una app que enseña micro-frontends siendo ella misma un micro-frontend.",
+  "description": "Una app que ense\u00f1a micro-frontends siendo ella misma un micro-frontend.",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -12,12 +13,28 @@
     "build": "npm run figures && npm run build -w catalog -w player -w guide-ssg -w shell",
     "start": "concurrently -k -n shell,catalog,player,news,guide -c white,blue,cyan,yellow,green \"npm run preview -w shell\" \"npm run preview -w catalog\" \"npm run preview -w player\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\"",
     "dev": "npm run build && concurrently -k -n shell,catalog,player,news,guide -c white,blue,cyan,yellow,green \"npm run dev -w shell\" \"npm run preview -w catalog\" \"npm run preview -w player\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\"",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --import tsx --test \"apps/*/src/**/*.test.ts\" \"packages/*/**/*.test.ts\"",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.20.5",
     "concurrently": "^9.1.2",
-    "typescript": "5.9.3",
+    "eslint": "10.11.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.7",
+    "globals": "17.12.0",
+    "prettier": "3.9.9",
+    "prettier-plugin-tailwindcss": "0.8.1",
     "tsx": "4.23.15",
-    "@types/node": "22.20.5"
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
