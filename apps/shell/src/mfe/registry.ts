@@ -1,14 +1,16 @@
 import type { RenderMode } from "@mfe/contracts";
+import { fetchDiscovery, type DiscoveredRemote, type Discovery } from "./discovery.ts";
 
-// Registro de micro-frontends: la "fuente de verdad" del shell sobre quién sirve qué.
-// En una empresa grande esto suele venir de un servicio (discovery) y no de un archivo.
-// Las URLs pueden ser relativas (vista previa estática): se resuelven contra la página.
-export const URLS = Object.fromEntries(
-  Object.entries(__URLS__).map(([key, url]) => [key, new URL(url, document.baseURI).href]),
-) as Record<keyof typeof __URLS__, string>;
-export const PREVIEW = __PREVIEW__;
+/*
+ * El registro del shell: qué piezas tiene la página y quién sirve cada una.
+ *
+ * Se arma al arrancar a partir de dos fuentes:
+ * - El discovery (/remotes.json): dónde vive cada remote y qué versión corre. Lo controla cada equipo.
+ * - SLOTS, más abajo: qué remotes espera el layout del shell y cómo los nombra. Lo controla el shell.
+ */
 
-export type AppId = "shell" | "news" | "catalog" | "player" | "guide";
+export type AppId = "shell" | RemoteId;
+export type RemoteId = "news" | "catalog" | "player" | "guide";
 
 interface AppInfo {
   id: AppId;
@@ -28,18 +30,20 @@ export interface HostApp extends AppInfo {
   kind: "host";
 }
 
-/** Un remote de Module Federation: el shell descarga su remoteEntry.js y monta un componente. */
+/** Un remote de Module Federation: el shell lee su mf-manifest.json y monta un componente. */
 export interface FederatedApp extends AppInfo {
   kind: "federated";
-  /** URL de su remoteEntry.js. */
+  id: RemoteId;
+  /** URL de su mf-manifest.json. */
   entry: string;
-  /** "remote/Expuesto", como se le pide a loadRemote(). */
-  module: `${string}/${string}`;
+  /** Nombre del módulo expuesto, sin "./" ("Catalog"). */
+  expose: string;
 }
 
 /** Un remote que entrega HTML ya renderizado (SSR o SSG): el shell lo pide con fetch y lo inserta. */
 export interface FragmentApp extends AppInfo {
   kind: "fragment";
+  id: RemoteId;
   /** URL del fragmento HTML. */
   entry: string;
 }
@@ -47,72 +51,84 @@ export interface FragmentApp extends AppInfo {
 export type RemoteApp = FederatedApp | FragmentApp;
 export type MicroFrontend = HostApp | RemoteApp;
 
-export const APPS: readonly MicroFrontend[] = [
-  {
-    id: "shell",
-    kind: "host",
-    name: "shell",
-    title: "Shell",
-    render: "CSR",
-    version: "1.0.0",
-    team: "Equipo Plataforma",
-    composition: "Host",
-    url: URLS.shell,
-  },
-  {
-    id: "news",
-    kind: "fragment",
-    name: "news-ssr",
-    title: "Novedades",
-    render: "SSR",
-    version: "3.0.2",
-    team: "Equipo Contenidos",
-    composition: "Fragmento HTML",
-    url: URLS.news,
-    entry: URLS.news + (PREVIEW ? "fragment/news.html" : "fragment/news"),
-  },
-  {
-    id: "catalog",
-    kind: "federated",
-    name: "catalog",
-    title: "Catálogo",
-    render: "CSR",
-    version: "1.4.0",
-    team: "Equipo Descubrimiento",
-    composition: "Module Federation",
-    module: "catalog/Catalog",
-    url: URLS.catalog,
-    entry: URLS.catalog + "remoteEntry.js",
-  },
-  {
-    id: "player",
-    kind: "federated",
-    name: "player",
-    title: "Reproductor",
-    render: "CSR",
-    version: "2.1.3",
-    team: "Equipo Reproducción",
-    composition: "Module Federation",
-    module: "player/Player",
-    url: URLS.player,
-    entry: URLS.player + "remoteEntry.js",
-  },
-  {
-    id: "guide",
-    kind: "fragment",
-    name: "guide-ssg",
-    title: "Guía",
-    render: "SSG",
-    version: "1.0.7",
-    team: "Equipo Programación",
-    composition: "Fragmento HTML estático",
-    url: URLS.guide,
-    entry: URLS.guide + "fragment/guide.html",
-  },
-];
+/** Los lugares del layout. El orden es el de la página. */
+const SLOTS: Record<RemoteId, { title: string }> = {
+  news: { title: "Novedades" },
+  catalog: { title: "Catálogo" },
+  player: { title: "Reproductor" },
+  guide: { title: "Guía" },
+};
 
-export const REMOTES = APPS.filter((app): app is RemoteApp => app.kind !== "host");
-export const byId = Object.fromEntries(APPS.map((app) => [app.id, app])) as Record<AppId, MicroFrontend>;
+const SHELL: Omit<HostApp, "url"> = {
+  id: "shell",
+  kind: "host",
+  name: "shell",
+  title: "Shell",
+  render: "CSR",
+  version: "1.0.0",
+  team: "Equipo Plataforma",
+  composition: "Host",
+};
+
+let registry: { environment: string; apps: readonly MicroFrontend[] } | null = null;
+
+function state() {
+  if (!registry) throw new Error("El registro todavía no se cargó: llama a loadRegistry() antes de montar la app");
+  return registry;
+}
+
+/** Pide el discovery del entorno y arma el registro. Se llama una vez, antes de montar la app. */
+export async function loadRegistry(discoveryUrl: string) {
+  registry = buildRegistry(await fetchDiscovery(discoveryUrl), new URL(import.meta.env.BASE_URL, location.href).href);
+}
+
+/** Cruza el discovery con los lugares del layout. Exportada para poder probarla sin red. */
+export function buildRegistry(discovery: Discovery, shellUrl: string) {
+  const missing = Object.keys(SLOTS).filter((id) => !discovery.microFrontends[id]);
+  if (missing.length) throw new Error(`discovery (${discovery.environment}): faltan ${missing.join(", ")}`);
+  const remotes = (Object.keys(SLOTS) as RemoteId[]).map((id) =>
+    toApp(id, discovery.microFrontends[id] as DiscoveredRemote),
+  );
+  return { environment: discovery.environment, apps: [{ ...SHELL, url: shellUrl }, ...remotes] };
+}
+
+function toApp(id: RemoteId, remote: DiscoveredRemote): RemoteApp {
+  const { name, team, render } = remote.metadata;
+  const base = { id, name, team, render, title: SLOTS[id].title, version: remote.version, url: originOf(remote.url) };
+  if (remote.type === "module-federation") {
+    return {
+      ...base,
+      kind: "federated",
+      composition: "Module Federation",
+      entry: remote.url,
+      expose: (remote.module ?? "").replace(/^\.\//, ""),
+    };
+  }
+  return {
+    ...base,
+    kind: "fragment",
+    composition: render === "SSG" ? "Fragmento HTML estático" : "Fragmento HTML",
+    entry: remote.url,
+  };
+}
+
+const originOf = (url: string) => new URL("/", url).href;
+
+export const environment = () => state().environment;
+export const apps = () => state().apps;
+export const remotes = () => apps().filter((app): app is RemoteApp => app.kind !== "host");
+
+export function appById(id: AppId): MicroFrontend {
+  const app = apps().find((candidate) => candidate.id === id);
+  if (!app) throw new Error(`No hay ninguna app "${id}" en el registro`);
+  return app;
+}
+
+export function remoteById(id: RemoteId): RemoteApp {
+  const app = appById(id);
+  if (app.kind === "host") throw new Error(`"${id}" no es un remote`);
+  return app;
+}
 
 /** "http://localhost:5001/" → "localhost:5001" */
 export const hostOf = (url: string) => new URL(url).host;

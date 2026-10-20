@@ -1,7 +1,7 @@
 import { Slot } from "../inspector/Slot.tsx";
 import { cx } from "../lib/cx.ts";
 import { Remote } from "../mfe/Remote.tsx";
-import { APPS, hostOf } from "../mfe/registry.ts";
+import { apps, hostOf } from "../mfe/registry.ts";
 import { toggleInspector, useStore, type Load } from "../state/store.ts";
 import { Button } from "../ui/Button.tsx";
 import { Chip } from "../ui/Chip.tsx";
@@ -93,7 +93,7 @@ function AppsTable() {
         </tr>
       </thead>
       <tbody>
-        {APPS.map((app) => {
+        {apps().map((app) => {
           const load = app.kind === "host" ? SHELL_LOAD : loads[app.id];
           return (
             <tr key={app.id}>

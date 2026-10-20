@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { FIGURES } from "@mfe/figures/figures";
 import { lineOnTop, translateAlong, type Projection } from "@mfe/figures/kit";
-import { byId, type AppId } from "../mfe/registry.ts";
+import { appById, type AppId } from "../mfe/registry.ts";
 import { setFocus, store } from "../state/store.ts";
 import { part, prefersReducedMotion, say } from "./dom.ts";
 import { Plate } from "./Plate.tsx";
@@ -111,7 +111,7 @@ export function RackFigure() {
 function readoutText(plugged: number) {
   const { loads, focus } = store.get();
   if (!focus || focus === "shell") return `${plugged}/${SLOTS.length} módulos enchufados`;
-  const app = byId[focus];
+  const app = appById(focus);
   const load = loads[focus];
   const state = load?.status === "ready" ? `${load.ms} ms` : load?.status === "error" ? "caído" : "cargando";
   return `${app.name} · ${app.render} · ${state}`;

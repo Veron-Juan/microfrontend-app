@@ -6,7 +6,11 @@ import { Lesson, Rules } from "../ui/Lesson.tsx";
 const GLOSSARY = [
   ["Shell / host", "La app que contiene y orquesta a las demás."],
   ["Remote", "Una app que expone pedazos para que otro los consuma."],
-  ["remoteEntry.js", "El manifiesto que un remote publica: qué expone y qué comparte."],
+  [
+    "mf-manifest.json",
+    "Lo que publica un remote de Module Federation: qué expone, qué comparte y dónde están sus archivos.",
+  ],
+  ["Discovery", "El servicio (o archivo) que dice dónde vive cada micro-frontend en cada entorno. Aquí, remotes.json."],
   ["Fragmento", "Un trozo de HTML sin <html> ni <body>, listo para incrustar."],
   ["Hidratación", "Conectar JavaScript a un HTML que ya llegó renderizado para volverlo interactivo."],
   ["ESI / SSI", "Etiquetas que un CDN o servidor reemplaza por fragmentos antes de responder."],

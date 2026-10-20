@@ -1,4 +1,4 @@
-import { APPS, hostOf, PREVIEW } from "../mfe/registry.ts";
+import { apps, environment, hostOf } from "../mfe/registry.ts";
 import { toggleInspector, useStore } from "../state/store.ts";
 import { Button } from "../ui/Button.tsx";
 import { buttonClass } from "../ui/button-class.ts";
@@ -11,7 +11,7 @@ export function Hero() {
   const inspector = useStore((s) => s.inspector);
   return (
     <section className={`relative pt-[72px] pb-10 *:relative ${DOT_GRID}`}>
-      {PREVIEW && <PreviewNote />}
+      {environment() === "preview" && <PreviewNote />}
       <p className="mb-3.5 font-mono text-xs tracking-[.12em] text-muted uppercase">
         Una lección que es su propio ejemplo
       </p>
@@ -32,7 +32,7 @@ export function Hero() {
         </a>
       </div>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-2">
-        {APPS.map((app) => (
+        {apps().map((app) => (
           <li
             key={app.id}
             className="grid grid-cols-[auto_1fr] items-center gap-x-2.5 gap-y-0.5 rounded-[10px] border border-line-soft bg-card px-3 py-2.5"

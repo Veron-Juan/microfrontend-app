@@ -99,11 +99,14 @@ apps/shell/src
 
 ## Cómo está hecho
 
-- **Module Federation** (`@module-federation/vite`): el shell declara `catalog` y `player` como remotes y los carga con
-  `loadRemote()`. React y React DOM son `singleton` compartidos, así que se descargan una sola vez.
+- **Discovery**: el shell no compila las URLs de sus remotes. Al arrancar lee `remotes.json` (ver más abajo), valida su
+  forma (`mfe/discovery.ts`) y arma su registro (`mfe/registry.ts`).
+- **Module Federation** (`@module-federation/vite`): el shell registra `catalog` y `player` en runtime con
+  `registerRemotes()`, usando el `mf-manifest.json` que publica cada uno, y los carga con `loadRemote()`. React y
+  React DOM son `singleton` compartidos, así que se descargan una sola vez.
 - **Fragmentos HTML**: el shell hace `fetch` al fragmento y lo inserta. En producción esto suele hacerse en el servidor
   o en el edge (ESI/SSI); aquí se hace en el navegador para que la request se vea.
-- **Contrato de eventos**: `packages/contracts/index.ts`. Es la única "API" entre catálogo y reproductor; el shell solo lo escucha (`apps/shell/src/bus.ts`).
+- **Contrato de eventos**: `packages/contracts/index.ts`. Es la única "API" entre catálogo y reproductor; el shell solo lo escucha (`apps/shell/src/mfe/bus.ts`).
 - **Fallos aislados**: los remotes federados van dentro de un error boundary (`mfe/RemoteBoundary.tsx`); los fragmentos,
   en un `try/catch` del fetch (`mfe/fragments.ts`).
   "Tirar" apunta el remote a `localhost:5999`, donde no hay nadie, así que la falla es real.
@@ -113,13 +116,36 @@ apps/shell/src
 `packages/figures` dibuja las dos figuras isométricas con el kit de la skill
 [anatomy](https://skills.wheresryan.sh/anatomy) (MIT, copiado en `packages/figures/kit`).
 `npm run figures` (`tsx build.ts`) genera `dist/figures.js` y sus tipos (`dist/figures.d.ts`) con los SVG y páginas sueltas para revisarlas (`dist/*-light.html`).
-En el shell, `src/Figures.tsx` las anima con el estado real de carga:
+En el shell, `src/figures/` las anima con el estado real de carga:
 
 - **Fig 1 · El rack**: el shell es un chasis y cada remote un módulo que se enchufa cuando termina de cargar.
 - **Fig 2 · Tres carriles**: SSG (páginas ya impresas), SSR (una prensa que imprime en cada request) y CSR (piezas que se
   arman en la pantalla). Los tiempos son los medidos en la página.
 
+## Cómo se maneja SSR, SSG y CSR en un proyecto real
+
+Esta app sigue el reparto que se ve en la mayoría de los proyectos:
+
+| Decisión                         | Quién la toma            | Dónde vive                                                                 |
+| -------------------------------- | ------------------------ | -------------------------------------------------------------------------- |
+| Cómo renderiza (SSR, SSG o CSR)  | El equipo de cada remote | En su propio código o framework. Aquí: Express, el script de build o Vite. |
+| Dónde vive y qué versión corre   | El pipeline del remote   | El discovery: `apps/shell/public/remotes.json`                             |
+| Qué remote va en cada lugar      | El equipo del shell      | El layout del shell: `SLOTS` en `apps/shell/src/mfe/registry.ts`           |
+| Cuánto dura en caché cada página | El equipo de cada remote | Cabeceras `Cache-Control` y reglas del CDN                                 |
+
+Con un framework, el render se declara por ruta. En Next.js, `export const dynamic = "force-static"` es SSG y
+`export const revalidate = 3600` es ISR. En Nuxt va en `routeRules` (`{ "/guia": { prerender: true } }`). En Astro es
+`export const prerender = true`. El shell nunca lo configura: solo lo ve, por la cabecera `X-Render-Mode` o por la
+`metadata` del discovery.
+
 ## Desplegar
 
-Cada app es un deploy separado. Las URLs se configuran con variables de entorno en el build del shell
-(`CATALOG_URL`, `PLAYER_URL`, `NEWS_URL`, `GUIDE_URL`, `SHELL_URL`) y con `PUBLIC_URL` en cada remote de Vite.
+Cada app es un deploy separado, y el shell se construye **una sola vez para todos los entornos**:
+
+1. Cada remote se publica en su origen (`PUBLIC_URL` define desde dónde se sirve en los de Vite).
+2. Su pipeline actualiza su entrada en el `remotes.json` de ese entorno: URL del `mf-manifest.json` o del fragmento,
+   versión y metadata. En producción ese archivo suele servirlo un servicio de discovery o un CDN; el formato de este
+   proyecto está inspirado en el esquema "Frontend Discovery" que publicó AWS.
+3. El shell lo lee al arrancar, así que publicar o revertir un remote no requiere volver a desplegar el shell.
+
+`SHELL_BASE` define la ruta base del shell si no se sirve desde `/`.

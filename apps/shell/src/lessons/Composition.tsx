@@ -1,20 +1,14 @@
-import { REMOTES } from "../mfe/registry.ts";
+import { remotes } from "../mfe/registry.ts";
 import { useStore } from "../state/store.ts";
 import { Card, Cards, Tag } from "../ui/Card.tsx";
 import { CodeBlock } from "../ui/CodeBlock.tsx";
 import { Lesson } from "../ui/Lesson.tsx";
 
-const SNIPPET = `// apps/shell/vite.config.ts
-federation({
-  name: "shell",
-  remotes: {
-    catalog: { type: "module", entry: "http://localhost:5001/remoteEntry.js" },
-    player:  { type: "module", entry: "http://localhost:5002/remoteEntry.js" },
-  },
-  shared: { react: { singleton: true }, "react-dom": { singleton: true } },
-})
+const SNIPPET = `// apps/shell/public/remotes.json: el discovery, uno por entorno
+"catalog": { "type": "module-federation", "url": "http://localhost:5001/mf-manifest.json", "module": "./Catalog" }
 
 // apps/shell/src/mfe/federation.ts
+registerRemotes([{ name: "catalog", entry: "http://localhost:5001/mf-manifest.json" }]);
 const { default: Catalog } = await loadRemote<RemoteModule>("catalog/Catalog");
 
 // apps/shell/src/mfe/fragments.ts
@@ -33,8 +27,8 @@ export function Composition() {
           el shell: se pierde el deploy independiente.
         </Card>
         <Card title="En el navegador, en runtime" aside={<Tag active>usado aquí</Tag>}>
-          Con <b>Module Federation</b> el shell descarga <code>remoteEntry.js</code> de cada remote al momento de usarlo
-          y comparte React con él. Así llegan el catálogo y el reproductor.
+          Con <b>Module Federation</b> el shell lee el <code>mf-manifest.json</code> de cada remote, descarga su código
+          al momento de usarlo y comparte React con él. Así llegan el catálogo y el reproductor.
         </Card>
         <Card title="En el servidor o el edge" aside={<Tag active>usado aquí</Tag>}>
           Cada remote devuelve <b>fragmentos de HTML</b> que se insertan en la página (SSI, ESI, o un servidor de
@@ -53,7 +47,7 @@ export function Composition() {
 /** Cuándo empezó y terminó cada carga en esta página, en una misma línea de tiempo. */
 function Waterfall() {
   const loads = useStore((s) => s.loads);
-  const rows = REMOTES.flatMap((app) => {
+  const rows = remotes().flatMap((app) => {
     const load = loads[app.id];
     return load?.start != null ? [{ app, load, start: load.start }] : [];
   });

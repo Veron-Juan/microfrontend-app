@@ -1,9 +1,5 @@
 /// <reference types="vite/client" />
 
-// Constantes que Vite inyecta en el build (ver `define` en vite.config.ts).
-declare const __URLS__: { shell: string; catalog: string; player: string; news: string; guide: string };
-declare const __PREVIEW__: boolean;
-
 // Registro de dependencias compartidas que expone el runtime de Module Federation.
 interface FederationShareInfo {
   from?: string;

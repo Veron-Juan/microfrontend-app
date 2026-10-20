@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import { RenderFigure } from "../figures/RenderFigure.tsx";
-import { byId, hostOf, type AppId } from "../mfe/registry.ts";
+import { hostOf, remoteById, type RemoteId } from "../mfe/registry.ts";
 import { reload, useStore, type Load } from "../state/store.ts";
 import { Button } from "../ui/Button.tsx";
 import { Cards } from "../ui/Card.tsx";
@@ -111,7 +111,7 @@ function Experiment() {
 }
 
 interface ExperimentCardProps {
-  id: Exclude<AppId, "shell">;
+  id: RemoteId;
   load: Load | undefined;
   /** Cabeceras a mostrar: [nombre de la cabecera, etiqueta]. */
   headers: (readonly [header: string, label: string])[];
@@ -119,7 +119,7 @@ interface ExperimentCardProps {
 }
 
 function ExperimentCard({ id, load, headers, children }: ExperimentCardProps) {
-  const app = byId[id];
+  const app = remoteById(id);
   const response =
     load?.status === "ready" ? `${load.ms} ms${load.cached ? " · desde caché" : ""}` : (load?.status ?? "…");
   return (

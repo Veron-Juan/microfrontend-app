@@ -3,17 +3,15 @@ import { markLoad, store } from "../state/store.ts";
 import { Fallback } from "./Fallback.tsx";
 import { filesRequestedFrom, loadFederatedModule, type RemoteModule } from "./federation.ts";
 import { fetchFragment, type Fragment } from "./fragments.ts";
-import { byId, type AppId, type FederatedApp, type FragmentApp } from "./registry.ts";
+import { remoteById, type AppId, type FederatedApp, type FragmentApp, type RemoteId } from "./registry.ts";
 import { RemoteBoundary } from "./RemoteBoundary.tsx";
 import { Skeleton } from "./Skeleton.tsx";
 import { useRemoteRequest, type RemoteLoader } from "./use-remote-request.ts";
 
 /** Monta el remote que corresponde a un id, eligiendo cómo componerlo según su tipo. */
-export function Remote({ id }: { id: Exclude<AppId, "shell"> }) {
-  const app = byId[id];
-  if (app.kind === "federated") return <FederatedRemote app={app} />;
-  if (app.kind === "fragment") return <FragmentRemote app={app} />;
-  return null;
+export function Remote({ id }: { id: RemoteId }) {
+  const app = remoteById(id);
+  return app.kind === "federated" ? <FederatedRemote app={app} /> : <FragmentRemote app={app} />;
 }
 
 // ── Module Federation (CSR) ──────────────────────────────────────────────────────

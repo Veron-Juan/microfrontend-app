@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import { loadRemote, registerRemotes } from "@module-federation/runtime";
 import type { RemoteMeta } from "@mfe/contracts";
-import { REMOTES, type FederatedApp } from "./registry.ts";
+import { remotes, type FederatedApp } from "./registry.ts";
 
 /** Lo que exporta un módulo expuesto por un remote: su componente y su ficha. */
 export interface RemoteModule {
@@ -13,13 +13,14 @@ export interface RemoteModule {
 export const OFFLINE_ORIGIN = "http://localhost:5999/";
 
 /**
- * Registra los remotes con su URL ya resuelta. Así el mismo build funciona en localhost o servido
- * desde otra carpeta, y cambiar de entorno no obliga a recompilar el shell. Se llama una vez, al arrancar.
+ * Registra en el runtime de Module Federation los remotes que trajo el discovery. El shell no los
+ * declara en su vite.config: así cambiar la URL o la versión de un remote no obliga a recompilarlo.
+ * La entrada es el mf-manifest.json de cada remote, que describe qué expone y qué comparte.
  */
 export function registerFederatedRemotes() {
-  const federated = REMOTES.filter((app): app is FederatedApp => app.kind === "federated");
+  const federated = remotes().filter((app): app is FederatedApp => app.kind === "federated");
   registerRemotes(
-    federated.map((app) => ({ name: app.id, entry: app.entry, type: "module" })),
+    federated.map((app) => ({ name: app.id, entry: app.entry })),
     { force: true },
   );
 }
@@ -29,13 +30,12 @@ export async function loadFederatedModule(
   app: FederatedApp,
   { offline = false, attempt = 0 } = {},
 ): Promise<RemoteModule> {
-  let specifier: string = app.module;
+  let specifier = `${app.id}/${app.expose}`;
   if (offline) {
     // Un nombre nuevo por intento: el runtime cachea los remotes por nombre.
     const name = `${app.id}_offline_${attempt}`;
-    const [, expose] = app.module.split("/");
-    registerRemotes([{ name, entry: `${OFFLINE_ORIGIN}remoteEntry.js`, type: "module" }]);
-    specifier = `${name}/${expose}`;
+    registerRemotes([{ name, entry: `${OFFLINE_ORIGIN}mf-manifest.json` }]);
+    specifier = `${name}/${app.expose}`;
   }
   const module = await loadRemote<RemoteModule>(specifier);
   if (!module?.default) throw new Error(`${app.name} no expuso un componente por defecto`);

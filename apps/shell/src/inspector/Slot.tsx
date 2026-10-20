@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cx } from "../lib/cx.ts";
-import { byId, hostOf, type AppId } from "../mfe/registry.ts";
+import { appById, hostOf, type AppId } from "../mfe/registry.ts";
 import { reload, setBroken, setFocus, useStore } from "../state/store.ts";
 
 /** Dónde va la ficha del inspector: arriba a la izquierda (remotes), en una esquina o debajo (piezas del shell). */
@@ -29,7 +29,7 @@ const TAG_PLACEMENT: Record<TagPlacement, string> = {
  * quién la sirve, desde dónde, con qué tipo de render y cuánto tardó.
  */
 export function Slot({ id, children, className, tools = true, tag = "inline", sticky = false }: SlotProps) {
-  const app = byId[id];
+  const app = appById(id);
   const inspector = useStore((s) => s.inspector);
   const focused = useStore((s) => s.focus === id);
   const load = useStore((s) => s.loads[id]);

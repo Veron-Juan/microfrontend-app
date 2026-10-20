@@ -1,4 +1,4 @@
-import { REMOTES, type RemoteApp } from "../mfe/registry.ts";
+import { remotes, type RemoteApp } from "../mfe/registry.ts";
 import { setBroken, useStore } from "../state/store.ts";
 import { Lesson, Note, Prose } from "../ui/Lesson.tsx";
 
@@ -13,7 +13,7 @@ export function Failures() {
         </p>
       </Prose>
       <div className="mt-[22px] mb-2.5 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5">
-        {REMOTES.map((app) => (
+        {remotes().map((app) => (
           <Breaker key={app.id} app={app} />
         ))}
       </div>
