@@ -11,7 +11,6 @@ const DIAGNOSTIC_HEADERS = [
   "server-timing",
   "cache-control",
   "etag",
-  "age",
 ] as const;
 
 export interface Fragment {

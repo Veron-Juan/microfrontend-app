@@ -28,6 +28,16 @@ const GLOSSARY = [
     definition: "Conectar JavaScript a un HTML que ya llegó renderizado para volverlo interactivo.",
   },
   {
+    term: "Islas",
+    group: "render",
+    definition: "Partes interactivas que se hidratan por separado dentro de una página de HTML estático.",
+  },
+  {
+    term: "Singleton",
+    group: "dependencias",
+    definition: "Una dependencia compartida de la que toda la página usa una sola instancia, como React.",
+  },
+  {
     term: "Design tokens",
     group: "estilo",
     definition: "Valores de diseño compartidos (colores, tipografías). Cada app compila sus propios estilos con ellos.",
@@ -44,7 +54,10 @@ export function WhenToUse() {
             <li>Hay varios equipos trabajando sobre el mismo producto y se bloquean entre sí.</li>
             <li>Partes del sitio tienen ritmos de cambio muy distintos (la guía vs. el catálogo).</li>
             <li>Necesitas migrar de a poco una app vieja sin reescribirla de una vez.</li>
-            <li>Distintas partes necesitan distintas formas de renderizar.</li>
+            <li>
+              Cada parte necesita su propio render y además su propio deploy (si solo es el render, un framework lo
+              resuelve por ruta).
+            </li>
           </Rules>
         </div>
         <div className={cardClass}>
@@ -53,7 +66,7 @@ export function WhenToUse() {
             <li>Más infraestructura: varios pipelines, servidores y versiones que vigilar.</li>
             <li>Consistencia visual: hace falta un design system compartido (aquí, @mfe/design-tokens).</li>
             <li>Rendimiento: dependencias duplicadas si no se comparten bien.</li>
-            <li>Disciplina: contratos de eventos y rutas que nadie puede romper.</li>
+            <li>Disciplina: contratos de eventos y rutas que no se pueden romper sin versionarlos.</li>
           </Rules>
         </div>
       </Cards>

@@ -22,7 +22,7 @@ const SHEETS: Record<AppId, SheetInfo> = {
     Art: ShellArt,
   },
   news: {
-    text: "El servidor imprime el HTML en cada visita: la hora y los datos cambian cada vez.",
+    text: "El servidor imprime el HTML en cada visita: la hora cambia cada vez; los datos, cuando vence su caché de 60 s.",
     Art: NewsArt,
   },
   catalog: {
@@ -186,7 +186,8 @@ function NewsArt() {
 
 // ── CSR: se arma en el navegador ─────────────────────────────────────────────────
 
-const CHUNKS = ["react.js", "catalog.js", "a3f.js"];
+// React no está: el catálogo usa la copia que ya cargó el shell (ver "Dependencias compartidas").
+const CHUNKS = ["remoteEntry.js", "catalog.js", "a3f.js"];
 const TILES = [
   "from-csr/70 to-csr/25",
   "from-csr/45 to-csr/15",
@@ -205,7 +206,7 @@ function CatalogArt() {
         <span
           key={name}
           className="absolute top-[3cqw] z-20 animate-sh-chunk rounded-[1.2cqw] bg-card px-[1.6cqw] py-[0.6cqw] font-mono text-[3.1cqw]/none text-csr opacity-0 ring-1 ring-csr/45"
-          style={{ left: `${8 + index * 29}cqw`, ...delay(index * 0.18) }}
+          style={{ left: `${4 + index * 31}cqw`, ...delay(index * 0.18) }}
         >
           {name}
         </span>

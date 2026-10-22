@@ -20,8 +20,8 @@ export function Hero() {
       </h1>
       <p className="mb-7 max-w-[640px] font-serif text-[clamp(19px,2.2vw,23px)]/[1.45] text-text [&_b]:font-medium">
         Esta página está hecha de <b>cinco aplicaciones independientes</b>. Cada una tiene su propio código, su propio
-        servidor, su propia versión y su propia forma de renderizar. Lo que ves parece una sola app porque un{" "}
-        <em>shell</em> las compone en vivo.
+        servidor y su propia versión, y elige cómo renderizar. Lo que ves parece una sola app porque un <em>shell</em>{" "}
+        las compone en vivo.
       </p>
       <div className="mb-9 flex flex-wrap gap-2.5">
         <Button variant="primary" onClick={toggleInspector}>

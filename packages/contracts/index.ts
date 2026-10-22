@@ -35,7 +35,7 @@ export interface Show {
 export interface SelectDetail extends Show {
   /** Nombre del remote que emitió el evento. */
   from: string;
-  /** Date.now() al emitirlo, para medir la latencia del bus. */
+  /** Date.now() al emitirlo. */
   at: number;
 }
 

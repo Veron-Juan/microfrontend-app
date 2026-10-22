@@ -15,7 +15,7 @@ export function WhatIs() {
       </Prose>
       <Cards columns="four">
         <Card title="Deploy independiente">
-          El equipo del catálogo publica la versión 1.5 sin tocar la ficha ni el shell.
+          El equipo del catálogo publica la versión 2.2 sin tocar la ficha ni el shell.
         </Card>
         <Card title="Equipos autónomos">
           Cada equipo es dueño de su pedazo de punta a punta: código, datos, pruebas y guardia.

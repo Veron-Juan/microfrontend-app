@@ -12,7 +12,7 @@ export const CONTENT_TYPES: Readonly<Record<string, string>> = {
 
 export const CORS_HEADERS: Readonly<Record<string, string>> = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Expose-Headers": "ETag, Last-Modified, X-Render-Mode, X-Built-At, X-App-Version, Age, Cache-Control",
+  "Access-Control-Expose-Headers": "ETag, Last-Modified, X-Render-Mode, X-Built-At, X-App-Version, Cache-Control",
 };
 
 export interface BuildMeta {
@@ -27,6 +27,9 @@ export const CACHE_CONTROL = "public, max-age=300, stale-while-revalidate=86400"
 export function buildHeaders(meta: BuildMeta): Record<string, string> {
   return {
     ...CORS_HEADERS,
+    // Sin esto, el navegador oculta los tamaños y tiempos de una respuesta de otro origen y el shell
+    // no puede saber si la respondió su caché.
+    "Timing-Allow-Origin": "*",
     "Cache-Control": CACHE_CONTROL,
     "X-Render-Mode": "SSG",
     "X-Built-At": meta.builtAt ?? "",
@@ -81,17 +84,12 @@ export function isNotModified(ifNoneMatch: string | undefined, etag: string): bo
   return ifNoneMatch.split(",").some((tag) => tag.trim().replace(/^W\//, "") === etag);
 }
 
-/** Segundos desde que se generó el archivo, como la cabecera Age de un CDN. */
-export function ageSeconds(mtimeMs: number, now: number): number {
-  return Math.max(0, Math.round((now - mtimeMs) / 1000));
-}
-
 function send(res: ServerResponse, status: number, headers: Record<string, string>, body?: string | Uint8Array) {
   res.writeHead(status, headers).end(body);
 }
 
 /** Un servidor de archivos que se comporta como un CDN: no ejecuta código por request. */
-export function createStaticHandler(root: string, meta: BuildMeta, now: () => number = Date.now): RequestListener {
+export function createStaticHandler(root: string, meta: BuildMeta): RequestListener {
   return async (req: IncomingMessage, res: ServerResponse) => {
     if (req.method !== "GET" && req.method !== "HEAD") {
       send(res, 405, { ...CORS_HEADERS, Allow: "GET, HEAD", "Content-Type": "text/plain" }, "método no permitido");
@@ -111,7 +109,6 @@ export function createStaticHandler(root: string, meta: BuildMeta, now: () => nu
         "Content-Type": contentTypeOf(file),
         ETag: etag,
         "Last-Modified": info.mtime.toUTCString(),
-        Age: String(ageSeconds(info.mtimeMs, now())),
       };
       if (isNotModified(req.headers["if-none-match"], etag)) {
         send(res, 304, headers);

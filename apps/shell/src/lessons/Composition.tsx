@@ -50,9 +50,10 @@ export function Composition() {
           Con <b>Module Federation</b> el shell lee el <code>mf-manifest.json</code> de cada remote, descarga su código
           al momento de usarlo y comparte React con él. Así llegan el catálogo y la ficha.
         </Card>
-        <Card title="En el servidor o el edge" aside={<Tag active>usado aquí</Tag>}>
-          Cada remote devuelve <b>fragmentos de HTML</b> que se insertan en la página (SSI, ESI, o un servidor de
-          composición). Así llegan Novedades y la Guía.
+        <Card title="Fragmentos HTML" aside={<Tag active>usado aquí</Tag>}>
+          Cada remote devuelve <b>HTML ya renderizado</b> y alguien lo inserta en la página. En producción suele hacerlo
+          el servidor o el edge (SSI, ESI); aquí lo hace el shell en el navegador, para que la request se vea. Así
+          llegan Novedades y la Guía.
         </Card>
         <Card title="Iframes" aside={<Tag>aislamiento total</Tag>}>
           El aislamiento más fuerte, pero pesa más, complica el diseño responsivo, la accesibilidad y la comunicación.

@@ -7,9 +7,10 @@ export function Failures() {
     <Lesson id="fallos" title="Fallos aislados" kicker="Un remote caído no debería tumbar la página.">
       <Prose>
         <p>
-          Tira un servidor. El shell apunta ese remote a un origen donde no hay nadie, la carga falla y su espacio
-          muestra un aviso con un botón para reintentar. El resto sigue funcionando: los remotes de Module Federation
-          están envueltos en un <em>error boundary</em> y los fragmentos en un <code>try/catch</code> del fetch.
+          Tira un servidor. El shell apunta ese remote a un origen que no existe, la carga falla y su espacio muestra un
+          aviso con un botón para reintentar. El resto sigue funcionando porque cada pieza maneja sus propios errores:
+          si falla la descarga (del módulo o del fragmento), el shell atrapa el rechazo de esa promesa; si un remote de
+          Module Federation falla al renderizar, lo atrapa un <em>error boundary</em>.
         </p>
       </Prose>
       <div className="mt-[22px] mb-2.5 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5">

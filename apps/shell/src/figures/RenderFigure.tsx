@@ -150,7 +150,7 @@ export function RenderFigure() {
         { render: "SSR", label: "SSR: se arma en el servidor, en cada request" },
         { render: "CSR", label: "CSR: viajan las piezas y se arma en tu navegador" },
       ]}
-      caption="Columnas: dónde y cuándo. Filas: los tres tipos de render. Cada fila lleva piezas sueltas (componentes y datos) que se juntan en una página en una sola celda, la que se enciende. Primero el build, después el deploy y al final la request, con los tiempos que se midieron en esta página al cargar la Guía (SSG), Novedades (SSR) y el Catálogo (CSR). Vuelve a pedir un remote desde el inspector y la figura usa los números nuevos."
+      caption="Columnas: dónde y cuándo. Filas: los tres tipos de render. Cada fila lleva piezas sueltas (componentes y datos) que se juntan en una página en una sola celda, la que se enciende. Primero el build, después el deploy y al final la request, con los tiempos que se midieron en esta página al cargar la Guía (SSG), Novedades (SSR) y el Catálogo (CSR). En CSR el tiempo llega hasta que el catálogo se monta: sus datos de TVmaze los pide después, ya en el navegador. Vuelve a pedir un remote desde el inspector y la figura usa los números nuevos."
     />
   );
 }

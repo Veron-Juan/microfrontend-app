@@ -15,15 +15,11 @@ const skeleton =
 
 export default function Details() {
   const [show, setShow] = useState<SelectDetail | null>(null);
-  const [latency, setLatency] = useState<number | null>(null);
   const { details, status, ms } = useDetails(show?.tvmazeId);
 
   // La ficha solo conoce el contrato del evento, no al emisor.
   useEffect(() => {
-    return on("mfe:select", (detail) => {
-      setShow(detail);
-      setLatency(Date.now() - detail.at);
-    });
+    return on("mfe:select", setShow);
   }, []);
 
   return (
@@ -45,7 +41,8 @@ export default function Details() {
       >
         {show && (
           <span>
-            mfe:select de "{show.from}" en {latency} ms
+            {/* dispatchEvent es síncrono: el evento llega en el mismo instante en que se emite. */}
+            mfe:select de "{show.from}", recibido al instante
           </span>
         )}
         {show && status === "ready" && (

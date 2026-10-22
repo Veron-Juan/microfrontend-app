@@ -53,7 +53,8 @@ Cada remote también se puede abrir solo en su puerto: así lo desarrollaría su
 1. **Inspector** (`I`): bordes por app, con versión, origen y tiempo de carga.
 2. **↻ en Novedades**: la hora de render y el id de request cambian cada vez (SSR), pero los datos dicen "de hace N s":
    vienen de la caché del servidor.
-3. **↻ en la Guía**: la hora del build y el ETag no cambian, y responde la caché (SSG).
+3. **↻ en la Guía**: la hora del build no cambia y el inspector marca "caché": la respuesta salió de la caché HTTP del
+   navegador sin ir a la red (SSG). En la pestaña Network se ve que el ETag tampoco cambia.
 4. **Busca en el catálogo**: la búsqueda va de tu navegador a TVmaze (CSR). Mírala en la pestaña Network.
 5. **Elige un título en el catálogo**: la ficha lo recibe por el evento `mfe:select`, sin que ninguno importe al otro, y
    pide a TVmaze la nota, el resumen y el elenco.
@@ -81,7 +82,7 @@ Tailwind CSS v4 en todas las apps, con una regla: **se comparten valores, no CSS
   como tema de Tailwind (`@theme inline`), con modo claro y oscuro sobre `<html data-theme>`. Es el design system.
 - **Cada app compila su propio CSS** a partir de esos tokens. Ninguna depende del CSS de otra, así que un deploy del
   catálogo no puede romper los estilos del shell, ni al revés.
-- **Solo el shell** carga el reset de Tailwind (preflight). Los remotes usan un **prefijo** propio (`cat:`, `ply:`,
+- **Solo el shell** carga el reset de Tailwind (preflight). Los remotes usan un **prefijo** propio (`cat:`, `dtl:`,
   `nws:`, `gde:`) y no traen reset: sus clases nunca chocan con las del shell ni con las de otro remote.
 - Los remotes de Vite importan su CSS como texto (`import styles from "./catalog.css?inline"`) y lo renderizan dentro de
   su componente, así viaja con el módulo por Module Federation. Los de SSR y SSG lo compilan con
@@ -114,8 +115,9 @@ apps/shell/src
 - **Fragmentos HTML**: el shell hace `fetch` al fragmento y lo inserta. En producción esto suele hacerse en el servidor
   o en el edge (ESI/SSI); aquí se hace en el navegador para que la request se vea.
 - **Contrato de eventos**: `packages/contracts/index.ts`. Es la única "API" entre catálogo y ficha; el shell solo lo escucha (`apps/shell/src/mfe/bus.ts`).
-- **Fallos aislados**: los remotes federados van dentro de un error boundary (`mfe/RemoteBoundary.tsx`); los fragmentos,
-  en un `try/catch` del fetch (`mfe/fragments.ts`).
+- **Fallos aislados**: si falla la descarga de un remote (módulo o fragmento), el shell atrapa el rechazo de la promesa
+  y muestra el fallback (`mfe/use-remote-request.ts`). Si un remote federado falla al renderizar, lo atrapa un error
+  boundary (`mfe/RemoteBoundary.tsx`).
   "Tirar" apunta el remote a `offline.invalid`, un dominio reservado que nunca resuelve, así que la falla es real.
 
 ## Los datos: APIs públicas reales
