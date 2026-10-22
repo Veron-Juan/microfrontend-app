@@ -2,14 +2,14 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as k from "./kit/iso-kit.ts";
-import * as rack from "./rack.ts";
+import * as assembly from "./assembly.ts";
 import * as render from "./render.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, "dist");
 mkdirSync(OUT, { recursive: true });
 
-const figures = { rack: rack.build(), render: render.build() };
+const figures = { assembly: assembly.build(), render: render.build() };
 const css = k.ISO_CSS + "\n" + readFileSync(join(HERE, "extra.css"), "utf8");
 
 writeFileSync(
@@ -20,11 +20,11 @@ writeFileSync(
 writeFileSync(
   join(OUT, "figures.d.ts"),
   `// Generado por packages/figures/build.ts. No editar a mano.
-import type { Projection, Point3 } from "../kit/iso-kit.ts";
-import type { Slot } from "../rack.ts";
+import type { Projection } from "../kit/iso-kit.ts";
+import type { Tile } from "../assembly.ts";
 import type { Lane } from "../render.ts";
 export declare const FIGURES: {
-  rack: { svg: string; data: { P: Projection; TRAVEL: number; SLOTS: Slot[]; FAN: Record<string, Point3> } };
+  assembly: { svg: string; data: { P: Projection; HOVER: number; TILES: Tile[] } };
   render: { svg: string; data: { P: Projection; LANES: Lane[]; START: number; END: number; PLUNGER_REST: number; PLUNGER_LOW: number } };
 };
 `,
@@ -44,7 +44,7 @@ for (const theme of ["dark", "light"] as const) {
     const page = k
       .pageHtml({ title: name, theme, body, width: 900 })
       .replace("</style>", readFileSync(join(HERE, "extra.css"), "utf8") + "</style>");
-    const plugged = `<script>document.querySelectorAll('[data-slot]').forEach(g=>g.setAttribute('transform','translate(0 0)'));document.querySelectorAll('[data-on]').forEach(g=>g.dataset.on='true');document.querySelectorAll('[data-part=blank-SSR]').forEach(g=>g.dataset.on='false')</script>`;
+    const plugged = `<script>document.querySelectorAll('[data-slot]').forEach(g=>{g.setAttribute('transform','translate(0 0)');g.setAttribute('data-landed','')});document.querySelectorAll('[data-part^=guides-],[data-part^=slot-]').forEach(g=>g.remove());document.querySelectorAll('[data-on]:not([data-part^=fail-])').forEach(g=>g.dataset.on='true');document.querySelectorAll('[data-part=blank-SSR]').forEach(g=>g.dataset.on='false')</script>`;
     writeFileSync(join(OUT, `${name}-${theme}.html`), page.replace("</body>", plugged + "</body>"));
   }
 }

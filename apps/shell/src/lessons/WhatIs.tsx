@@ -1,4 +1,4 @@
-import { RackFigure } from "../figures/RackFigure.tsx";
+import { AssemblyFigure } from "../figures/AssemblyFigure.tsx";
 import { Card, Cards } from "../ui/Card.tsx";
 import { Lesson, Prose } from "../ui/Lesson.tsx";
 
@@ -27,12 +27,12 @@ export function WhatIs() {
           Si un remote cae, su espacio muestra un aviso y el resto de la página sigue funcionando.
         </Card>
       </Cards>
-      <RackFigure />
+      <AssemblyFigure />
       <Prose>
         <p>
-          La figura es esta misma página. El chasis es el <b>shell</b>: pone el layout, el bus de eventos y la
-          navegación. Cada módulo es un <b>remote</b> que se enchufa cuando termina de descargarse. Ninguno sabe que los
-          otros existen; solo conocen el contrato del zócalo.
+          La figura es esta misma página, desarmada. Abajo está el <b>shell</b>: pone el marco, la navegación y un hueco
+          para cada pieza. Arriba, cada <b>remote</b> llega desde su propio servidor y baja a su hueco cuando termina de
+          descargarse. Ninguno sabe que los otros existen; solo conocen el contrato de su hueco.
         </p>
       </Prose>
     </Lesson>

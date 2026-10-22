@@ -17,7 +17,7 @@ export function Failures() {
           <Breaker key={app.id} app={app} />
         ))}
       </div>
-      <Note>Mira la demo y la Fig 1 mientras lo haces: el módulo sale del chasis y los demás siguen enchufados.</Note>
+      <Note>Mira la demo y la Fig 1 mientras lo haces: su pieza se queda arriba y las demás siguen en su lugar.</Note>
     </Lesson>
   );
 }

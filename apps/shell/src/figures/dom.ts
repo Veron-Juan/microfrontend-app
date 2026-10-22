@@ -6,7 +6,7 @@ export function part(root: Element, name: string): SVGElement {
 }
 
 /** Cambia el texto solo si es distinto, para no tocar el DOM en cada frame. */
-export function say(element: HTMLElement, text: string) {
+export function say(element: Element, text: string) {
   if (element.textContent !== text) element.textContent = text;
 }
 

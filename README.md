@@ -57,7 +57,7 @@ Cada remote también se puede abrir solo en su puerto: así lo desarrollaría su
 4. **Busca en el catálogo**: la búsqueda va de tu navegador a TVmaze (CSR). Mírala en la pestaña Network.
 5. **Elige un título en el catálogo**: la ficha lo recibe por el evento `mfe:select`, sin que ninguno importe al otro, y
    pide a TVmaze la nota, el resumen y el elenco.
-6. **"tirar" un remote**: su espacio muestra un fallback y el resto sigue vivo. En la Fig 1 su módulo sale del chasis.
+6. **"tirar" un remote**: su espacio muestra un fallback y el resto sigue vivo. En la Fig 1 su pieza se queda arriba y su hueco muestra el aviso.
 
 ## TypeScript
 
@@ -157,7 +157,8 @@ TheSportsDB usa su key pública de prueba (`123`), que devuelve pocos partidos p
 `npm run figures` (`tsx build.ts`) genera `dist/figures.js` y sus tipos (`dist/figures.d.ts`) con los SVG y páginas sueltas para revisarlas (`dist/*-light.html`).
 En el shell, `src/figures/` las anima con el estado real de carga:
 
-- **Fig 1 · El rack**: el shell es un chasis y cada remote un módulo que se enchufa cuando termina de cargar.
+- **Fig 1 · Una página, cinco servidores**: una vista explotada de la demo. El shell pone la página con un hueco por
+  remote, y cada remote baja a su hueco cuando termina de cargar, con los tiempos medidos en la página.
 - **Fig 2 · Tres carriles**: SSG (páginas ya impresas), SSR (una prensa que imprime en cada request) y CSR (piezas que se
   arman en la pantalla). Los tiempos son los medidos en la página.
 

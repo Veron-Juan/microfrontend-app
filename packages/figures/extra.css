@@ -13,3 +13,62 @@
 [data-on="false"] {
   opacity: 0;
 }
+
+/* Fig 1: los nombres de las piezas se apoyan sobre su cara (su tamaño va en el SVG, en unidades del mundo);
+   la etiqueta del shell queda afuera, en texto plano. Cada pieza se tiñe con el color de su render. */
+.fig-name {
+  fill: var(--anatomy-strong);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.fig-meta {
+  fill: var(--anatomy-text);
+  font-family: var(--anatomy-mono);
+  letter-spacing: 0.04em;
+}
+.fig-fail {
+  fill: var(--anatomy-red);
+  font-family: var(--anatomy-mono);
+  letter-spacing: 0.04em;
+}
+.fig-callout .fig-name {
+  font-size: 11.5px;
+}
+.fig-callout .fig-meta {
+  font-size: 8.5px;
+}
+.fig-tint {
+  stroke: none;
+  opacity: 0;
+  transition: opacity 0.45s var(--anatomy-ease);
+}
+.fig-tint[data-render="CSR"] {
+  fill: var(--mfe-csr, #6b9bff);
+}
+.fig-tint[data-render="SSR"] {
+  fill: var(--mfe-ssr, #f5a524);
+}
+.fig-tint[data-render="SSG"] {
+  fill: var(--mfe-ssg, #3dd68c);
+}
+[data-landed] .fig-tint {
+  opacity: 0.14;
+}
+/* En pantallas angostas la figura se encoge a la mitad: los nombres crecen y se ocultan los detalles. */
+@media (max-width: 560px) {
+  .fig-callout .fig-name {
+    font-size: 19px;
+  }
+  .fig-face .fig-name {
+    font-size: 13px;
+  }
+  .fig-meta {
+    display: none;
+  }
+}
