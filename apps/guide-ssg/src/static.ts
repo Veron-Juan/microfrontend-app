@@ -30,6 +30,7 @@ export function buildHeaders(meta: BuildMeta): Record<string, string> {
     // Sin esto, el navegador oculta los tamaños y tiempos de una respuesta de otro origen y el shell
     // no puede saber si la respondió su caché.
     "Timing-Allow-Origin": "*",
+    "X-Content-Type-Options": "nosniff",
     "Cache-Control": CACHE_CONTROL,
     "X-Render-Mode": "SSG",
     "X-Built-At": meta.builtAt ?? "",

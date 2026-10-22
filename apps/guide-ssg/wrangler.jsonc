@@ -2,6 +2,8 @@
 {
   "name": "mfe-anatomia-guide",
   "compatibility_date": "2026-10-01",
+  // Solo la URL de producción: sin URLs de vista previa por cada versión subida.
+  "preview_urls": false,
   "assets": {
     // El shell pide /fragment/guide.html tal cual: sin esto, Cloudflare lo redirigiría a /fragment/guide.
     "html_handling": "none",

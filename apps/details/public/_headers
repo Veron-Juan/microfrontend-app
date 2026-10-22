@@ -1,8 +1,9 @@
-# Cabeceras para Cloudflare Pages o Netlify (los dos usan este formato). Vite lo copia a dist/.
+# Cabeceras para Cloudflare (Pages o Workers) y Netlify, que usan este formato. Vite lo copia a dist/.
 
 # El shell carga este remote desde otro origen: todos sus archivos necesitan CORS.
 /*
   Access-Control-Allow-Origin: *
+  X-Content-Type-Options: nosniff
 
 # Los archivos con hash en el nombre nunca cambian: un año de caché.
 /assets/*

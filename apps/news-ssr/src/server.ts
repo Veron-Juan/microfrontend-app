@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { compileTailwind } from "@mfe/design-tokens/compile";
 import { createApp } from "./app.ts";
 import { config } from "./config.ts";
+import { createLimiter } from "./limits.ts";
 import { createLiveData, liveSources } from "./live-data.ts";
 
 const cssPath = (name: string) => fileURLToPath(new URL(name, import.meta.url));
@@ -15,7 +16,7 @@ const [css, standaloneCss] = await Promise.all([
 ]);
 
 const fetchData = createLiveData(liveSources({ sportsDbKey: config.sportsDbKey }));
-const app = createApp({ version: config.version, css, standaloneCss, fetchData });
+const app = createApp({ version: config.version, css, standaloneCss, fetchData, limit: createLimiter(config.limits) });
 const server = app.listen(config.port, () => {
   console.info(`news-ssr (SSR) escuchando en http://localhost:${config.port} · CSS ${css.length} B`);
   // Precalienta la caché: así el primer visitante no espera a las APIs externas.

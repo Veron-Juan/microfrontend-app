@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+# El token de GitHub de los jobs solo puede leer el repo: ninguno necesita escribir en él.
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest

@@ -63,3 +63,33 @@ test("si la API de datos falla, responde 500 en vez de dejar la request colgada"
     broken.server.close();
   }
 });
+
+test("cada respuesta lleva las cabeceras de seguridad", async () => {
+  const response = await fetch(`${base}/health`);
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(response.headers.get("referrer-policy"), "no-referrer");
+  assert.equal(response.headers.get("x-frame-options"), "DENY");
+});
+
+test("si se pasó del límite responde 429 sin renderizar, pero /health sigue respondiendo", async () => {
+  let renders = 0;
+  const limitedApp = await listen({
+    limit: () => 42,
+    fetchData: async () => {
+      renders += 1;
+      return SAMPLE_DATA;
+    },
+  });
+  try {
+    for (const path of ["/fragment/news", "/"]) {
+      const response = await fetch(`${limitedApp.base}${path}`);
+      assert.equal(response.status, 429);
+      assert.equal(response.headers.get("retry-after"), "42");
+      assert.equal(response.headers.get("access-control-allow-origin"), "*");
+    }
+    assert.equal(renders, 0);
+    assert.equal((await fetch(`${limitedApp.base}/health`)).status, 200);
+  } finally {
+    limitedApp.server.close();
+  }
+});

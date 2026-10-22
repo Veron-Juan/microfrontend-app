@@ -2,6 +2,8 @@
 {
   "name": "mfe-anatomia-shell",
   "compatibility_date": "2026-10-01",
+  // Solo la URL de producción: sin URLs de vista previa por cada versión subida.
+  "preview_urls": false,
   "assets": {
     "directory": "./dist",
   },

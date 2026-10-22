@@ -1,5 +1,5 @@
 // La app de Express: rutas y cabeceras. Se crea con sus dependencias para poder probarla.
-import express, { type Express } from "express";
+import express, { type Express, type RequestHandler } from "express";
 import { asyncHandler, errorHandler, notFound } from "./http.ts";
 import type { LiveData } from "./live-data.ts";
 import { renderFragment, standalonePage } from "./render.tsx";
@@ -12,9 +12,11 @@ export interface AppOptions {
   standaloneCss: string;
   /** De dónde salen los datos de cada render: las APIs reales o, en los tests, datos fijos. */
   fetchData: (now: number) => Promise<LiveData>;
+  /** Consume una ficha del límite de uso y dice cuántos segundos esperar (0: puede pasar). Sin él, no hay límite. */
+  limit?: () => number;
 }
 
-export function createApp({ version, css, standaloneCss, fetchData }: AppOptions): Express {
+export function createApp({ version, css, standaloneCss, fetchData, limit = () => 0 }: AppOptions): Express {
   const app = express();
   let served = 0;
   const render = () => renderFragment({ css, served: ++served, fetchData });
@@ -26,13 +28,32 @@ export function createApp({ version, css, standaloneCss, fetchData }: AppOptions
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Expose-Headers": "X-Rendered-At, X-Request-Id, X-Render-Mode, X-App-Version, Server-Timing",
+      // El navegador no adivina tipos, no manda la URL de origen a terceros y nadie puede enmarcar la página.
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "no-referrer",
+      "X-Frame-Options": "DENY",
     });
     next();
   });
 
+  // Lo que renderiza pasa por el límite de uso; /health no, porque Render lo consulta seguido.
+  const limited: RequestHandler = (_req, res, next) => {
+    const wait = limit();
+    if (wait === 0) {
+      next();
+      return;
+    }
+    res
+      .status(429)
+      .set({ "Retry-After": String(wait), "Cache-Control": "no-store" })
+      .type("text")
+      .send("demasiadas solicitudes: prueba más tarde");
+  };
+
   // El fragmento: HTML sin <html> ni <body>, listo para incrustarse en el shell.
   app.get(
     "/fragment/news",
+    limited,
     asyncHandler(async (_req, res) => {
       const { html, now, requestId, timing } = await render();
       res.set({
@@ -51,6 +72,7 @@ export function createApp({ version, css, standaloneCss, fetchData }: AppOptions
   // La misma app vista sola, como página completa.
   app.get(
     "/",
+    limited,
     asyncHandler(async (_req, res) => {
       const { html } = await render();
       res.set("Cache-Control", "no-store").type("html").send(standalonePage(html, standaloneCss));

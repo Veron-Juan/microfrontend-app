@@ -16,4 +16,9 @@ export const config = {
   version: pkg.version,
   /** Key de TheSportsDB. Sin ella se usa la key pública de prueba. */
   sportsDbKey: process.env.SPORTSDB_KEY || undefined,
+  /**
+   * Límite de uso para todo el servidor (ver limits.ts). Con 8000 renders por día como máximo, un
+   * fragmento sin comprimir (~16 KB) suma unos 4 GB por mes: menos que los 5 GB gratis de Render.
+   */
+  limits: { burst: 30, perSecond: 1, perDay: 8000 },
 } as const;
