@@ -23,7 +23,8 @@ jobs:
   # solo desde render.yaml. Los orígenes son variables del repo, así que cambiar uno no toca el código.
   deploy:
     needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Se salta hasta que el repo tenga configurados los proyectos de Pages.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PAGES_SHELL_PROJECT != ''
     runs-on: ubuntu-latest
     concurrency: production
     env:
