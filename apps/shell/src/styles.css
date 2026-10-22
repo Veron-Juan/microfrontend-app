@@ -2,7 +2,7 @@
  * Estilos del shell.
  *
  * El shell es la única app que carga Tailwind completo, con su reset (preflight). Los remotes
- * compilan su propio CSS con prefijo (cat:, ply:, nws:, gde:) y sin reset, así que nunca pisan
+ * compilan su propio CSS con prefijo (cat:, dtl:, nws:, gde:) y sin reset, así que nunca pisan
  * estos estilos ni los de otro remote. Lo que todos comparten son los tokens.
  */
 @import "tailwindcss";
@@ -11,13 +11,56 @@
 @import "@mfe/figures/iso.css" layer(components);
 
 @theme {
-  --animate-tag-in: tag-in 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  /* "both": con la demora de la cascada, la pieza queda invisible hasta que le toca. */
+  --animate-tag-in: tag-in 0.4s cubic-bezier(0.32, 0.72, 0, 1) both;
   --animate-shimmer: shimmer 1.2s infinite;
+  --animate-scan: scan 0.95s cubic-bezier(0.45, 0, 0.25, 1) both;
+  --animate-flash: flash 0.9s ease-out both;
+  --animate-bus-pulse: bus-pulse 0.55s cubic-bezier(0.45, 0, 0.25, 1) both;
+
+  @keyframes bus-pulse {
+    from {
+      left: 0;
+      opacity: 0;
+    }
+    15%,
+    85% {
+      opacity: 1;
+    }
+    to {
+      left: 100%;
+      opacity: 0;
+    }
+  }
 
   @keyframes tag-in {
     from {
       opacity: 0;
-      transform: translateY(-4px);
+      transform: translateY(5px) scale(0.96);
+    }
+  }
+  @keyframes scan {
+    0% {
+      transform: translateX(0);
+      opacity: 0;
+    }
+    20%,
+    80% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(400%);
+      opacity: 0;
+    }
+  }
+  @keyframes flash {
+    from {
+      opacity: 1;
+      transform: scale(0.995);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.012);
     }
   }
   @keyframes shimmer {
@@ -84,5 +127,315 @@
   }
   .iso-figure [data-slot] {
     cursor: pointer;
+  }
+}
+
+/*
+ * Las hojas de la portada (lessons/RenderSheets.tsx): una animación por tipo de render. Todo es CSS:
+ * ningún cuadro necesita JavaScript. "both" deja cada pieza en su primer cuadro mientras espera su
+ * demora; sin animación (movimiento reducido) se ve el estado base, que es la ilustración quieta.
+ */
+@theme {
+  --animate-sh-mount: sh-mount 6s cubic-bezier(0.32, 0.72, 0, 1) infinite both;
+  --animate-sh-request: sh-request 3s ease-out infinite both;
+  --animate-sh-led: sh-led 3s ease-in-out infinite both;
+  --animate-sh-print: sh-print 3s cubic-bezier(0.32, 0.72, 0, 1) infinite both;
+  --animate-sh-ink: sh-ink 3s ease-out infinite both;
+  --animate-sh-odometer: sh-odometer 12s steps(4) infinite;
+  --animate-sh-chunk: sh-chunk 5s ease-in infinite both;
+  --animate-sh-pop: sh-pop 5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite both;
+  --animate-sh-cursor: sh-cursor 5s ease-in-out infinite both;
+  --animate-sh-pick: sh-pick 5s ease-out infinite both;
+  --animate-sh-tag: sh-tag 5s ease-out infinite both;
+  --animate-sh-event: sh-event 5s ease-in-out infinite both;
+  --animate-sh-roundtrip: sh-roundtrip 5s ease-in-out infinite both;
+  --animate-sh-skeleton: sh-skeleton 5s linear infinite both;
+  --animate-sh-filled: sh-filled 5s ease-out infinite both;
+  --animate-sh-deliver: sh-deliver 4.5s cubic-bezier(0.45, 0, 0.25, 1) infinite both;
+  --animate-sh-arrive: sh-arrive 4.5s ease-out infinite both;
+
+  /* Shell: cada remote entra en su lugar del layout. */
+  @keyframes sh-mount {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    10%,
+    82% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    92%,
+    100% {
+      opacity: 0;
+      transform: scale(1);
+    }
+  }
+
+  /* SSR: llega un request, el servidor se enciende y sale una hoja recién impresa. */
+  @keyframes sh-request {
+    0% {
+      opacity: 0;
+      transform: translateX(-60%);
+    }
+    12% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    26% {
+      opacity: 1;
+      transform: translateX(70%);
+    }
+    34%,
+    100% {
+      opacity: 0;
+      transform: translateX(90%);
+    }
+  }
+  @keyframes sh-led {
+    0%,
+    20%,
+    65%,
+    100% {
+      opacity: 0.35;
+    }
+    26%,
+    58% {
+      opacity: 1;
+    }
+  }
+  @keyframes sh-print {
+    0%,
+    22% {
+      transform: translateY(-102%);
+      opacity: 1;
+    }
+    55%,
+    86% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(10%);
+      opacity: 0;
+    }
+  }
+  @keyframes sh-ink {
+    0%,
+    32% {
+      transform: scaleX(0);
+    }
+    62%,
+    100% {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes sh-odometer {
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  /* CSR: bajan los archivos JS y la grilla se arma en la pantalla; después alguien elige. */
+  @keyframes sh-chunk {
+    0% {
+      opacity: 0;
+      transform: translateY(-120%);
+    }
+    6%,
+    18% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    30%,
+    100% {
+      opacity: 0;
+      transform: translateY(260%) scale(0.6);
+    }
+  }
+  @keyframes sh-pop {
+    0%,
+    28% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    36%,
+    90% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    97%,
+    100% {
+      opacity: 0;
+      transform: scale(1);
+    }
+  }
+  @keyframes sh-cursor {
+    0%,
+    44% {
+      opacity: 0;
+      transform: translate(60%, 80%);
+    }
+    54% {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+    58% {
+      transform: translate(0, 0) scale(0.82);
+    }
+    62%,
+    88% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    96%,
+    100% {
+      opacity: 0;
+      transform: translate(0, 0);
+    }
+  }
+  @keyframes sh-pick {
+    0%,
+    57%,
+    96%,
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+    60%,
+    88% {
+      box-shadow:
+        0 0 0 1.5px var(--mfe-csr),
+        0 0 0 4px color-mix(in srgb, var(--mfe-csr) 25%, transparent);
+    }
+  }
+
+  /* La ficha: llega el evento, muestra el esqueleto mientras pide a la API y se completa. */
+  @keyframes sh-tag {
+    0% {
+      opacity: 0;
+      transform: translateY(20%);
+    }
+    6%,
+    26% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    34%,
+    100% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+  }
+  @keyframes sh-event {
+    0% {
+      opacity: 0;
+      transform: translateX(0);
+    }
+    6% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    24% {
+      opacity: 1;
+      transform: translateX(var(--travel));
+    }
+    30%,
+    100% {
+      opacity: 0;
+      transform: translateX(var(--travel));
+    }
+  }
+  @keyframes sh-roundtrip {
+    0%,
+    28% {
+      opacity: 0;
+      transform: translate(0, 0);
+    }
+    30% {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+    38%,
+    40% {
+      opacity: 1;
+      transform: translate(var(--tx), var(--ty));
+    }
+    48% {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+    50%,
+    100% {
+      opacity: 0;
+      transform: translate(0, 0);
+    }
+  }
+  @keyframes sh-skeleton {
+    0%,
+    24%,
+    52%,
+    100% {
+      opacity: 0;
+    }
+    28%,
+    46% {
+      opacity: 1;
+    }
+  }
+  @keyframes sh-filled {
+    0%,
+    46% {
+      opacity: 0;
+      transform: translateY(4%);
+    }
+    54%,
+    88% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    96%,
+    100% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+  }
+
+  /* SSG: la misma copia, impresa en el build, viaja del CDN a cada visitante. */
+  @keyframes sh-deliver {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) scale(1);
+    }
+    8% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    42% {
+      opacity: 1;
+      transform: translate(var(--tx), var(--ty)) scale(0.55);
+    }
+    50%,
+    100% {
+      opacity: 0;
+      transform: translate(var(--tx), var(--ty)) scale(0.55);
+    }
+  }
+  @keyframes sh-arrive {
+    0%,
+    40%,
+    96%,
+    100% {
+      opacity: 0;
+    }
+    46%,
+    86% {
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sheet-art] * {
+    animation: none !important;
   }
 }

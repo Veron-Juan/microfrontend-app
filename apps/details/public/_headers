@@ -1,0 +1,15 @@
+# Cabeceras para Cloudflare Pages o Netlify (los dos usan este formato). Vite lo copia a dist/.
+
+# El shell carga este remote desde otro origen: todos sus archivos necesitan CORS.
+/*
+  Access-Control-Allow-Origin: *
+
+# Los archivos con hash en el nombre nunca cambian: un año de caché.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Los puntos de entrada cambian en cada deploy: el navegador debe revalidarlos siempre.
+/mf-manifest.json
+  Cache-Control: no-cache
+/remoteEntry.js
+  Cache-Control: no-cache

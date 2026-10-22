@@ -1,6 +1,6 @@
+import { InspectorSwitch } from "../inspector/InspectorSwitch.tsx";
 import { LiveCount } from "../inspector/LiveCount.tsx";
 import { Slot } from "../inspector/Slot.tsx";
-import { toggleInspector, useStore } from "../state/store.ts";
 import { Button } from "../ui/Button.tsx";
 import type { Theme } from "./use-theme.ts";
 
@@ -10,7 +10,6 @@ interface TopBarProps {
 }
 
 export function TopBar({ theme, onToggleTheme }: TopBarProps) {
-  const inspector = useStore((s) => s.inspector);
   return (
     <Slot id="shell" tools={false} tag="below" sticky>
       <header className="flex items-center justify-between gap-4 border-b border-line-soft bg-page/82 px-[max(16px,calc((100vw-1180px)/2))] py-3 backdrop-blur-[10px] max-[560px]:gap-2">
@@ -22,17 +21,7 @@ export function TopBar({ theme, onToggleTheme }: TopBarProps) {
         </a>
         <div className="flex items-center gap-2.5">
           <LiveCount />
-          <Button
-            role="switch"
-            aria-checked={inspector}
-            onClick={toggleInspector}
-            className="group max-[560px]:px-2.5 max-[560px]:py-1.5"
-          >
-            <span className="relative h-[15px] w-[26px] rounded-full bg-line transition-colors duration-250 group-aria-checked:bg-strong">
-              <span className="absolute top-0.5 left-0.5 size-[11px] rounded-full bg-card shadow-[0_1px_2px_#0003] transition-transform duration-250 ease-out-soft group-aria-checked:translate-x-[11px]" />
-            </span>
-            Inspector <kbd className="max-[560px]:hidden">I</kbd>
-          </Button>
+          <InspectorSwitch />
           <Button onClick={onToggleTheme} aria-label="Cambiar tema" className="max-[560px]:px-2.5 max-[560px]:py-1.5">
             {theme === "dark" ? "Claro" : "Oscuro"}
           </Button>

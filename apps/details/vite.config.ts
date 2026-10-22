@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { federation } from "@module-federation/vite";
 
-// Remote "player": lo construye y despliega su propio equipo.
+// Remote "details" (la ficha): lo construye y despliega su propio equipo.
 // Expone un único módulo; el shell lo descarga en runtime desde remoteEntry.js.
 export default defineConfig({
   base: process.env.PUBLIC_URL ?? "http://localhost:5002/",
@@ -11,11 +11,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
     federation({
-      name: "player",
+      name: "details",
       dts: false,
       filename: "remoteEntry.js",
       manifest: true,
-      exposes: { "./Player": "./src/Player.tsx" },
+      exposes: { "./Details": "./src/Details.tsx" },
       shared: {
         react: { singleton: true, requiredVersion: "^18.3.1" },
         "react-dom": { singleton: true, requiredVersion: "^18.3.1" },

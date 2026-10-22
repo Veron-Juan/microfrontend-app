@@ -10,9 +10,9 @@
   ],
   "scripts": {
     "figures": "npm run build -w @mfe/figures",
-    "build": "npm run figures && npm run build -w catalog -w player -w guide-ssg -w shell",
-    "start": "concurrently -k -n shell,catalog,player,news,guide -c white,blue,cyan,yellow,green \"npm run preview -w shell\" \"npm run preview -w catalog\" \"npm run preview -w player\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\"",
-    "dev": "npm run build && concurrently -k -n shell,catalog,player,news,guide -c white,blue,cyan,yellow,green \"npm run dev -w shell\" \"npm run preview -w catalog\" \"npm run preview -w player\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\"",
+    "build": "npm run figures && npm run build -w catalog -w details -w guide-ssg -w shell",
+    "start": "concurrently -k -n shell,catalog,details,news,guide -c white,blue,cyan,yellow,green \"npm run preview -w shell\" \"npm run preview -w catalog\" \"npm run preview -w details\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\"",
+    "dev": "npm run build && concurrently -k -n shell,catalog,details,news,guide -c white,blue,cyan,yellow,green \"npm run dev -w shell\" \"npm run preview -w catalog\" \"npm run preview -w details\" \"npm run start -w news-ssr\" \"npm run start -w guide-ssg\"",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "format": "prettier --write .",

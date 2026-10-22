@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --port 5000 --strictPort",
     "build": "vite build",
+    "discovery": "tsx scripts/discovery.ts",
     "preview": "vite preview --port 5000 --strictPort",
     "typecheck": "tsc -p ."
   },

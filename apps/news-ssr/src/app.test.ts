@@ -3,7 +3,7 @@ import type { AddressInfo } from "node:net";
 import { after, before, test } from "node:test";
 import type { Server } from "node:http";
 import { createApp, type AppOptions } from "./app.ts";
-import { liveDataAt } from "./live-data.ts";
+import { SAMPLE_DATA } from "./fixtures.ts";
 
 // Levanta la app en un puerto libre y devuelve su URL base.
 async function listen(options: Partial<AppOptions> = {}): Promise<{ server: Server; base: string }> {
@@ -11,7 +11,7 @@ async function listen(options: Partial<AppOptions> = {}): Promise<{ server: Serv
     version: "9.9.9",
     css: ".x{}",
     standaloneCss: "body{}",
-    fetchData: async (now) => liveDataAt(now),
+    fetchData: async () => SAMPLE_DATA,
     ...options,
   });
   const server = await new Promise<Server>((done) => {
@@ -42,7 +42,7 @@ test("GET /fragment/news responde el fragmento con las cabeceras de la lección"
 
 test("GET / devuelve la página standalone y /health cuenta los renders", async () => {
   const page = await fetch(`${base}/`).then((response) => response.text());
-  assert.match(page, /<html lang="es" data-theme="dark">/);
+  assert.match(page, /<html lang="es" data-theme="light">/);
   const health = (await fetch(`${base}/health`).then((response) => response.json())) as { ok: boolean; served: number };
   assert.equal(health.ok, true);
   assert.ok(health.served >= 1);

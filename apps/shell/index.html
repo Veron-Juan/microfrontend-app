@@ -23,8 +23,8 @@
       try {
         t = localStorage.getItem("mfe-theme");
       } catch {}
-      document.documentElement.dataset.theme =
-        t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      // Claro por defecto; oscuro solo si el visitante lo eligió con el botón.
+      document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     </script>
   </head>
   <body>

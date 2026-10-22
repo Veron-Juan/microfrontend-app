@@ -33,7 +33,7 @@ export const TRAVEL = 36; // cuánto sale un módulo desenchufado (unidades de m
 export const SLOTS: Slot[] = [
   { id: "news", x: -78, render: "SSR" },
   { id: "catalog", x: -26, render: "CSR" },
-  { id: "player", x: 26, render: "CSR" },
+  { id: "details", x: 26, render: "CSR" },
   { id: "guide", x: 78, render: "SSG" },
 ];
 const TONE: Record<Render, string> = { CSR: "blue", SSR: "amber", SSG: "green" };
@@ -384,7 +384,7 @@ export function build() {
     height: HEIGHT,
     className: "fig-rack",
     label:
-      "Un chasis sobre una base: el shell. En su backplane hay cuatro zócalos unidos por un bus. Cuatro módulos, uno por micro-frontend, se deslizan por rieles y se enchufan cuando su remote termina de cargar; su LED se enciende en el color de su tipo de render. Novedades lleva un ventilador (trabaja en cada request), catálogo y reproductor un chip (su código corre en el navegador) y la guía una pila de hojas ya impresas (se generó en el build).",
+      "Un chasis sobre una base: el shell. En su backplane hay cuatro zócalos unidos por un bus. Cuatro módulos, uno por micro-frontend, se deslizan por rieles y se enchufan cuando su remote termina de cargar; su LED se enciende en el color de su tipo de render. Novedades lleva un ventilador (trabaja en cada request), catálogo y ficha un chip (su código corre en el navegador) y la guía una pila de hojas ya impresas (se generó en el build).",
     body,
   });
   return { svg, data: { P, TRAVEL, SLOTS, FAN } };

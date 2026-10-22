@@ -1,11 +1,12 @@
 {
   "name": "guide-ssg",
   "private": true,
-  "version": "1.0.7",
+  "version": "2.1.0",
   "type": "module",
   "scripts": {
     "build": "tsx src/build.ts",
     "start": "tsx src/serve.ts",
+    "snapshot": "tsx src/snapshot.ts && prettier --write src/snapshot.json",
     "typecheck": "tsc -p ."
   },
   "dependencies": {

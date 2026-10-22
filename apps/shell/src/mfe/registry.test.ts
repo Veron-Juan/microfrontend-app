@@ -21,7 +21,7 @@ const discovery: Discovery = {
   microFrontends: {
     news: remote("fragment", "SSR", "https://news.example.com/fragment/news"),
     catalog: remote("module-federation", "CSR", "https://catalog.example.com/mf-manifest.json", "./Catalog"),
-    player: remote("module-federation", "CSR", "https://player.example.com/mf-manifest.json", "./Player"),
+    details: remote("module-federation", "CSR", "https://details.example.com/mf-manifest.json", "./Details"),
     guide: remote("fragment", "SSG", "https://cdn.example.com/guide/fragment/guide.html"),
   },
 };
@@ -34,7 +34,7 @@ test("cruza el discovery con los lugares del layout", () => {
       ["shell", "host"],
       ["news", "fragment"],
       ["catalog", "federated"],
-      ["player", "federated"],
+      ["details", "federated"],
       ["guide", "fragment"],
     ],
   );

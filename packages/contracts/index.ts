@@ -20,12 +20,19 @@ export interface Show {
   kind: string;
   /** Duración en segundos. */
   length: number;
-  /** Tono de color de la carátula, de 0 a 360. */
+  /** Tono de color de la carátula, de 0 a 360. Se usa cuando no hay imagen. */
   hue: number;
+  /** URL https de la carátula. Opcional: se agregó en la 1.1 sin romper a quien no la usa. */
+  image?: string;
+  /** Id del programa en TVmaze, si viene de ahí. Con él, la ficha pide el resto de los datos. */
+  tvmazeId?: number;
 }
 
-/** Payload de "mfe:play": el catálogo lo emite, el reproductor lo escucha. */
-export interface PlayDetail extends Show {
+/**
+ * Payload de "mfe:select": el catálogo lo emite al elegir un título y la ficha lo escucha.
+ * En la 1.x se llamaba "mfe:play". Renombrar un evento rompe a quien lo escucha, por eso es la 2.0.
+ */
+export interface SelectDetail extends Show {
   /** Nombre del remote que emitió el evento. */
   from: string;
   /** Date.now() al emitirlo, para medir la latencia del bus. */
@@ -34,13 +41,13 @@ export interface PlayDetail extends Show {
 
 /** Todos los eventos del bus y su payload. */
 export interface BusEvents {
-  "mfe:play": PlayDetail;
+  "mfe:select": SelectDetail;
 }
 
 export type BusEventName = keyof BusEvents;
 
 export const BUS_EVENTS: Record<BusEventName, string> = {
-  "mfe:play": "{ id, title, kind, length, hue, from, at }",
+  "mfe:select": "{ id, title, kind, length, hue, image?, tvmazeId?, from, at }",
 };
 
 /** Publica un evento tipado en el bus del navegador (window). */

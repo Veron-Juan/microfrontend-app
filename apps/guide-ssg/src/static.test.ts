@@ -5,7 +5,15 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
-import { ageSeconds, contentTypeOf, createStaticHandler, etagOf, isNotModified, resolveFile } from "./static.ts";
+import {
+  ageSeconds,
+  contentTypeOf,
+  createStaticHandler,
+  etagOf,
+  headersFile,
+  isNotModified,
+  resolveFile,
+} from "./static.ts";
 
 const ROOT = join(tmpdir(), "dist");
 
@@ -57,6 +65,17 @@ test("isNotModified compara If-None-Match, con listas, W/ y *", () => {
 test("ageSeconds nunca es negativo", () => {
   assert.equal(ageSeconds(1000, 6000), 5);
   assert.equal(ageSeconds(6000, 1000), 0);
+});
+
+test("headersFile genera el _headers del CDN con las mismas cabeceras y sin valores vacíos", () => {
+  const file = headersFile({ builtAt: "2026-10-19T18:12:34.000Z" });
+  const lines = file.split("\n");
+  assert.equal(lines[0], "/*");
+  assert.ok(lines.includes("  X-Render-Mode: SSG"));
+  assert.ok(lines.includes("  X-Built-At: 2026-10-19T18:12:34.000Z"));
+  assert.ok(lines.includes("  Access-Control-Allow-Origin: *"));
+  assert.ok(lines.some((line) => line.startsWith("  Cache-Control: public, max-age=300")));
+  assert.ok(!lines.some((line) => line.startsWith("  X-App-Version:")));
 });
 
 // El handler completo, sobre una carpeta temporal con un build falso.

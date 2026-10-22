@@ -21,7 +21,7 @@ export default tseslint.config(
   },
   // Código React que corre en el navegador: reglas de hooks y Fast Refresh.
   {
-    files: ["apps/{shell,catalog,player}/src/**/*.tsx"],
+    files: ["apps/{shell,catalog,details}/src/**/*.tsx"],
     plugins: { "react-hooks": reactHooks, "react-refresh": reactRefresh },
     rules: {
       ...reactHooks.configs.recommended.rules,

@@ -29,6 +29,11 @@ export function formatRenderedAt(now: number): string {
   return `${time}.${String(now % 1000).padStart(3, "0")}`;
 }
 
+/** La hora de inicio de un partido, p. ej. "21:30", en la zona horaria del servidor (TZ). */
+export function formatKickoff(iso: string): string {
+  return new Date(iso).toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
+
 const shortId = () => randomUUID().slice(0, 8);
 
 export async function renderFragment({
@@ -45,7 +50,14 @@ export async function renderFragment({
   const requestId = newRequestId();
   const timing = { data: Math.round(t1 - t0), render: 0 };
   const markup = renderToString(
-    <News rendered={formatRenderedAt(now)} requestId={requestId} served={served} timing={timing} {...data} />,
+    <News
+      rendered={formatRenderedAt(now)}
+      requestId={requestId}
+      served={served}
+      timing={timing}
+      formatTime={formatKickoff}
+      {...data}
+    />,
   );
   timing.render = Math.round((performance.now() - t1) * 10) / 10;
   // El shell inserta el fragmento con innerHTML: el <style> va adentro para que llegue completo,
@@ -55,5 +67,5 @@ export async function renderFragment({
 
 /** La misma app vista sola, como página completa (con las fuentes que en producción carga el shell). */
 export function standalonePage(fragment: string, css: string): string {
-  return `<!doctype html><html lang="es" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>news-ssr · standalone</title><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>${css}</style></head><body><p>Remote <b>news-ssr</b> corriendo solo. Recarga y verás otra hora y otro id: cada request se renderiza de nuevo.</p>${fragment}</body></html>`;
+  return `<!doctype html><html lang="es" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>news-ssr · standalone</title><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>${css}</style></head><body><p>Remote <b>news-ssr</b> corriendo solo. Recarga y verás otra hora y otro id: cada request se renderiza de nuevo.</p>${fragment}</body></html>`;
 }

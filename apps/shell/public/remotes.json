@@ -4,27 +4,27 @@
     "news": {
       "type": "fragment",
       "url": "http://localhost:5003/fragment/news",
-      "version": "3.0.2",
+      "version": "3.2.0",
       "metadata": { "name": "news-ssr", "team": "Equipo Contenidos", "render": "SSR" }
     },
     "catalog": {
       "type": "module-federation",
       "url": "http://localhost:5001/mf-manifest.json",
       "module": "./Catalog",
-      "version": "1.4.0",
+      "version": "2.1.0",
       "metadata": { "name": "catalog", "team": "Equipo Descubrimiento", "render": "CSR" }
     },
-    "player": {
+    "details": {
       "type": "module-federation",
       "url": "http://localhost:5002/mf-manifest.json",
-      "module": "./Player",
-      "version": "2.1.3",
-      "metadata": { "name": "player", "team": "Equipo Reproducción", "render": "CSR" }
+      "module": "./Details",
+      "version": "3.1.0",
+      "metadata": { "name": "details", "team": "Equipo Fichas", "render": "CSR" }
     },
     "guide": {
       "type": "fragment",
       "url": "http://localhost:5004/fragment/guide.html",
-      "version": "1.0.7",
+      "version": "2.1.0",
       "metadata": { "name": "guide-ssg", "team": "Equipo Programación", "render": "SSG" }
     }
   }

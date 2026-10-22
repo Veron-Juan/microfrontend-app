@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { compileTailwind } from "@mfe/design-tokens/compile";
 import { createApp } from "./app.ts";
 import { config } from "./config.ts";
+import { createLiveData, liveSources } from "./live-data.ts";
 
 const cssPath = (name: string) => fileURLToPath(new URL(name, import.meta.url));
 
@@ -13,9 +14,12 @@ const [css, standaloneCss] = await Promise.all([
   compileTailwind(cssPath("./standalone.css")),
 ]);
 
-const app = createApp({ version: config.version, css, standaloneCss });
+const fetchData = createLiveData(liveSources({ sportsDbKey: config.sportsDbKey }));
+const app = createApp({ version: config.version, css, standaloneCss, fetchData });
 const server = app.listen(config.port, () => {
   console.info(`news-ssr (SSR) escuchando en http://localhost:${config.port} · CSS ${css.length} B`);
+  // Precalienta la caché: así el primer visitante no espera a las APIs externas.
+  void fetchData(Date.now());
 });
 
 function shutdown(signal: NodeJS.Signals) {

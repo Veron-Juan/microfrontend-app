@@ -1,9 +1,8 @@
+import { InspectorSwitch } from "../inspector/InspectorSwitch.tsx";
 import { Slot } from "../inspector/Slot.tsx";
-import { cx } from "../lib/cx.ts";
 import { Remote } from "../mfe/Remote.tsx";
 import { apps, hostOf } from "../mfe/registry.ts";
-import { toggleInspector, useStore, type Load } from "../state/store.ts";
-import { Button } from "../ui/Button.tsx";
+import { useStore, type Load } from "../state/store.ts";
 import { Chip } from "../ui/Chip.tsx";
 import { Lesson, Prose } from "../ui/Lesson.tsx";
 import { Table } from "../ui/Table.tsx";
@@ -25,54 +24,76 @@ export function Demo() {
 
 /** Una ventana de navegador falsa donde el shell compone los cuatro remotes. */
 function BrowserWindow() {
-  const inspector = useStore((s) => s.inspector);
   return (
-    <div className="my-[22px] overflow-hidden rounded-[14px] border border-line bg-card shadow-lift">
-      <div className="flex items-center gap-3 border-b border-line-soft px-3 py-[9px]">
+    <div className="my-[22px] overflow-hidden rounded-2xl border border-line bg-card shadow-lift">
+      <div className="flex items-center gap-3 border-b border-line-soft bg-page/50 px-3.5 py-2.5">
         <span className="flex gap-1.5" aria-hidden="true">
-          <i className="size-[9px] rounded-full bg-line" />
-          <i className="size-[9px] rounded-full bg-line" />
-          <i className="size-[9px] rounded-full bg-line" />
+          <i className="size-2.5 rounded-full bg-[#ff5f57]/80" />
+          <i className="size-2.5 rounded-full bg-[#febc2e]/80" />
+          <i className="size-2.5 rounded-full bg-[#28c840]/80" />
         </span>
-        <span className="min-w-0 flex-1 truncate rounded-md bg-line-soft px-2.5 py-1 font-mono text-xs text-muted">
-          localhost:5000/inicio
+        <span className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-line-soft bg-card px-3 py-1.5 font-mono text-xs text-muted">
+          <svg viewBox="0 0 16 16" className="size-3 shrink-0" aria-hidden="true">
+            <rect x="3.5" y="7" width="9" height="6.5" rx="1.5" fill="currentColor" />
+            <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+          <span className="truncate">
+            localhost:5000<span className="text-strong">/inicio</span>
+          </span>
         </span>
-        <Button variant="mini" onClick={toggleInspector}>
-          {inspector ? "inspector: on" : "inspector: off"}
-        </Button>
+        <InspectorSwitch variant="mini" hotkey={false} />
       </div>
-      <div className="grid gap-3.5 p-3.5">
-        <Slot id="shell" tools={false} tag="corner" className="p-3.5">
-          <nav className="flex flex-wrap items-center gap-[18px] px-1 py-0.5 text-[13px] text-muted">
-            <b className="mr-2 font-serif text-[17px] font-semibold">Pantalla</b>
-            <span>Inicio</span>
-            <span>En vivo</span>
-            <span>Series</span>
-            <span>Deportes</span>
-            <i
-              className={cx(
-                "ml-auto size-6 rounded-full bg-linear-135 from-csr to-ssg",
-                inspector && "min-[561px]:mr-[220px]",
-              )}
-            />
-          </nav>
+      <div className="grid gap-4 p-4">
+        <Slot id="shell" tools={false} tag="end" panel className="px-4 py-3">
+          <AppNav />
         </Slot>
-        <Slot id="news" className="p-3.5">
+        <Slot id="news" panel className="p-4">
           <Remote id="news" />
         </Slot>
-        <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] gap-3.5 max-[820px]:grid-cols-1">
-          <Slot id="catalog" className="p-3.5">
+        <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] gap-4 max-[820px]:grid-cols-1">
+          <Slot id="catalog" panel className="p-4">
             <Remote id="catalog" />
           </Slot>
-          <Slot id="player" className="p-3.5">
-            <Remote id="player" />
+          <Slot id="details" panel className="grid p-4">
+            <Remote id="details" />
           </Slot>
         </div>
-        <Slot id="guide" className="p-3.5">
+        <Slot id="guide" panel className="p-4">
           <Remote id="guide" />
         </Slot>
       </div>
     </div>
+  );
+}
+
+/** La barra de la app de streaming. Es del shell: no la sirve ningún remote. */
+function AppNav() {
+  return (
+    <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-muted">
+      <b className="flex items-center gap-2 font-serif text-[19px] font-semibold tracking-[-.01em] text-strong">
+        <i className="grid size-6 place-items-center rounded-md bg-strong not-italic" aria-hidden="true">
+          <svg viewBox="0 0 16 16" className="size-3 fill-card">
+            <path d="M5 3.5v9l7.5-4.5z" />
+          </svg>
+        </i>
+        Pantalla
+      </b>
+      <span className="flex flex-wrap gap-x-5 gap-y-1">
+        <span className="relative font-medium text-strong after:absolute after:inset-x-0 after:-bottom-1.5 after:h-0.5 after:rounded-full after:bg-strong">
+          Inicio
+        </span>
+        <span>En vivo</span>
+        <span>Series</span>
+        <span>Deportes</span>
+      </span>
+      <span className="ml-auto flex items-center gap-3">
+        <svg viewBox="0 0 16 16" className="size-4 text-muted" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="m10.5 10.5 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        <i className="size-7 rounded-full bg-linear-135 from-csr via-ssr to-ssg" aria-hidden="true" />
+      </span>
+    </nav>
   );
 }
 

@@ -20,6 +20,31 @@ export interface BuildMeta {
   version?: string;
 }
 
+/** Cinco minutos frescos y, después, un día en que el CDN puede servirlo mientras revalida. */
+export const CACHE_CONTROL = "public, max-age=300, stale-while-revalidate=86400";
+
+/** Las cabeceras que no dependen del archivo: CORS, caché y las de diagnóstico de la lección. */
+export function buildHeaders(meta: BuildMeta): Record<string, string> {
+  return {
+    ...CORS_HEADERS,
+    "Cache-Control": CACHE_CONTROL,
+    "X-Render-Mode": "SSG",
+    "X-Built-At": meta.builtAt ?? "",
+    "X-App-Version": meta.version ?? "",
+  };
+}
+
+/**
+ * El archivo `_headers` de Cloudflare Pages y Netlify, con las mismas cabeceras para todo el sitio.
+ * ETag, Last-Modified y Age no van: esas las calcula el propio CDN.
+ */
+export function headersFile(meta: BuildMeta): string {
+  const lines = Object.entries(buildHeaders(meta))
+    .filter(([, value]) => value !== "")
+    .map(([name, value]) => `  ${name}: ${value}`);
+  return ["/*", ...lines, ""].join("\n");
+}
+
 /**
  * Traduce la ruta de la URL a un archivo dentro de `root`. Devuelve null si la ruta es inválida
  * o intenta salir de la carpeta (p. ej. con "../").
@@ -82,14 +107,10 @@ export function createStaticHandler(root: string, meta: BuildMeta, now: () => nu
       const [body, info] = await Promise.all([readFile(file), stat(file)]);
       const etag = etagOf(body);
       const headers = {
-        ...CORS_HEADERS,
+        ...buildHeaders(meta),
         "Content-Type": contentTypeOf(file),
-        "Cache-Control": "public, max-age=300, stale-while-revalidate=86400",
         ETag: etag,
         "Last-Modified": info.mtime.toUTCString(),
-        "X-Render-Mode": "SSG",
-        "X-Built-At": meta.builtAt ?? "",
-        "X-App-Version": meta.version ?? "",
         Age: String(ageSeconds(info.mtimeMs, now())),
       };
       if (isNotModified(req.headers["if-none-match"], etag)) {

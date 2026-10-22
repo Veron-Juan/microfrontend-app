@@ -1,0 +1,9 @@
+# Cabeceras para Cloudflare Pages o Netlify (los dos usan este formato). Vite lo copia a dist/.
+
+# El discovery dice qué versión de cada remote corre: si se cachea, un rollback no se ve.
+/remotes.json
+  Cache-Control: no-cache
+
+# Los archivos con hash en el nombre nunca cambian: un año de caché.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

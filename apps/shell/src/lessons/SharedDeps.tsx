@@ -34,7 +34,7 @@ function readSharedReact(): SharedPackage[] {
 
 export function SharedDeps() {
   // El registro cambia cuando carga un remote federado: suscribirse a su estado hace que se vuelva a leer.
-  useStore((s) => `${s.loads.catalog?.status}:${s.loads.player?.status}`);
+  useStore((s) => `${s.loads.catalog?.status}:${s.loads.details?.status}`);
   const shared = readSharedReact();
 
   return (
@@ -75,8 +75,8 @@ export function SharedDeps() {
         </tbody>
       </Table>
       <Note>
-        Leído en vivo de <code>__FEDERATION__.__SHARE__</code>. Catálogo y reproductor también declaran React, pero el
-        runtime les entrega la copia que ya cargó el shell: React se descarga una sola vez.
+        Leído en vivo de <code>__FEDERATION__.__SHARE__</code>. Catálogo y ficha también declaran React, pero el runtime
+        les entrega la copia que ya cargó el shell: React se descarga una sola vez.
       </Note>
       <Cards columns="three">
         <Card title="singleton">

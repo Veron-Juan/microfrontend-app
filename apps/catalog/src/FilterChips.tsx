@@ -14,7 +14,7 @@ export function FilterChips({ options, selected, onSelect }: FilterChipsProps) {
           type="button"
           aria-pressed={option === selected}
           onClick={() => onSelect(option)}
-          className="cat:cursor-pointer cat:rounded-full cat:border cat:border-faint cat:bg-transparent cat:px-[9px] cat:py-1.5 cat:font-mono cat:text-[11px] cat:leading-none cat:tracking-[.06em] cat:text-muted cat:uppercase cat:aria-pressed:border-mid cat:aria-pressed:text-strong"
+          className="cat:h-7 cat:cursor-pointer cat:rounded-full cat:border cat:border-faint cat:bg-transparent cat:px-3 cat:font-sans cat:text-[12px] cat:leading-none cat:text-text cat:transition-colors cat:hover:border-mid cat:hover:text-strong cat:aria-pressed:border-strong cat:aria-pressed:bg-strong cat:aria-pressed:text-card"
         >
           {option}
         </button>

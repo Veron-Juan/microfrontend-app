@@ -1,0 +1,506 @@
+{
+  "id": 169,
+  "name": "Breaking Bad",
+  "status": "Ended",
+  "network": "AMC",
+  "image": "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253519.jpg",
+  "genres": ["Drama", "Crime", "Thriller"],
+  "episodes": [
+    {
+      "season": 1,
+      "number": 1,
+      "name": "Pilot",
+      "airdate": "2008-01-20",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012681.jpg"
+    },
+    {
+      "season": 1,
+      "number": 2,
+      "name": "Cat's in the Bag...",
+      "airdate": "2008-01-27",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012682.jpg"
+    },
+    {
+      "season": 1,
+      "number": 3,
+      "name": "...and the Bag's in the River",
+      "airdate": "2008-02-10",
+      "rating": 8.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012683.jpg"
+    },
+    {
+      "season": 1,
+      "number": 4,
+      "name": "Cancer Man",
+      "airdate": "2008-02-17",
+      "rating": 7.6,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012684.jpg"
+    },
+    {
+      "season": 1,
+      "number": 5,
+      "name": "Gray Matter",
+      "airdate": "2008-02-24",
+      "rating": 7.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012685.jpg"
+    },
+    {
+      "season": 1,
+      "number": 6,
+      "name": "Crazy Handful of Nothin'",
+      "airdate": "2008-03-02",
+      "rating": 8.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012686.jpg"
+    },
+    {
+      "season": 1,
+      "number": 7,
+      "name": "A No-Rough-Stuff-Type Deal",
+      "airdate": "2008-03-09",
+      "rating": 8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012687.jpg"
+    },
+    {
+      "season": 2,
+      "number": 1,
+      "name": "Seven Thirty-Seven",
+      "airdate": "2009-03-08",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012709.jpg"
+    },
+    {
+      "season": 2,
+      "number": 2,
+      "name": "Grilled",
+      "airdate": "2009-03-15",
+      "rating": 8.4,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012710.jpg"
+    },
+    {
+      "season": 2,
+      "number": 3,
+      "name": "Bit by a Dead Bee",
+      "airdate": "2009-03-22",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012711.jpg"
+    },
+    {
+      "season": 2,
+      "number": 4,
+      "name": "Down",
+      "airdate": "2009-03-29",
+      "rating": 7.5,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012712.jpg"
+    },
+    {
+      "season": 2,
+      "number": 5,
+      "name": "Breakage",
+      "airdate": "2009-04-05",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012713.jpg"
+    },
+    {
+      "season": 2,
+      "number": 6,
+      "name": "Peekaboo",
+      "airdate": "2009-04-12",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012714.jpg"
+    },
+    {
+      "season": 2,
+      "number": 7,
+      "name": "Negro Y Azul",
+      "airdate": "2009-04-19",
+      "rating": 8.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012715.jpg"
+    },
+    {
+      "season": 2,
+      "number": 8,
+      "name": "Better Call Saul",
+      "airdate": "2009-04-26",
+      "rating": 8.7,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012716.jpg"
+    },
+    {
+      "season": 2,
+      "number": 9,
+      "name": "4 Days Out",
+      "airdate": "2009-05-03",
+      "rating": 8.4,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012717.jpg"
+    },
+    {
+      "season": 2,
+      "number": 10,
+      "name": "Over",
+      "airdate": "2009-05-10",
+      "rating": 8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012718.jpg"
+    },
+    {
+      "season": 2,
+      "number": 11,
+      "name": "Mandala",
+      "airdate": "2009-05-17",
+      "rating": 8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012719.jpg"
+    },
+    {
+      "season": 2,
+      "number": 12,
+      "name": "Phoenix",
+      "airdate": "2009-05-24",
+      "rating": 8.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012720.jpg"
+    },
+    {
+      "season": 2,
+      "number": 13,
+      "name": "ABQ",
+      "airdate": "2009-05-31",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012721.jpg"
+    },
+    {
+      "season": 3,
+      "number": 1,
+      "name": "No Más",
+      "airdate": "2010-03-21",
+      "rating": 7.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012733.jpg"
+    },
+    {
+      "season": 3,
+      "number": 2,
+      "name": "Caballo sin Nombre",
+      "airdate": "2010-03-28",
+      "rating": 8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012734.jpg"
+    },
+    {
+      "season": 3,
+      "number": 3,
+      "name": "I.F.T.",
+      "airdate": "2010-04-04",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012735.jpg"
+    },
+    {
+      "season": 3,
+      "number": 4,
+      "name": "Green Light",
+      "airdate": "2010-04-11",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012736.jpg"
+    },
+    {
+      "season": 3,
+      "number": 5,
+      "name": "Más",
+      "airdate": "2010-04-18",
+      "rating": 8.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012737.jpg"
+    },
+    {
+      "season": 3,
+      "number": 6,
+      "name": "Sunset",
+      "airdate": "2010-04-25",
+      "rating": 8.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012738.jpg"
+    },
+    {
+      "season": 3,
+      "number": 7,
+      "name": "One Minute",
+      "airdate": "2010-05-02",
+      "rating": 9.2,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012739.jpg"
+    },
+    {
+      "season": 3,
+      "number": 8,
+      "name": "I See You",
+      "airdate": "2010-05-09",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012740.jpg"
+    },
+    {
+      "season": 3,
+      "number": 9,
+      "name": "Kafkaesque",
+      "airdate": "2010-05-16",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012741.jpg"
+    },
+    {
+      "season": 3,
+      "number": 10,
+      "name": "Fly",
+      "airdate": "2010-05-23",
+      "rating": 7.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012742.jpg"
+    },
+    {
+      "season": 3,
+      "number": 11,
+      "name": "Abiquiu",
+      "airdate": "2010-05-30",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012743.jpg"
+    },
+    {
+      "season": 3,
+      "number": 12,
+      "name": "Half Measures",
+      "airdate": "2010-06-06",
+      "rating": 9.2,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012744.jpg"
+    },
+    {
+      "season": 3,
+      "number": 13,
+      "name": "Full Measure",
+      "airdate": "2010-06-13",
+      "rating": 9.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012745.jpg"
+    },
+    {
+      "season": 4,
+      "number": 1,
+      "name": "Box Cutter",
+      "airdate": "2011-07-17",
+      "rating": 8.2,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012751.jpg"
+    },
+    {
+      "season": 4,
+      "number": 2,
+      "name": "Thirty-Eight Snub",
+      "airdate": "2011-07-24",
+      "rating": 7.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012752.jpg"
+    },
+    {
+      "season": 4,
+      "number": 3,
+      "name": "Open House",
+      "airdate": "2011-07-31",
+      "rating": 7.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012753.jpg"
+    },
+    {
+      "season": 4,
+      "number": 4,
+      "name": "Bullet Points",
+      "airdate": "2011-08-07",
+      "rating": 7.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012754.jpg"
+    },
+    {
+      "season": 4,
+      "number": 5,
+      "name": "Shotgun",
+      "airdate": "2011-08-14",
+      "rating": 7.7,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012755.jpg"
+    },
+    {
+      "season": 4,
+      "number": 6,
+      "name": "Cornered",
+      "airdate": "2011-08-21",
+      "rating": 7.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012756.jpg"
+    },
+    {
+      "season": 4,
+      "number": 7,
+      "name": "Problem Dog",
+      "airdate": "2011-08-28",
+      "rating": 8.2,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012757.jpg"
+    },
+    {
+      "season": 4,
+      "number": 8,
+      "name": "Hermanos",
+      "airdate": "2011-09-04",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012758.jpg"
+    },
+    {
+      "season": 4,
+      "number": 9,
+      "name": "Bug",
+      "airdate": "2011-09-11",
+      "rating": 8.2,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012759.jpg"
+    },
+    {
+      "season": 4,
+      "number": 10,
+      "name": "Salud",
+      "airdate": "2011-09-18",
+      "rating": 9.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012760.jpg"
+    },
+    {
+      "season": 4,
+      "number": 11,
+      "name": "Crawl Space",
+      "airdate": "2011-09-25",
+      "rating": 9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012761.jpg"
+    },
+    {
+      "season": 4,
+      "number": 12,
+      "name": "End Times",
+      "airdate": "2011-10-02",
+      "rating": 9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012762.jpg"
+    },
+    {
+      "season": 4,
+      "number": 13,
+      "name": "Face Off",
+      "airdate": "2011-10-09",
+      "rating": 9.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012763.jpg"
+    },
+    {
+      "season": 5,
+      "number": 1,
+      "name": "Live Free or Die",
+      "airdate": "2012-07-15",
+      "rating": 7.7,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012774.jpg"
+    },
+    {
+      "season": 5,
+      "number": 2,
+      "name": "Madrigal",
+      "airdate": "2012-07-22",
+      "rating": 7.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012775.jpg"
+    },
+    {
+      "season": 5,
+      "number": 3,
+      "name": "Hazard Pay",
+      "airdate": "2012-07-29",
+      "rating": 7.6,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012776.jpg"
+    },
+    {
+      "season": 5,
+      "number": 4,
+      "name": "Fifty-One",
+      "airdate": "2012-08-05",
+      "rating": 7.4,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012777.jpg"
+    },
+    {
+      "season": 5,
+      "number": 5,
+      "name": "Dead Freight",
+      "airdate": "2012-08-12",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012778.jpg"
+    },
+    {
+      "season": 5,
+      "number": 6,
+      "name": "Buyout",
+      "airdate": "2012-08-19",
+      "rating": 7.8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012779.jpg"
+    },
+    {
+      "season": 5,
+      "number": 7,
+      "name": "Say My Name",
+      "airdate": "2012-08-26",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012780.jpg"
+    },
+    {
+      "season": 5,
+      "number": 8,
+      "name": "Gliding Over All",
+      "airdate": "2012-09-02",
+      "rating": 8.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012781.jpg"
+    },
+    {
+      "season": 5,
+      "number": 9,
+      "name": "Blood Money",
+      "airdate": "2013-08-11",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012782.jpg"
+    },
+    {
+      "season": 5,
+      "number": 10,
+      "name": "Buried",
+      "airdate": "2013-08-18",
+      "rating": 7.9,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012783.jpg"
+    },
+    {
+      "season": 5,
+      "number": 11,
+      "name": "Confessions",
+      "airdate": "2013-08-25",
+      "rating": 8.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012784.jpg"
+    },
+    {
+      "season": 5,
+      "number": 12,
+      "name": "Rabid Dog",
+      "airdate": "2013-09-01",
+      "rating": 7.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012785.jpg"
+    },
+    {
+      "season": 5,
+      "number": 13,
+      "name": "To'hajiilee",
+      "airdate": "2013-09-08",
+      "rating": 8.3,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012786.jpg"
+    },
+    {
+      "season": 5,
+      "number": 14,
+      "name": "Ozymandias",
+      "airdate": "2013-09-15",
+      "rating": 9.1,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012787.jpg"
+    },
+    {
+      "season": 5,
+      "number": 15,
+      "name": "Granite State",
+      "airdate": "2013-09-22",
+      "rating": 8.2,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012788.jpg"
+    },
+    {
+      "season": 5,
+      "number": 16,
+      "name": "Felina",
+      "airdate": "2013-09-29",
+      "rating": 8,
+      "image": "https://static.tvmaze.com/uploads/images/medium_landscape/405/1012789.jpg"
+    }
+  ]
+}

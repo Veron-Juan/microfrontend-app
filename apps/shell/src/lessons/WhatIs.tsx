@@ -8,14 +8,14 @@ export function WhatIs() {
       <Prose>
         <p>
           Una aplicación web grande se parte en <b>pedazos verticales</b>, cada uno dueño de una parte del producto (el
-          catálogo, el reproductor, la guía). Cada pedazo lo construye, prueba y despliega <b>un equipo distinto</b>,
-          sin esperar a los demás. Un <b>shell</b> (también llamado <em>host</em> o <em>contenedor</em>) decide dónde va
+          catálogo, la ficha, la guía). Cada pedazo lo construye, prueba y despliega <b>un equipo distinto</b>, sin
+          esperar a los demás. Un <b>shell</b> (también llamado <em>host</em> o <em>contenedor</em>) decide dónde va
           cada pedazo y los une en el navegador o en el servidor.
         </p>
       </Prose>
       <Cards columns="four">
         <Card title="Deploy independiente">
-          El equipo del catálogo publica la versión 1.5 sin tocar el reproductor ni el shell.
+          El equipo del catálogo publica la versión 1.5 sin tocar la ficha ni el shell.
         </Card>
         <Card title="Equipos autónomos">
           Cada equipo es dueño de su pedazo de punta a punta: código, datos, pruebas y guardia.

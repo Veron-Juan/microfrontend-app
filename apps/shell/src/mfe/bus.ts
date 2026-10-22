@@ -2,7 +2,7 @@ import { BUS_EVENTS, on, type BusEventName } from "@mfe/contracts";
 import { store } from "../state/store.ts";
 
 // El contrato de eventos entre micro-frontends vive en @mfe/contracts. Es lo único que
-// catálogo y reproductor "comparten": un nombre de evento y la forma de su payload.
+// catálogo y ficha "comparten": un nombre de evento y la forma de su payload.
 export const CONTRACT = BUS_EVENTS;
 
 const MAX_EVENTS = 6;

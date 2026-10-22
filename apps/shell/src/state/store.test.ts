@@ -17,9 +17,9 @@ test("reload incrementa el nonce para que el remote se vuelva a pedir", () => {
 });
 
 test("setBroken marca el remote y fuerza una recarga", () => {
-  setBroken("player", true);
-  assert.equal(store.get().broken.player, true);
-  assert.equal(store.get().nonce.player, 1);
+  setBroken("details", true);
+  assert.equal(store.get().broken.details, true);
+  assert.equal(store.get().nonce.details, 1);
 });
 
 test("los suscriptores se enteran de cada cambio", () => {

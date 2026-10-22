@@ -9,8 +9,11 @@ export interface RemoteModule {
   meta?: RemoteMeta;
 }
 
-/** Para simular una caída apuntamos el remote a un puerto donde no hay nadie. */
-export const OFFLINE_ORIGIN = "http://localhost:5999/";
+/**
+ * Para simular una caída apuntamos el remote a un origen que no existe. `.invalid` es un dominio
+ * reservado (RFC 2606): nunca resuelve, ni en local ni en producción, así que la falla es real.
+ */
+export const OFFLINE_ORIGIN = "https://offline.invalid/";
 
 /**
  * Registra en el runtime de Module Federation los remotes que trajo el discovery. El shell no los

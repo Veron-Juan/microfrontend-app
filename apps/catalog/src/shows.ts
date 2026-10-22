@@ -3,6 +3,7 @@ import type { Show } from "@mfe/contracts";
 /** Filtro que muestra todo el catálogo. */
 export const ALL = "Todo";
 
+/** El catálogo de respaldo: lo que se muestra si TVmaze no responde (ver use-shows.ts). */
 export const SHOWS: readonly Show[] = [
   { id: "f1", title: "Final continental", kind: "Deportes", length: 5400, hue: 210 },
   { id: "d2", title: "Andes profundos", kind: "Documental", length: 3000, hue: 150 },

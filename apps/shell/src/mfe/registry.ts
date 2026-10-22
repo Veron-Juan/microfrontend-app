@@ -10,7 +10,7 @@ import { fetchDiscovery, type DiscoveredRemote, type Discovery } from "./discove
  */
 
 export type AppId = "shell" | RemoteId;
-export type RemoteId = "news" | "catalog" | "player" | "guide";
+export type RemoteId = "news" | "catalog" | "details" | "guide";
 
 interface AppInfo {
   id: AppId;
@@ -55,7 +55,7 @@ export type MicroFrontend = HostApp | RemoteApp;
 const SLOTS: Record<RemoteId, { title: string }> = {
   news: { title: "Novedades" },
   catalog: { title: "Catálogo" },
-  player: { title: "Reproductor" },
+  details: { title: "Ficha" },
   guide: { title: "Guía" },
 };
 

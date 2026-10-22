@@ -11,9 +11,9 @@
       }
     },
     {
-      "files": "apps/player/**",
+      "files": "apps/details/**",
       "options": {
-        "tailwindStylesheet": "./apps/player/src/player.css"
+        "tailwindStylesheet": "./apps/details/src/details.css"
       }
     },
     {

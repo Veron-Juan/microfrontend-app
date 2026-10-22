@@ -1,7 +1,7 @@
 // La app de Express: rutas y cabeceras. Se crea con sus dependencias para poder probarla.
 import express, { type Express } from "express";
 import { asyncHandler, errorHandler, notFound } from "./http.ts";
-import { fetchLiveData, type LiveData } from "./live-data.ts";
+import type { LiveData } from "./live-data.ts";
 import { renderFragment, standalonePage } from "./render.tsx";
 
 export interface AppOptions {
@@ -10,10 +10,11 @@ export interface AppOptions {
   css: string;
   /** CSS extra de la página standalone (reset y fondo). */
   standaloneCss: string;
-  fetchData?: (now: number) => Promise<LiveData>;
+  /** De dónde salen los datos de cada render: las APIs reales o, en los tests, datos fijos. */
+  fetchData: (now: number) => Promise<LiveData>;
 }
 
-export function createApp({ version, css, standaloneCss, fetchData = fetchLiveData }: AppOptions): Express {
+export function createApp({ version, css, standaloneCss, fetchData }: AppOptions): Express {
   const app = express();
   let served = 0;
   const render = () => renderFragment({ css, served: ++served, fetchData });

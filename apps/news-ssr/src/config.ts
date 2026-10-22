@@ -14,4 +14,6 @@ export function parsePort(value: string | undefined, fallback: number): number {
 export const config = {
   port: parsePort(process.env.PORT, 5003),
   version: pkg.version,
+  /** Key de TheSportsDB. Sin ella se usa la key pública de prueba. */
+  sportsDbKey: process.env.SPORTSDB_KEY || undefined,
 } as const;

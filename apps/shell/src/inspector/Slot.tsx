@@ -1,10 +1,14 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cx } from "../lib/cx.ts";
-import { appById, hostOf, type AppId } from "../mfe/registry.ts";
+import { appById, apps, hostOf, type AppId } from "../mfe/registry.ts";
 import { reload, setBroken, setFocus, useStore } from "../state/store.ts";
 
-/** Dónde va la ficha del inspector: arriba a la izquierda (remotes), en una esquina o debajo (piezas del shell). */
-export type TagPlacement = "inline" | "corner" | "below";
+/**
+ * Dónde va la ficha del inspector: montada sobre el borde de arriba (a la izquierda o a la
+ * derecha), o debajo de la pieza (la barra del shell). Sobre el borde no empuja el contenido, así
+ * que encender el inspector no mueve nada de lugar.
+ */
+export type TagPlacement = "start" | "end" | "below";
 
 interface SlotProps {
   id: AppId;
@@ -15,27 +19,50 @@ interface SlotProps {
   tag?: TagPlacement;
   /** Queda fija arriba al hacer scroll (la barra del shell). */
   sticky?: boolean;
+  /** Se ve como un panel (con borde) aunque el inspector esté apagado. */
+  panel?: boolean;
 }
 
 const TAG_PLACEMENT: Record<TagPlacement, string> = {
-  inline: "relative -mt-[15px] -ml-[15px] mb-3 rounded-tl-[9px] rounded-br-[9px]",
-  corner:
-    "absolute right-1 bottom-1 rounded-md opacity-95 max-[560px]:relative max-[560px]:inset-auto max-[560px]:mt-2",
-  below: "absolute top-[calc(100%+6px)] right-1 rounded-md opacity-95",
+  start: "absolute top-0 left-3 -translate-y-1/2",
+  end: "absolute top-0 right-3 -translate-y-1/2",
+  below: "absolute top-[calc(100%+6px)] right-1",
 };
+
+/** Cuánto se demora cada pieza al encender el inspector: aparecen en cascada, en el orden de la página. */
+const STAGGER_MS = 70;
 
 /**
  * Envuelve cada pieza de la página. Con el inspector encendido dibuja su borde y su ficha:
  * quién la sirve, desde dónde, con qué tipo de render y cuánto tardó.
  */
-export function Slot({ id, children, className, tools = true, tag = "inline", sticky = false }: SlotProps) {
+export function Slot({
+  id,
+  children,
+  className,
+  tools = true,
+  tag = "start",
+  sticky = false,
+  panel = false,
+}: SlotProps) {
   const app = appById(id);
   const inspector = useStore((s) => s.inspector);
-  const focused = useStore((s) => s.focus === id);
+  const focus = useStore((s) => s.focus);
   const load = useStore((s) => s.loads[id]);
   const broken = useStore((s) => !!s.broken[id]);
   const isShell = app.kind === "host";
   const status = isShell ? "ready" : (load?.status ?? "idle");
+  const focused = inspector && focus === id;
+  // Al pasar el mouse por una pieza, las demás se apagan un poco. La barra fija nunca.
+  const dimmed = inspector && !sticky && focus !== null && focus !== id;
+  const delay = {
+    animationDelay: `${
+      Math.max(
+        0,
+        apps().findIndex((a) => a.id === id),
+      ) * STAGGER_MS
+    }ms`,
+  };
 
   return (
     <div
@@ -43,24 +70,43 @@ export function Slot({ id, children, className, tools = true, tag = "inline", st
       data-render={app.render}
       data-status={status}
       className={cx(
-        "@container transition-[box-shadow,background-color] duration-250",
-        sticky ? "sticky top-0 z-20" : "relative rounded-[10px]",
-        inspector && (isShell ? "inset-ring-[1.5px] inset-ring-mid" : "bg-(--c)/5 ring-[1.5px] ring-(--c)"),
-        inspector && focused && !isShell && "bg-(--c)/10 ring-[2.5px]",
+        "@container transition-[box-shadow,background-color,opacity,filter] duration-300 ease-out-soft",
+        sticky ? "sticky top-0 z-20" : "relative rounded-xl",
+        panel && !inspector && "ring-1 ring-line-soft",
+        inspector && (isShell ? "inset-ring-[1.5px] inset-ring-mid" : "bg-(--c)/[0.045] ring-[1.5px] ring-(--c)"),
+        focused && !isShell && "bg-(--c)/[0.09] ring-[2.5px]",
+        dimmed && "opacity-50 saturate-[.6]",
         className,
       )}
       onPointerEnter={() => inspector && setFocus(id)}
       onPointerLeave={() => inspector && setFocus(null)}
     >
+      {inspector && !sticky && <Scan delay={delay} isShell={isShell} />}
+      {/* Un destello en el borde cada vez que el remote termina de cargar (por ejemplo, después de ↻). */}
+      {inspector && !isShell && status === "ready" && (
+        <span
+          key={load?.end ?? 0}
+          aria-hidden="true"
+          className="pointer-events-none absolute -inset-[3px] animate-flash rounded-[15px] ring-4 ring-(--c)/45 motion-reduce:hidden"
+          style={delay}
+        />
+      )}
       {inspector && (
         <div
           className={cx(
-            "z-[5] flex w-fit max-w-[calc(100%+2px)] animate-tag-in flex-wrap items-center gap-2 bg-card py-1 pr-1.5 pl-[5px] font-mono text-[11px] text-muted",
+            "z-[5] flex w-fit max-w-[calc(100%-24px)] animate-tag-in flex-wrap items-center gap-2 rounded-md bg-card py-1 pr-1.5 pl-[5px] font-mono text-[11px] text-muted shadow-[0_6px_16px_-6px_rgb(0_0_0/.3)] motion-reduce:animate-none",
             isShell ? "ring-[1.5px] ring-mid" : "ring-[1.5px] ring-(--c)",
+            focused && "shadow-[0_10px_24px_-8px_rgb(0_0_0/.4)]",
             TAG_PLACEMENT[tag],
           )}
+          style={delay}
         >
-          <span className="rounded-sm bg-(--c) px-[5px] py-[3px] font-mono text-[10px]/none font-semibold text-card">
+          <span
+            className={cx(
+              "rounded-sm px-[5px] py-[3px] font-mono text-[10px]/none font-semibold text-card",
+              isShell ? "bg-mid" : "bg-(--c)",
+            )}
+          >
             {app.render}
           </span>
           <b className="font-medium">{app.name}</b>
@@ -90,6 +136,21 @@ export function Slot({ id, children, className, tools = true, tag = "inline", st
   );
 }
 
+/** Un barrido de luz del color de la pieza que la recorre una vez al encender el inspector. */
+function Scan({ delay, isShell }: { delay: CSSProperties; isShell: boolean }) {
+  return (
+    <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+      <span
+        className={cx(
+          "absolute inset-y-0 -left-1/3 w-1/3 animate-scan bg-linear-90 from-transparent to-transparent motion-reduce:hidden",
+          isShell ? "via-mid/20" : "via-(--c)/25",
+        )}
+        style={delay}
+      />
+    </span>
+  );
+}
+
 interface SlotToolProps {
   onClick: () => void;
   title: string;
@@ -104,7 +165,7 @@ function SlotTool({ onClick, title, pressed, children }: SlotToolProps) {
       onClick={onClick}
       title={title}
       aria-pressed={pressed}
-      className="cursor-pointer rounded-[5px] border border-line bg-transparent px-1.5 py-px font-mono text-[11px] text-strong aria-pressed:border-danger aria-pressed:text-danger"
+      className="cursor-pointer rounded-[5px] border border-line bg-transparent px-1.5 py-px font-mono text-[11px] text-strong transition-colors hover:border-mid aria-pressed:border-danger aria-pressed:text-danger"
     >
       {children}
     </button>

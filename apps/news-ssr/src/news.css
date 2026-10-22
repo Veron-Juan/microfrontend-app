@@ -7,3 +7,14 @@
 @import "tailwindcss/theme.css" layer(theme) prefix(nws);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "@mfe/design-tokens/theme.css";
+
+@theme {
+  /* El punto de "en vivo". El keyframe lleva el prefijo a mano: Tailwind no lo prefija. */
+  --animate-live: nws-live 1.4s ease-in-out infinite;
+
+  @keyframes nws-live {
+    50% {
+      opacity: 0.25;
+    }
+  }
+}
