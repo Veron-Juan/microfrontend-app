@@ -1,0 +1,8 @@
+// Deploy en Cloudflare (Workers con archivos estáticos): publica dist/ tal cual, con su _headers.
+{
+  "name": "mfe-anatomia-catalog",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+  },
+}

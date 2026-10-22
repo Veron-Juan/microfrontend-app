@@ -19,12 +19,13 @@ jobs:
       - run: npm run check
       - run: npm run build
 
-  # Los cuatro sitios estáticos van a Cloudflare Pages. news-ssr no está aquí: Render lo despliega
-  # solo desde render.yaml. Los orígenes son variables del repo, así que cambiar uno no toca el código.
+  # Los cuatro sitios estáticos van a Cloudflare (Workers con archivos estáticos; cada app tiene su
+  # wrangler.jsonc). news-ssr no está aquí: Render lo despliega solo desde render.yaml. Los orígenes
+  # son variables del repo, así que cambiar uno no toca el código.
   deploy:
     needs: check
-    # Se salta hasta que el repo tenga configurados los proyectos de Pages.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PAGES_SHELL_PROJECT != ''
+    # Se salta hasta que el repo tenga configurados los orígenes.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.MFE_NEWS_ORIGIN != ''
     runs-on: ubuntu-latest
     concurrency: production
     env:
@@ -34,7 +35,7 @@ jobs:
       MFE_CATALOG_ORIGIN: ${{ vars.MFE_CATALOG_ORIGIN }}
       MFE_DETAILS_ORIGIN: ${{ vars.MFE_DETAILS_ORIGIN }}
       MFE_GUIDE_ORIGIN: ${{ vars.MFE_GUIDE_ORIGIN }}
-      PAGES: npx --yes wrangler@4.146.0 pages deploy --branch main --commit-dirty=true
+      DEPLOY: npx --yes wrangler@4.146.0 deploy --cwd
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,19 +49,19 @@ jobs:
       - name: catalog
         run: |
           PUBLIC_URL="${MFE_CATALOG_ORIGIN%/}/" npm run build -w catalog
-          $PAGES apps/catalog/dist --project-name "${{ vars.PAGES_CATALOG_PROJECT }}"
+          $DEPLOY apps/catalog
       - name: details
         run: |
           PUBLIC_URL="${MFE_DETAILS_ORIGIN%/}/" npm run build -w details
-          $PAGES apps/details/dist --project-name "${{ vars.PAGES_DETAILS_PROJECT }}"
+          $DEPLOY apps/details
       - name: guide-ssg
         run: |
           npm run build -w guide-ssg
-          $PAGES apps/guide-ssg/dist --project-name "${{ vars.PAGES_GUIDE_PROJECT }}"
+          $DEPLOY apps/guide-ssg
 
       # El shell al final, con el discovery de producción. Si falta un origen o no es https, falla aquí.
       - name: shell
         run: |
           npm run build -w shell
           npm run discovery -w shell
-          $PAGES apps/shell/dist --project-name "${{ vars.PAGES_SHELL_PROJECT }}"
+          $DEPLOY apps/shell

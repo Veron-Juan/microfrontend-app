@@ -54,7 +54,7 @@ Cada remote también se puede abrir solo en su puerto: así lo desarrollaría su
 2. **↻ en Novedades**: la hora de render y el id de request cambian cada vez (SSR), pero los datos dicen "de hace N s":
    vienen de la caché del servidor.
 3. **↻ en la Guía**: la hora del build no cambia y el inspector marca "caché": la respuesta salió de la caché HTTP del
-   navegador sin ir a la red (SSG). En la pestaña Network se ve que el ETag tampoco cambia.
+   navegador sin ir a la red (SSG). En local, la pestaña Network muestra además que el ETag no cambia.
 4. **Busca en el catálogo**: la búsqueda va de tu navegador a TVmaze (CSR). Mírala en la pestaña Network.
 5. **Elige un título en el catálogo**: la ficha lo recibe por el evento `mfe:select`, sin que ninguno importe al otro, y
    pide a TVmaze la nota, el resumen y el elenco.
@@ -196,7 +196,7 @@ Cada app es un deploy separado, y el shell se construye **una sola vez para todo
 ### Una forma concreta de desplegarlo (con planes gratuitos)
 
 Cuatro apps son archivos estáticos y van a un hosting estático; solo `news-ssr` necesita un servidor. Los estáticos
-traen un archivo `_headers` (CORS y caché) que Cloudflare Pages y Netlify entienden igual. Todos los comandos se corren
+traen un archivo `_headers` (CORS y caché) que Cloudflare (Pages o Workers) y Netlify entienden igual. Todos los comandos se corren
 desde la raíz del repo.
 
 | App         | Dónde                               | Build                                                                     | Publica                | Variables                         |
@@ -207,13 +207,15 @@ desde la raíz del repo.
 | `news-ssr`  | Render, Fly.io, Railway o Cloud Run | `docker build -f apps/news-ssr/Dockerfile .`                              | el contenedor (`PORT`) | opcional: `SPORTSDB_KEY`          |
 | `shell`     | Cloudflare Pages o Netlify          | `npm run figures && npm run build -w shell && npm run discovery -w shell` | `apps/shell/dist`      | `MFE_*_ORIGIN` (abajo)            |
 
-**Cómo está armado en este repo:** los cuatro estáticos van a Cloudflare Pages y `news-ssr` a Render, los dos con
-plan gratis.
+**Cómo está armado en este repo:** los cuatro estáticos van a Cloudflare y `news-ssr` a Render, los dos con plan
+gratis.
 
-- **Cloudflare Pages**: el job `deploy` de `.github/workflows/ci.yml` corre en cada push a `main`, después de que pasa
-  la CI. Construye y publica primero los remotes y al final el shell, con su discovery. Necesita dos secretos
-  (`CLOUDFLARE_API_TOKEN`, con permiso _Cloudflare Pages: Edit_, y `CLOUDFLARE_ACCOUNT_ID`) y estas variables del repo:
-  `MFE_{NEWS,CATALOG,DETAILS,GUIDE}_ORIGIN` y `PAGES_{SHELL,CATALOG,DETAILS,GUIDE}_PROJECT`.
+- **Cloudflare**: cada app estática tiene un `wrangler.jsonc` y se publica como un Worker con archivos estáticos (la
+  versión actual de Pages), en `https://mfe-anatomia-<app>.<subdominio>.workers.dev`. El job `deploy` de
+  `.github/workflows/ci.yml` corre en cada push a `main`, después de que pasa la CI: construye y publica primero los
+  remotes y al final el shell, con su discovery. Necesita dos secretos (`CLOUDFLARE_API_TOKEN`, creado con la plantilla
+  _Edit Cloudflare Workers_, y `CLOUDFLARE_ACCOUNT_ID`) y las variables `MFE_{NEWS,CATALOG,DETAILS,GUIDE}_ORIGIN`. Para
+  publicar a mano: `npx wrangler deploy --cwd apps/<app>` después del build.
 - **Render**: `render.yaml` es un Blueprint (New → Blueprint en Render). Se vuelve a desplegar solo cuando un push a
   `main` toca `news-ssr` o sus dependencias. En el plan gratis se duerme tras 15 minutos sin visitas: la primera visita
   después espera cerca de un minuto, y mientras tanto Novedades muestra su esqueleto.
