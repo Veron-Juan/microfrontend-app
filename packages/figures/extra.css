@@ -60,6 +60,38 @@
 [data-landed] .fig-tint {
   opacity: 0.14;
 }
+/* Fig 2: encabezados de columna, rótulos de fila en el color de su render y la celda donde se arma el HTML. */
+.fig-head {
+  fill: var(--anatomy-strong);
+  font-family: var(--anatomy-mono);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+.fig-lane {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  font-weight: 700;
+}
+.fig-lane[data-render="CSR"],
+.fig-cell[data-render="CSR"] {
+  fill: var(--mfe-csr, #6b9bff);
+}
+.fig-lane[data-render="SSR"],
+.fig-cell[data-render="SSR"] {
+  fill: var(--mfe-ssr, #f5a524);
+}
+.fig-lane[data-render="SSG"],
+.fig-cell[data-render="SSG"] {
+  fill: var(--mfe-ssg, #3dd68c);
+}
+.fig-cell {
+  stroke: none;
+  opacity: 0.12;
+}
 /* En pantallas angostas la figura se encoge a la mitad: los nombres crecen y se ocultan los detalles. */
 @media (max-width: 560px) {
   .fig-callout .fig-name {
@@ -69,6 +101,15 @@
     font-size: 13px;
   }
   .fig-meta {
+    display: none;
+  }
+  .fig-col {
+    font-size: 10px;
+  }
+  .fig-row {
+    font-size: 15px;
+  }
+  .fig-note {
     display: none;
   }
 }

@@ -159,8 +159,9 @@ En el shell, `src/figures/` las anima con el estado real de carga:
 
 - **Fig 1 · Una página, cinco servidores**: una vista explotada de la demo. El shell pone la página con un hueco por
   remote, y cada remote baja a su hueco cuando termina de cargar, con los tiempos medidos en la página.
-- **Fig 2 · Tres carriles**: SSG (páginas ya impresas), SSR (una prensa que imprime en cada request) y CSR (piezas que se
-  arman en la pantalla). Los tiempos son los medidos en la página.
+- **Fig 2 · Dónde y cuándo se arma el HTML**: una cuadrícula con el build, el servidor y el navegador como columnas y
+  SSG, SSR y CSR como filas. Las piezas de cada fila se juntan en una página en una sola celda (el build, el servidor o
+  el navegador), y las celdas encendidas forman una diagonal. Los tiempos son los medidos en la página.
 
 ## Cómo se maneja SSR, SSG y CSR en un proyecto real
 

@@ -20,12 +20,15 @@ writeFileSync(
 writeFileSync(
   join(OUT, "figures.d.ts"),
   `// Generado por packages/figures/build.ts. No editar a mano.
-import type { Projection } from "../kit/iso-kit.ts";
+import type { Point3, Projection } from "../kit/iso-kit.ts";
 import type { Tile } from "../assembly.ts";
-import type { Lane } from "../render.ts";
+import type { ColumnId, Lane } from "../render.ts";
 export declare const FIGURES: {
   assembly: { svg: string; data: { P: Projection; HOVER: number; TILES: Tile[] } };
-  render: { svg: string; data: { P: Projection; LANES: Lane[]; START: number; END: number; PLUNGER_REST: number; PLUNGER_LOW: number } };
+  render: {
+    svg: string;
+    data: { P: Projection; LANES: Lane[]; COLUMNS: Record<ColumnId, number>; LOOSE: Point3[]; TIGHT: Point3[] };
+  };
 };
 `,
 );
@@ -44,7 +47,7 @@ for (const theme of ["dark", "light"] as const) {
     const page = k
       .pageHtml({ title: name, theme, body, width: 900 })
       .replace("</style>", readFileSync(join(HERE, "extra.css"), "utf8") + "</style>");
-    const plugged = `<script>document.querySelectorAll('[data-slot]').forEach(g=>{g.setAttribute('transform','translate(0 0)');g.setAttribute('data-landed','')});document.querySelectorAll('[data-part^=guides-],[data-part^=slot-]').forEach(g=>g.remove());document.querySelectorAll('[data-on]:not([data-part^=fail-])').forEach(g=>g.dataset.on='true');document.querySelectorAll('[data-part=blank-SSR]').forEach(g=>g.dataset.on='false')</script>`;
+    const plugged = `<script>document.querySelectorAll('[data-slot]').forEach(g=>{g.setAttribute('transform','translate(0 0)');g.setAttribute('data-landed','')});document.querySelectorAll('[data-part^=guides-],[data-part^=slot-]').forEach(g=>g.remove());document.querySelectorAll('[data-on]:not([data-part^=fail-]):not([data-part^=req-])').forEach(g=>g.dataset.on='true')</script>`;
     writeFileSync(join(OUT, `${name}-${theme}.html`), page.replace("</body>", plugged + "</body>"));
   }
 }

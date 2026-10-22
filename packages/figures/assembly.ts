@@ -4,6 +4,7 @@
 // cae, la pieza no baja, el hueco muestra el aviso y el resto de la página sigue armada.
 // Los nombres van en texto plano, sin perspectiva, para que se lean a cualquier tamaño.
 import * as k from "./kit/iso-kit.ts";
+import { faceLabel, type Line } from "./text.ts";
 
 export type Render = "CSR" | "SSR" | "SSG";
 export interface Tile {
@@ -48,25 +49,7 @@ const D = (points: k.Flat[], style?: Parameters<typeof k.dotsSvg>[1]) => k.dotsS
 const tenth = (value: number) => Math.round(value * 10) / 10;
 const centerOf = ({ x, y, w, d }: k.Plan): k.Plane => [x + w / 2, y + d / 2];
 
-interface Line {
-  text: string;
-  className: string;
-  /** Tamaño en unidades del mundo: el texto se apoya sobre la cara y se inclina con ella. */
-  size: number;
-  part?: string;
-}
-
-/** Texto apoyado sobre una cara superior, centrado en un punto y alineado con el eje x de la pieza. */
-function label([x, y]: k.Plane, z: number, lines: Line[], gap = 2) {
-  const height = lines.reduce((sum, line) => sum + line.size, 0) + gap * (lines.length - 1);
-  let top = -height / 2;
-  const rows = lines.map((line) => {
-    const row = `<text class="${line.className}"${line.part ? ` data-part="${line.part}"` : ""} y="${tenth(top + line.size / 2)}" font-size="${line.size}" text-anchor="middle" dominant-baseline="central">${line.text}</text>`;
-    top += line.size + gap;
-    return row;
-  });
-  return `<g class="fig-face" transform="${k.topMatrix([x, y], z, P, "x")}">${rows.join("")}</g>`;
-}
+const label = (at: k.Plane, z: number, lines: Line[]) => faceLabel(at, z, P, lines);
 
 /** Las aristas verticales que unen una pieza a la altura z con su hueco. El shell las recalcula al animar. */
 function guides(plan: k.Plan, z: number, projection: k.Projection) {
