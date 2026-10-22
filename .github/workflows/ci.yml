@@ -18,3 +18,48 @@ jobs:
       - run: npm run figures
       - run: npm run check
       - run: npm run build
+
+  # Los cuatro sitios estáticos van a Cloudflare Pages. news-ssr no está aquí: Render lo despliega
+  # solo desde render.yaml. Los orígenes son variables del repo, así que cambiar uno no toca el código.
+  deploy:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      MFE_NEWS_ORIGIN: ${{ vars.MFE_NEWS_ORIGIN }}
+      MFE_CATALOG_ORIGIN: ${{ vars.MFE_CATALOG_ORIGIN }}
+      MFE_DETAILS_ORIGIN: ${{ vars.MFE_DETAILS_ORIGIN }}
+      MFE_GUIDE_ORIGIN: ${{ vars.MFE_GUIDE_ORIGIN }}
+      PAGES: npx --yes wrangler@4.146.0 pages deploy --branch main --commit-dirty=true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run figures
+
+      # Primero los remotes: cuando se publica el shell nuevo, lo que su discovery anuncia ya existe.
+      - name: catalog
+        run: |
+          PUBLIC_URL="${MFE_CATALOG_ORIGIN%/}/" npm run build -w catalog
+          $PAGES apps/catalog/dist --project-name "${{ vars.PAGES_CATALOG_PROJECT }}"
+      - name: details
+        run: |
+          PUBLIC_URL="${MFE_DETAILS_ORIGIN%/}/" npm run build -w details
+          $PAGES apps/details/dist --project-name "${{ vars.PAGES_DETAILS_PROJECT }}"
+      - name: guide-ssg
+        run: |
+          npm run build -w guide-ssg
+          $PAGES apps/guide-ssg/dist --project-name "${{ vars.PAGES_GUIDE_PROJECT }}"
+
+      # El shell al final, con el discovery de producción. Si falta un origen o no es https, falla aquí.
+      - name: shell
+        run: |
+          npm run build -w shell
+          npm run discovery -w shell
+          $PAGES apps/shell/dist --project-name "${{ vars.PAGES_SHELL_PROJECT }}"

@@ -207,6 +207,17 @@ desde la raíz del repo.
 | `news-ssr`  | Render, Fly.io, Railway o Cloud Run | `docker build -f apps/news-ssr/Dockerfile .`                              | el contenedor (`PORT`) | opcional: `SPORTSDB_KEY`          |
 | `shell`     | Cloudflare Pages o Netlify          | `npm run figures && npm run build -w shell && npm run discovery -w shell` | `apps/shell/dist`      | `MFE_*_ORIGIN` (abajo)            |
 
+**Cómo está armado en este repo:** los cuatro estáticos van a Cloudflare Pages y `news-ssr` a Render, los dos con
+plan gratis.
+
+- **Cloudflare Pages**: el job `deploy` de `.github/workflows/ci.yml` corre en cada push a `main`, después de que pasa
+  la CI. Construye y publica primero los remotes y al final el shell, con su discovery. Necesita dos secretos
+  (`CLOUDFLARE_API_TOKEN`, con permiso _Cloudflare Pages: Edit_, y `CLOUDFLARE_ACCOUNT_ID`) y estas variables del repo:
+  `MFE_{NEWS,CATALOG,DETAILS,GUIDE}_ORIGIN` y `PAGES_{SHELL,CATALOG,DETAILS,GUIDE}_PROJECT`.
+- **Render**: `render.yaml` es un Blueprint (New → Blueprint en Render). Se vuelve a desplegar solo cuando un push a
+  `main` toca `news-ssr` o sus dependencias. En el plan gratis se duerme tras 15 minutos sin visitas: la primera visita
+  después espera cerca de un minuto, y mientras tanto Novedades muestra su esqueleto.
+
 - **El discovery de producción** lo genera `npm run discovery -w shell` (`apps/shell/scripts/discovery.ts`) a partir de
   `MFE_NEWS_ORIGIN`, `MFE_CATALOG_ORIGIN`, `MFE_DETAILS_ORIGIN` y `MFE_GUIDE_ORIGIN`. Toma las versiones de cada
   `package.json` y lo valida con el mismo parser que usa el shell, así que un discovery roto falla el deploy y no el
