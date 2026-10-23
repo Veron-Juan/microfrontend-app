@@ -1,13 +1,13 @@
 /*
- * Design tokens compartidos por todas las apps.
+ * Design tokens shared by every app.
  *
- * Es lo único de estilos que comparten los equipos: valores, no clases. Cada app compila su
- * propio CSS con Tailwind a partir de estos tokens, así que un remote se ve consistente con
- * el shell sin depender del CSS del shell (y sin que un deploy de uno rompa al otro).
+ * It's the only styling the teams share: values, not classes. Each app compiles its own CSS with
+ * Tailwind from these tokens, so a remote looks consistent with the shell without depending on
+ * the shell's CSS (and without one's deploy breaking the other).
  *
- * Las variables --mfe-* cambian con el tema ([data-theme] en <html>). @theme inline hace que
- * las utilidades lean la variable en el lugar donde se usan, así que un remote prefijado
- * (cat:bg-card) y el shell (bg-card) resuelven al mismo color.
+ * The --mfe-* variables change with the theme ([data-theme] on <html>). @theme inline makes the
+ * utilities read the variable where they're used, so a prefixed remote (cat:bg-card) and the
+ * shell (bg-card) resolve to the same color.
  */
 
 :root,
@@ -63,11 +63,11 @@
   --color-lo: var(--mfe-lo);
   --color-faint: var(--mfe-faint);
   --color-danger: var(--mfe-danger);
-  /* Bordes: el gris medio con transparencia, para que funcionen sobre cualquier fondo. */
+  /* Borders: the mid gray with transparency, so they work on any background. */
   --color-line: color-mix(in srgb, var(--mfe-mid) 35%, transparent);
   --color-line-soft: color-mix(in srgb, var(--mfe-mid) 18%, transparent);
 
-  /* Un color por tipo de render: es el hilo conductor visual de toda la lección. */
+  /* One color per kind of rendering: it's the visual thread running through the whole lesson. */
   --color-csr: var(--mfe-csr);
   --color-ssr: var(--mfe-ssr);
   --color-ssg: var(--mfe-ssg);

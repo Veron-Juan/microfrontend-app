@@ -7,13 +7,13 @@ import { ALL, filterByKind, kindsOf } from "./shows.ts";
 import { TVMAZE_SITE } from "./tvmaze.ts";
 import { useShows, type ShowsStatus } from "./use-shows.ts";
 
-export const meta: RemoteMeta = { name: "catalog", version: "2.1.0", team: "Equipo Descubrimiento", render: "CSR" };
+export const meta: RemoteMeta = { name: "catalog", version: "2.1.0", team: "Browse team", render: "CSR" };
 
 const STATUS: Record<ShowsStatus, string> = {
-  loading: "pidiendo datos a TVmaze desde tu navegador…",
+  loading: "fetching data from TVmaze in your browser…",
   ready: "",
-  fallback: "TVmaze no respondió: este es el catálogo de respaldo.",
-  error: "TVmaze no respondió. Prueba de nuevo en un momento.",
+  fallback: "TVmaze didn't respond: this is the fallback catalog.",
+  error: "TVmaze didn't respond. Try again in a moment.",
 };
 
 export default function Catalog() {
@@ -22,12 +22,12 @@ export default function Catalog() {
   const [selected, setSelected] = useState<Show | null>(null);
   const { shows, status } = useShows(text);
   const kinds = kindsOf(shows);
-  // Si el filtro elegido no existe en los resultados nuevos, se muestra todo.
+  // If the chosen filter doesn't exist in the new results, show everything.
   const active = kinds.includes(kind) ? kind : ALL;
   const shown = filterByKind(shows, active);
 
-  // Comunicación entre micro-frontends: el catálogo no conoce a la ficha.
-  // Solo publica un evento del contrato compartido ("mfe:select") en el bus del navegador.
+  // Communication between micro-frontends: the catalog doesn't know about the details page.
+  // It only publishes an event from the shared contract ("mfe:select") on the browser's bus.
   const select = (show: Show) => {
     emit("mfe:select", { ...show, from: meta.name, at: Date.now() });
     setSelected(show);
@@ -35,10 +35,10 @@ export default function Catalog() {
 
   return (
     <section className="cat:grid cat:gap-3.5 cat:font-sans">
-      {/* El CSS compilado viaja dentro del módulo remoto: funciona igual en el shell y en standalone. */}
+      {/* The compiled CSS travels inside the remote module: it works the same in the shell and standalone. */}
       <style>{styles}</style>
       <header className="cat:flex cat:min-h-8 cat:flex-wrap cat:items-center cat:justify-between cat:gap-x-3 cat:gap-y-2">
-        <h3 className="cat:m-0 cat:text-[15px] cat:font-semibold cat:tracking-[-.01em] cat:text-strong">Catálogo</h3>
+        <h3 className="cat:m-0 cat:text-[15px] cat:font-semibold cat:tracking-[-.01em] cat:text-strong">Catalog</h3>
         <label className="cat:relative cat:block cat:w-56 cat:max-w-full">
           <svg
             aria-hidden="true"
@@ -52,8 +52,8 @@ export default function Catalog() {
             type="search"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="Buscar en TVmaze…"
-            aria-label="Buscar programas"
+            placeholder="Search TVmaze…"
+            aria-label="Search shows"
             className="cat:box-border cat:h-8 cat:w-full cat:rounded-full cat:border cat:border-faint cat:bg-page/60 cat:pr-3 cat:pl-8 cat:font-sans cat:text-[13px] cat:text-strong cat:transition-colors cat:outline-none cat:placeholder:text-muted cat:focus-visible:border-mid cat:focus-visible:bg-card"
           />
         </label>
@@ -68,7 +68,7 @@ export default function Catalog() {
         ))}
       </div>
       {status === "ready" && shows.length === 0 && (
-        <p className="cat:my-6 cat:text-center cat:text-[13px] cat:text-muted">Sin resultados para “{text.trim()}”.</p>
+        <p className="cat:my-6 cat:text-center cat:text-[13px] cat:text-muted">No results for “{text.trim()}”.</p>
       )}
       <p
         aria-live="polite"
@@ -76,9 +76,9 @@ export default function Catalog() {
       >
         {STATUS[status] ||
           (selected
-            ? `evento mfe:select enviado → "${selected.title}"`
-            : "Elige un título: el catálogo emite mfe:select y la ficha lo escucha.")}{" "}
-        · datos:{" "}
+            ? `mfe:select event sent → "${selected.title}"`
+            : "Pick a title: the catalog emits mfe:select and the details page listens for it.")}{" "}
+        · data:{" "}
         <a href={TVMAZE_SITE} className="cat:text-text cat:underline cat:underline-offset-2">
           TVmaze
         </a>{" "}

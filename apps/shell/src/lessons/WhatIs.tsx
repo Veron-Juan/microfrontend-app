@@ -4,35 +4,34 @@ import { Lesson, Prose } from "../ui/Lesson.tsx";
 
 export function WhatIs() {
   return (
-    <Lesson id="que-es" title="Qué es un micro-frontend" kicker="Microservicios, pero para la interfaz.">
+    <Lesson id="what-is" title="What a micro-frontend is" kicker="Microservices, but for the interface.">
       <Prose>
         <p>
-          Una aplicación web grande se parte en <b>pedazos verticales</b>, cada uno dueño de una parte del producto (el
-          catálogo, la ficha, la guía). Cada pedazo lo construye, prueba y despliega <b>un equipo distinto</b>, sin
-          esperar a los demás. Un <b>shell</b> (también llamado <em>host</em> o <em>contenedor</em>) decide dónde va
-          cada pedazo y los une en el navegador o en el servidor.
+          A large web application is split into <b>vertical slices</b>, each one owning a part of the product (the
+          catalog, the details page, the guide). Each slice is built, tested and deployed by <b>a different team</b>,
+          without waiting for the others. A <b>shell</b> (also called a <em>host</em> or <em>container</em>) decides
+          where each slice goes and puts them together in the browser or on the server.
         </p>
       </Prose>
       <Cards columns="four">
-        <Card title="Deploy independiente">
-          El equipo del catálogo publica la versión 2.2 sin tocar la ficha ni el shell.
+        <Card title="Independent deploys">
+          The catalog team ships version 2.2 without touching the details page or the shell.
         </Card>
-        <Card title="Equipos autónomos">
-          Cada equipo es dueño de su pedazo de punta a punta: código, datos, pruebas y guardia.
+        <Card title="Autonomous teams">Each team owns its slice end to end: code, data, tests and on-call.</Card>
+        <Card title="Technology agnostic">
+          Everything here is React, but a remote could be Vue or plain HTML. The contract is the integration.
         </Card>
-        <Card title="Agnóstico de tecnología">
-          Aquí todo es React, pero un remote podría ser Vue o HTML plano. El contrato es la integración.
-        </Card>
-        <Card title="Fallos aislados">
-          Si un remote cae, su espacio muestra un aviso y el resto de la página sigue funcionando.
+        <Card title="Isolated failures">
+          If a remote goes down, its space shows a notice and the rest of the page keeps working.
         </Card>
       </Cards>
       <AssemblyFigure />
       <Prose>
         <p>
-          La figura es esta misma página, desarmada. Abajo está el <b>shell</b>: pone el marco, la navegación y un hueco
-          para cada pieza. Arriba, cada <b>remote</b> llega desde su propio servidor y baja a su hueco cuando termina de
-          descargarse. Ninguno sabe que los otros existen; solo conocen el contrato de su hueco.
+          The figure is this very page, taken apart. At the bottom is the <b>shell</b>: it provides the frame, the
+          navigation and a slot for each piece. Above it, each <b>remote</b> arrives from its own server and drops into
+          its slot when it finishes downloading. None of them knows the others exist; they only know their slot's
+          contract.
         </p>
       </Prose>
     </Lesson>

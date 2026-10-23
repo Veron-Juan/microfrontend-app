@@ -1,12 +1,12 @@
-// Configuración del remote: todo lo que viene del entorno se lee aquí, en un solo lugar.
+// The remote's configuration: everything that comes from the environment is read here, in one place.
 import pkg from "../package.json" with { type: "json" };
 
-/** Convierte el valor de una variable de entorno en un puerto válido, o usa el de respaldo. */
+/** Turns an environment variable's value into a valid port, or uses the fallback. */
 export function parsePort(value: string | undefined, fallback: number): number {
   if (value === undefined || value.trim() === "") return fallback;
   const port = Number(value);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
-    throw new Error(`PORT inválido: "${value}"`);
+    throw new Error(`invalid PORT: "${value}"`);
   }
   return port;
 }
@@ -14,11 +14,11 @@ export function parsePort(value: string | undefined, fallback: number): number {
 export const config = {
   port: parsePort(process.env.PORT, 5003),
   version: pkg.version,
-  /** Key de TheSportsDB. Sin ella se usa la key pública de prueba. */
+  /** TheSportsDB key. Without it the public test key is used. */
   sportsDbKey: process.env.SPORTSDB_KEY || undefined,
   /**
-   * Límite de uso para todo el servidor (ver limits.ts). Con 8000 renders por día como máximo, un
-   * fragmento sin comprimir (~16 KB) suma unos 4 GB por mes: menos que los 5 GB gratis de Render.
+   * Usage limit for the whole server (see limits.ts). With at most 8000 renders per day, an
+   * uncompressed fragment (~16 KB) adds up to about 4 GB per month: less than Render's free 5 GB.
    */
   limits: { burst: 30, perSecond: 1, perDay: 8000 },
 } as const;

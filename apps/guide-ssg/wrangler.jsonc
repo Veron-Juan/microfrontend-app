@@ -1,11 +1,11 @@
-// Deploy en Cloudflare (Workers con archivos estáticos): publica dist/ tal cual, con su _headers.
+// Cloudflare deploy (Workers with static assets): publishes dist/ as is, with its _headers.
 {
   "name": "mfe-anatomia-guide",
   "compatibility_date": "2026-10-01",
-  // Solo la URL de producción: sin URLs de vista previa por cada versión subida.
+  // Production URL only: no preview URLs for each uploaded version.
   "preview_urls": false,
   "assets": {
-    // El shell pide /fragment/guide.html tal cual: sin esto, Cloudflare lo redirigiría a /fragment/guide.
+    // The shell requests /fragment/guide.html as is: without this, Cloudflare would redirect it to /fragment/guide.
     "html_handling": "none",
     "directory": "./dist",
   },

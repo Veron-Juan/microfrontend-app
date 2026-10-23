@@ -1,8 +1,8 @@
-// Static Site Generation: este script corre UNA vez, en CI, antes del deploy.
-// Pide los datos (una serie terminada y sus episodios, en TVmaze), los valida y los convierte en
-// archivos .html que cualquier CDN puede servir. Después nadie vuelve a ejecutar código por cada
-// visita. Como la serie terminó, sus datos no cambian: no hace falta reconstruir la guía cada día,
-// solo cuando cambia el código.
+// Static Site Generation: this script runs ONCE, in CI, before the deploy.
+// It fetches the data (a show that has ended and its episodes, from TVmaze), validates it and turns
+// it into .html files any CDN can serve. After that, no code runs again per visit. Since the show
+// has ended, its data doesn't change: the guide doesn't need rebuilding every day, only when the
+// code changes.
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,30 +20,30 @@ const t0 = performance.now();
 const builtAt = new Date();
 
 /**
- * La serie, pedida a TVmaze. Si no responde, se usa la copia guardada en el repo (snapshot.json):
- * como la serie terminó, la copia tiene los mismos datos y el build no depende de la red.
+ * The show, fetched from TVmaze. If it doesn't respond, the copy stored in the repo (snapshot.json)
+ * is used: since the show has ended, the copy has the same data and the build doesn't depend on the network.
  */
 async function loadSeries(): Promise<{ series: Series; source: GuideSource }> {
   const url = `${TVMAZE_SITE}/shows/${config.showId}`;
   try {
-    // Un reintento: un build no debería depender de que la primera llamada a un tercero salga bien.
+    // One retry: a build shouldn't depend on the first call to a third party going well.
     const get = () => fetchSeries(config.showId);
-    return { series: await get().catch(get), source: { name: "TVmaze", url, detail: "pedidos una vez, en el build" } };
+    return { series: await get().catch(get), source: { name: "TVmaze", url, detail: "fetched once, at build time" } };
   } catch (error) {
     if (snapshot.id !== config.showId) throw error;
-    console.warn(`guide-ssg: TVmaze no respondió (${error instanceof Error ? error.message : String(error)}).`);
-    console.warn("guide-ssg: se usa la copia guardada en snapshot.json.");
+    console.warn(`guide-ssg: TVmaze didn't respond (${error instanceof Error ? error.message : String(error)}).`);
+    console.warn("guide-ssg: using the copy stored in snapshot.json.");
     const series: Series = snapshot;
-    return { series, source: { name: "TVmaze", url, detail: "copia guardada en el repo (la API no respondió)" } };
+    return { series, source: { name: "TVmaze", url, detail: "copy stored in the repo (the API didn't respond)" } };
   }
 }
 
 const { series, source } = await loadSeries();
 const tData = performance.now();
 
-// Mejor fallar en el build que publicar una guía rota (o de una serie que todavía cambia).
+// Better to fail the build than to publish a broken guide (or one for a show that still changes).
 const problems = seriesProblems(series);
-if (problems.length > 0) throw new Error(`La guía tiene errores:\n- ${problems.join("\n- ")}`);
+if (problems.length > 0) throw new Error(`The guide has errors:\n- ${problems.join("\n- ")}`);
 
 const cssPath = (name: string) => fileURLToPath(new URL(name, import.meta.url));
 const [css, standaloneCss] = await Promise.all([
@@ -52,7 +52,7 @@ const [css, standaloneCss] = await Promise.all([
 ]);
 
 const props = { built: formatBuiltAt(builtAt), series, source };
-// Un primer render para medir cuánto tarda la generación; el definitivo muestra ese tiempo.
+// A first render to measure how long generation takes; the final one shows that time.
 renderGuideFragment(css, { ...props, buildMs: 0 });
 const buildMs = Math.max(1, Math.round(performance.now() - t0));
 const fragment = renderGuideFragment(css, { ...props, buildMs });
@@ -65,7 +65,7 @@ const files = {
 await mkdir(join(config.outDir, "fragment"), { recursive: true });
 await Promise.all([
   ...Object.entries(files).map(([name, html]) => writeFile(join(config.outDir, name), html)),
-  // Las mismas cabeceras que pone serve.ts, para un CDN real (Cloudflare Pages o Netlify).
+  // The same headers serve.ts sets, for a real CDN (Cloudflare Pages or Netlify).
   writeFile(join(config.outDir, "_headers"), headersFile(meta)),
   writeFile(
     join(config.outDir, "build.json"),
@@ -78,5 +78,5 @@ await Promise.all([
 ]);
 
 console.info(
-  `guide-ssg: ${Object.keys(files).length} páginas de ${series.name} generadas en ${buildMs} ms (CSS ${css.length} B) → dist/`,
+  `guide-ssg: ${Object.keys(files).length} pages for ${series.name} generated in ${buildMs} ms (CSS ${css.length} B) → dist/`,
 );

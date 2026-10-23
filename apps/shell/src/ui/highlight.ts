@@ -1,10 +1,10 @@
-// Un resaltado mínimo para los fragmentos de la lección: comentarios, textos, palabras clave,
-// llamadas a funciones y números. No pretende ser un parser; alcanza para código corto y conocido.
+// Minimal highlighting for the lesson's snippets: comments, strings, keywords, function calls and
+// numbers. It doesn't try to be a parser; it's enough for short, known code.
 const TOKEN =
   /(\/\/.*$)|("(?:[^"\\]|\\.)*")|\b(const|await|import|from|return|new|true|false)\b|(\b[A-Za-z_]\w*(?=\())|(\b\d+\b)/gm;
 const CLASSES = ["text-muted italic", "text-ssg", "text-csr", "text-ssr", "text-strong"];
 
-/** Separa el código en trozos con su color. Exportado para probarlo. */
+/** Splits the code into chunks with their color. Exported for testing. */
 export function highlight(code: string): { text: string; className?: string }[] {
   const parts: { text: string; className?: string }[] = [];
   let last = 0;

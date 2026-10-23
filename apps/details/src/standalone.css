@@ -1,6 +1,6 @@
 /*
- * Solo para correr el remote aislado (index.html): emula la base que en producción pone el shell
- * (reset de Tailwind, tokens y tema), sin prefijo. Este archivo nunca viaja con el remote.
+ * Only for running the remote on its own (index.html): it emulates the base the shell provides in
+ * production (Tailwind reset, tokens and theme), with no prefix. This file never travels with the remote.
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);

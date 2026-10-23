@@ -1,5 +1,5 @@
-// Lógica del servidor estático, separada de la red para poder probarla: resolver rutas,
-// calcular ETags y armar las cabeceras de un CDN.
+// The static server's logic, kept apart from the network so it can be tested: resolving paths,
+// computing ETags and building a CDN's headers.
 import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
@@ -20,15 +20,15 @@ export interface BuildMeta {
   version?: string;
 }
 
-/** Cinco minutos frescos y, después, un día en que el CDN puede servirlo mientras revalida. */
+/** Five minutes fresh and, after that, a day in which the CDN can serve it while revalidating. */
 export const CACHE_CONTROL = "public, max-age=300, stale-while-revalidate=86400";
 
-/** Las cabeceras que no dependen del archivo: CORS, caché y las de diagnóstico de la lección. */
+/** The headers that don't depend on the file: CORS, caching and the lesson's diagnostic headers. */
 export function buildHeaders(meta: BuildMeta): Record<string, string> {
   return {
     ...CORS_HEADERS,
-    // Sin esto, el navegador oculta los tamaños y tiempos de una respuesta de otro origen y el shell
-    // no puede saber si la respondió su caché.
+    // Without this, the browser hides the sizes and timings of a cross-origin response and the shell
+    // can't tell whether its cache answered it.
     "Timing-Allow-Origin": "*",
     "X-Content-Type-Options": "nosniff",
     "Cache-Control": CACHE_CONTROL,
@@ -39,8 +39,8 @@ export function buildHeaders(meta: BuildMeta): Record<string, string> {
 }
 
 /**
- * El archivo `_headers` de Cloudflare Pages y Netlify, con las mismas cabeceras para todo el sitio.
- * ETag, Last-Modified y Age no van: esas las calcula el propio CDN.
+ * The `_headers` file for Cloudflare Pages and Netlify, with the same headers for the whole site.
+ * ETag, Last-Modified and Age aren't included: the CDN computes those itself.
  */
 export function headersFile(meta: BuildMeta): string {
   const lines = Object.entries(buildHeaders(meta))
@@ -50,8 +50,8 @@ export function headersFile(meta: BuildMeta): string {
 }
 
 /**
- * Traduce la ruta de la URL a un archivo dentro de `root`. Devuelve null si la ruta es inválida
- * o intenta salir de la carpeta (p. ej. con "../").
+ * Maps the URL path to a file inside `root`. Returns null if the path is invalid or tries to leave
+ * the folder (e.g. with "../").
  */
 export function resolveFile(root: string, urlPath: string): string | null {
   let path: string;
@@ -73,12 +73,12 @@ export function contentTypeOf(file: string): string {
   return CONTENT_TYPES[extname(file)] ?? "application/octet-stream";
 }
 
-/** ETag fuerte a partir del contenido: cambia solo si cambian los bytes. */
+/** A strong ETag from the content: it only changes if the bytes change. */
 export function etagOf(body: Uint8Array): string {
   return `"${createHash("sha1").update(body).digest("hex").slice(0, 12)}"`;
 }
 
-/** Si la copia que ya tiene el cliente (If-None-Match) sigue siendo válida. */
+/** Whether the copy the client already has (If-None-Match) is still valid. */
 export function isNotModified(ifNoneMatch: string | undefined, etag: string): boolean {
   if (!ifNoneMatch) return false;
   if (ifNoneMatch.trim() === "*") return true;
@@ -89,15 +89,15 @@ function send(res: ServerResponse, status: number, headers: Record<string, strin
   res.writeHead(status, headers).end(body);
 }
 
-/** Un servidor de archivos que se comporta como un CDN: no ejecuta código por request. */
+/** A file server that behaves like a CDN: it runs no code per request. */
 export function createStaticHandler(root: string, meta: BuildMeta): RequestListener {
   return async (req: IncomingMessage, res: ServerResponse) => {
     if (req.method !== "GET" && req.method !== "HEAD") {
-      send(res, 405, { ...CORS_HEADERS, Allow: "GET, HEAD", "Content-Type": "text/plain" }, "método no permitido");
+      send(res, 405, { ...CORS_HEADERS, Allow: "GET, HEAD", "Content-Type": "text/plain" }, "method not allowed");
       return;
     }
     const file = resolveFile(root, new URL(req.url ?? "/", "http://localhost").pathname);
-    const notFound = () => send(res, 404, { ...CORS_HEADERS, "Content-Type": "text/plain" }, "no existe");
+    const notFound = () => send(res, 404, { ...CORS_HEADERS, "Content-Type": "text/plain" }, "not found");
     if (file === null) {
       notFound();
       return;
@@ -122,8 +122,8 @@ export function createStaticHandler(root: string, meta: BuildMeta): RequestListe
         notFound();
         return;
       }
-      console.error("guide-ssg: error al leer", file, error);
-      send(res, 500, { ...CORS_HEADERS, "Content-Type": "text/plain" }, "error del servidor");
+      console.error("guide-ssg: error reading", file, error);
+      send(res, 500, { ...CORS_HEADERS, "Content-Type": "text/plain" }, "server error");
     }
   };
 }

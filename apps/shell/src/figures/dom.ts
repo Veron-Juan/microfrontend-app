@@ -1,11 +1,11 @@
-/** Busca una pieza de la figura por su data-part. Si falta, el SVG generado y este código se desalinearon. */
+/** Finds a piece of the figure by its data-part. If it's missing, the generated SVG and this code drifted apart. */
 export function part(root: Element, name: string): SVGElement {
   const found = root.querySelector<SVGElement>(`[data-part="${name}"]`);
-  if (!found) throw new Error(`La figura no tiene la pieza "${name}"`);
+  if (!found) throw new Error(`The figure has no piece "${name}"`);
   return found;
 }
 
-/** Cambia el texto solo si es distinto, para no tocar el DOM en cada frame. */
+/** Changes the text only if it's different, so the DOM isn't touched on every frame. */
 export function say(element: Element, text: string) {
   if (element.textContent !== text) element.textContent = text;
 }

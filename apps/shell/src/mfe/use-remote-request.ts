@@ -4,13 +4,13 @@ import { errorMessage } from "../lib/errors.ts";
 import type { RemoteApp } from "./registry.ts";
 
 export interface RequestOptions {
-  /** Pedirlo a un origen caído, para simular la falla. */
+  /** Request it from a dead origin, to simulate the failure. */
   offline: boolean;
-  /** Número de intento; cambia con cada recarga desde el inspector. */
+  /** Attempt number; changes with every reload from the inspector. */
   attempt: number;
 }
 
-/** Cómo se pide un tipo de remote y qué se mide de la respuesta. Se define una vez por tipo, fuera de React. */
+/** How a kind of remote is requested and what gets measured from the response. Defined once per kind, outside React. */
 export interface RemoteLoader<A extends RemoteApp, T> {
   request: (app: A, options: RequestOptions) => Promise<T>;
   measure: (app: A, value: T, timing: { start: number; end: number }) => Partial<Load>;
@@ -20,9 +20,10 @@ export type RemoteResult<T> =
   { status: "loading" } | { status: "ready"; value: T } | { status: "error"; error: unknown };
 
 /**
- * Pide un remote y lo vuelve a pedir cuando el inspector lo recarga o lo "tira".
- * Cada resultado se guarda con el intento que lo produjo: uno viejo se ignora (y no se mide),
- * y mientras el intento actual no responde se ve "loading" sin resetear estado dentro del efecto.
+ * Requests a remote and requests it again when the inspector reloads or "kills" it.
+ * Each result is stored with the attempt that produced it: a stale one is ignored (and not
+ * measured), and while the current attempt hasn't responded it shows "loading" without resetting
+ * state inside the effect.
  */
 export function useRemoteRequest<A extends RemoteApp, T>(app: A, loader: RemoteLoader<A, T>) {
   const offline = useStore((s) => !!s.broken[app.id]);

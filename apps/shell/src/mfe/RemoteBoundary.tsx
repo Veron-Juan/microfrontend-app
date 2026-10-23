@@ -10,8 +10,8 @@ interface Props {
 }
 
 /**
- * Atrapa los errores que lanza un remote al renderizar. Sin esto, un bug en el catálogo
- * desmontaría toda la página del shell; con esto, solo su espacio muestra el aviso.
+ * Catches the errors a remote throws while rendering. Without this, a bug in the catalog would
+ * unmount the shell's whole page; with it, only its space shows the notice.
  */
 export class RemoteBoundary extends Component<Props, { error: unknown }> {
   state = { error: null as unknown };

@@ -8,7 +8,7 @@ interface LessonProps {
   children: ReactNode;
 }
 
-/** Una sección numerada de la lección. El número sale del índice, así que nunca se desordena. */
+/** A numbered lesson section. The number comes from the index, so it never gets out of order. */
 export function Lesson({ id, title, kicker, children }: LessonProps) {
   return (
     <section className="mt-10 border-t border-line-soft pt-16 pb-2" id={id} aria-labelledby={`${id}-title`}>
@@ -33,12 +33,12 @@ export function Lesson({ id, title, kicker, children }: LessonProps) {
   );
 }
 
-/** Texto corrido con ancho de lectura cómodo. */
+/** Running text at a comfortable reading width. */
 export function Prose({ children }: { children: ReactNode }) {
   return <div className="max-w-[680px] [&>p]:mb-4 [&>p]:text-base">{children}</div>;
 }
 
-/** Lista de reglas o puntos clave. */
+/** A list of rules or key points. */
 export function Rules({ children }: { children: ReactNode }) {
   return <ul className="mb-4 list-disc pl-[18px] text-sm [&>li]:my-1">{children}</ul>;
 }

@@ -5,7 +5,7 @@ on:
     branches: [main]
   pull_request:
 
-# El token de GitHub de los jobs solo puede leer el repo: ninguno necesita escribir en él.
+# The jobs' GitHub token can only read the repo: none of them needs to write to it.
 permissions:
   contents: read
 
@@ -23,12 +23,12 @@ jobs:
       - run: npm run check
       - run: npm run build
 
-  # Los cuatro sitios estáticos van a Cloudflare (Workers con archivos estáticos; cada app tiene su
-  # wrangler.jsonc). news-ssr no está aquí: Render lo despliega solo desde render.yaml. Los orígenes
-  # son variables del repo, así que cambiar uno no toca el código.
+  # The four static sites go to Cloudflare (Workers with static assets; each app has its own
+  # wrangler.jsonc). news-ssr isn't here: Render deploys it by itself from render.yaml. The origins
+  # are repo variables, so changing one doesn't touch the code.
   deploy:
     needs: check
-    # Se salta hasta que el repo tenga configurados los orígenes.
+    # Skipped until the repo has the origins configured.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.MFE_NEWS_ORIGIN != ''
     runs-on: ubuntu-latest
     concurrency: production
@@ -49,7 +49,7 @@ jobs:
       - run: npm ci
       - run: npm run figures
 
-      # Primero los remotes: cuando se publica el shell nuevo, lo que su discovery anuncia ya existe.
+      # The remotes first: by the time the new shell ships, what its discovery announces already exists.
       - name: catalog
         run: |
           PUBLIC_URL="${MFE_CATALOG_ORIGIN%/}/" npm run build -w catalog
@@ -63,7 +63,7 @@ jobs:
           npm run build -w guide-ssg
           $DEPLOY apps/guide-ssg
 
-      # El shell al final, con el discovery de producción. Si falta un origen o no es https, falla aquí.
+      # The shell last, with the production discovery. If an origin is missing or isn't https, it fails here.
       - name: shell
         run: |
           npm run build -w shell

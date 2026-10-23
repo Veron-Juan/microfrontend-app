@@ -1,5 +1,5 @@
-# news-ssr es el único remote que necesita un servidor: renderiza en cada request.
-# Se construye desde la raíz del monorepo, porque usa el paquete @mfe/design-tokens:
+# news-ssr is the only remote that needs a server: it renders on every request.
+# It's built from the monorepo root, because it uses the @mfe/design-tokens package:
 #   docker build -f apps/news-ssr/Dockerfile -t news-ssr .
 #   docker run -p 5003:5003 news-ssr
 FROM node:22-slim
@@ -7,8 +7,8 @@ FROM node:22-slim
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Primero solo los manifiestos: si las dependencias no cambian, Docker reutiliza esta capa.
-# npm necesita los package.json de todos los workspaces para validar el lockfile.
+# Only the manifests first: if the dependencies don't change, Docker reuses this layer.
+# npm needs every workspace's package.json to validate the lockfile.
 COPY package.json package-lock.json .npmrc ./
 COPY apps/catalog/package.json apps/catalog/
 COPY apps/details/package.json apps/details/
@@ -28,5 +28,5 @@ USER node
 ENV PORT=5003
 EXPOSE 5003
 HEALTHCHECK --interval=30s --timeout=3s CMD ["node", "-e", "fetch(`http://localhost:${process.env.PORT}/health`).then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
-# node directo (no npm) para que reciba SIGTERM y cierre ordenado. tsx compila el TypeScript al cargar.
+# node directly (not npm) so it receives SIGTERM and shuts down gracefully. tsx compiles the TypeScript on load.
 CMD ["node", "--import", "tsx", "src/server.ts"]

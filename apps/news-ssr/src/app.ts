@@ -1,4 +1,4 @@
-// La app de Express: rutas y cabeceras. Se crea con sus dependencias para poder probarla.
+// The Express app: routes and headers. It's created with its dependencies so it can be tested.
 import express, { type Express, type RequestHandler } from "express";
 import { asyncHandler, errorHandler, notFound } from "./http.ts";
 import type { LiveData } from "./live-data.ts";
@@ -6,13 +6,13 @@ import { renderFragment, standalonePage } from "./render.tsx";
 
 export interface AppOptions {
   version: string;
-  /** CSS del fragmento (utilidades `nws:`). */
+  /** The fragment's CSS (`nws:` utilities). */
   css: string;
-  /** CSS extra de la página standalone (reset y fondo). */
+  /** Extra CSS for the standalone page (reset and background). */
   standaloneCss: string;
-  /** De dónde salen los datos de cada render: las APIs reales o, en los tests, datos fijos. */
+  /** Where each render's data comes from: the real APIs or, in the tests, fixed data. */
   fetchData: (now: number) => Promise<LiveData>;
-  /** Consume una ficha del límite de uso y dice cuántos segundos esperar (0: puede pasar). Sin él, no hay límite. */
+  /** Takes a token from the usage limit and says how many seconds to wait (0: it can go through). Without it, there's no limit. */
   limit?: () => number;
 }
 
@@ -23,12 +23,12 @@ export function createApp({ version, css, standaloneCss, fetchData, limit = () =
 
   app.disable("x-powered-by");
 
-  // CORS: el shell vive en otro origen y necesita leer también las cabeceras de diagnóstico.
+  // CORS: the shell lives on another origin and also needs to read the diagnostic headers.
   app.use((_req, res, next) => {
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Expose-Headers": "X-Rendered-At, X-Request-Id, X-Render-Mode, X-App-Version, Server-Timing",
-      // El navegador no adivina tipos, no manda la URL de origen a terceros y nadie puede enmarcar la página.
+      // The browser doesn't guess types, doesn't send the origin URL to third parties and nobody can frame the page.
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
       "X-Frame-Options": "DENY",
@@ -36,7 +36,7 @@ export function createApp({ version, css, standaloneCss, fetchData, limit = () =
     next();
   });
 
-  // Lo que renderiza pasa por el límite de uso; /health no, porque Render lo consulta seguido.
+  // Whatever renders goes through the usage limit; /health doesn't, because Render polls it often.
   const limited: RequestHandler = (_req, res, next) => {
     const wait = limit();
     if (wait === 0) {
@@ -47,10 +47,10 @@ export function createApp({ version, css, standaloneCss, fetchData, limit = () =
       .status(429)
       .set({ "Retry-After": String(wait), "Cache-Control": "no-store" })
       .type("text")
-      .send("demasiadas solicitudes: prueba más tarde");
+      .send("too many requests: try again later");
   };
 
-  // El fragmento: HTML sin <html> ni <body>, listo para incrustarse en el shell.
+  // The fragment: HTML with no <html> or <body>, ready to be embedded in the shell.
   app.get(
     "/fragment/news",
     limited,
@@ -69,7 +69,7 @@ export function createApp({ version, css, standaloneCss, fetchData, limit = () =
     }),
   );
 
-  // La misma app vista sola, como página completa.
+  // The same app on its own, as a full page.
   app.get(
     "/",
     limited,

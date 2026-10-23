@@ -1,10 +1,10 @@
-// Partidos del día desde TheSportsDB (https://www.thesportsdb.com), una API abierta de deportes.
-// El plan gratuito usa una key pública de prueba y devuelve unos pocos partidos por consulta.
+// Today's matches from TheSportsDB (https://www.thesportsdb.com), an open sports API.
+// The free plan uses a public test key and returns a few matches per query.
 
 export const SPORTSDB_API = "https://www.thesportsdb.com/api/v1/json";
 export const SPORTSDB_SITE = "https://www.thesportsdb.com";
 
-/** La key de prueba que TheSportsDB publica para uso gratuito. Una propia se pasa con SPORTSDB_KEY. */
+/** The test key TheSportsDB publishes for free use. Your own is passed with SPORTSDB_KEY. */
 export const SPORTSDB_TEST_KEY = "123";
 
 export interface Match {
@@ -12,13 +12,13 @@ export interface Match {
   league: string;
   home: string;
   away: string;
-  /** Inicio del partido, en ISO 8601 (UTC). */
+  /** Match kickoff, in ISO 8601 (UTC). */
   kickoff: string;
-  /** Código de estado de TheSportsDB: "NS" (no empezó), "1H", "HT", "FT"… */
+  /** TheSportsDB status code: "NS" (not started), "1H", "HT", "FT"… */
   status: string;
-  /** null si todavía no hay marcador. */
+  /** null if there's no score yet. */
   goals: [home: number, away: number] | null;
-  /** Escudos de los equipos (la versión chica, de 50 px), o null si no tienen. */
+  /** The teams' badges (the small 50 px version), or null if they have none. */
   badges: [home: string | null, away: string | null];
 }
 
@@ -27,18 +27,18 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const toGoals = (value: unknown) => (value === null || value === "" ? NaN : Number(value));
 
-/** Solo escudos servidos por TheSportsDB por https; "/tiny" pide la versión de 50 px (17 KB en vez de 235). */
+/** Only badges served by TheSportsDB over https; "/tiny" requests the 50 px version (17 KB instead of 235). */
 const toBadge = (value: unknown) =>
   typeof value === "string" && /^https:\/\/(r2|www)\.thesportsdb\.com\/images\/[\w/.-]+\.png$/.test(value)
     ? `${value}/tiny`
     : null;
 
-/** Convierte la respuesta de eventsday.php en partidos. Ignora los eventos con una forma inesperada. */
+/** Turns the eventsday.php response into matches. Ignores events with an unexpected shape. */
 export function parseEvents(json: unknown): Match[] {
-  if (!isRecord(json)) throw new Error("TheSportsDB: respuesta inesperada");
-  // Un día sin partidos llega como { events: null }.
+  if (!isRecord(json)) throw new Error("TheSportsDB: unexpected response");
+  // A day without matches arrives as { events: null }.
   if (json.events === null) return [];
-  if (!Array.isArray(json.events)) throw new Error("TheSportsDB: falta la lista de eventos");
+  if (!Array.isArray(json.events)) throw new Error("TheSportsDB: missing the list of events");
   return json.events.flatMap((event): Match[] => {
     if (!isRecord(event)) return [];
     const { idEvent, strLeague, strHomeTeam, strAwayTeam, strTimestamp, strStatus } = event;
@@ -52,7 +52,7 @@ export function parseEvents(json: unknown): Match[] {
         league: typeof strLeague === "string" ? strLeague : "",
         home: strHomeTeam,
         away: strAwayTeam,
-        // TheSportsDB da la hora en UTC pero sin la "Z".
+        // TheSportsDB gives the time in UTC but without the "Z".
         kickoff: new Date(`${strTimestamp}Z`).toISOString(),
         status: typeof strStatus === "string" && strStatus !== "" ? strStatus : "NS",
         goals: Number.isInteger(home) && Number.isInteger(away) ? [home, away] : null,
@@ -65,7 +65,7 @@ export function parseEvents(json: unknown): Match[] {
 const FINISHED = new Set(["FT", "AET", "PEN", "AWD", "WO", "Match Finished"]);
 const LIVE = new Set(["1H", "2H", "ET", "BT", "P", "LIVE", "INT"]);
 
-/** En qué momento está el partido, para elegir cómo mostrarlo. */
+/** Which stage the match is at, to choose how to show it. */
 export function phaseOf(match: Match): "upcoming" | "live" | "finished" | "other" {
   if (match.status === "NS" || match.status === "TBD") return "upcoming";
   if (match.status === "HT" || LIVE.has(match.status)) return "live";
@@ -73,18 +73,18 @@ export function phaseOf(match: Match): "upcoming" | "live" | "finished" | "other
   return "other";
 }
 
-/** Lo que muestra la columna de estado: la hora de inicio, "en vivo", "final"… */
+/** What the status column shows: the kickoff time, "live", "full time"… */
 export function statusLabel(match: Match, formatTime: (iso: string) => string): string {
   if (match.status === "NS" || match.status === "TBD") return formatTime(match.kickoff);
-  if (match.status === "HT") return "entretiempo";
-  if (LIVE.has(match.status)) return "en vivo";
-  if (FINISHED.has(match.status)) return "final";
-  if (match.status === "PST") return "postergado";
-  if (match.status === "CANC" || match.status === "ABD") return "suspendido";
+  if (match.status === "HT") return "half time";
+  if (LIVE.has(match.status)) return "live";
+  if (FINISHED.has(match.status)) return "full time";
+  if (match.status === "PST") return "postponed";
+  if (match.status === "CANC" || match.status === "ABD") return "called off";
   return match.status;
 }
 
-/** Los partidos de fútbol de un día (AAAA-MM-DD). */
+/** The football matches of a day (YYYY-MM-DD). */
 export async function fetchMatches(
   date: string,
   { key = SPORTSDB_TEST_KEY, fetch: get = fetch, timeoutMs = 2500 } = {},

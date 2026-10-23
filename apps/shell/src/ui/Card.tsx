@@ -6,7 +6,7 @@ import { cardClass } from "./card-class.ts";
 interface CardProps {
   title: ReactNode;
   children: ReactNode;
-  /** Algo que va junto al título, como un <Tag>. */
+  /** Something that goes next to the title, like a <Tag>. */
   aside?: ReactNode;
   className?: string;
 }
@@ -28,7 +28,7 @@ const COLUMNS = {
   four: "grid-cols-[repeat(auto-fit,minmax(190px,1fr))]",
 } as const;
 
-/** Una grilla de tarjetas que se reacomoda sola según el ancho. */
+/** A grid of cards that rearranges itself based on the width. */
 export function Cards({ columns, children }: { columns: keyof typeof COLUMNS; children: ReactNode }) {
   return <div className={cx("my-[22px] grid gap-3", COLUMNS[columns])}>{children}</div>;
 }

@@ -1,8 +1,8 @@
-// Deploy en Cloudflare (Workers con archivos estáticos): publica dist/ tal cual, con su _headers.
+// Cloudflare deploy (Workers with static assets): publishes dist/ as is, with its _headers.
 {
   "name": "mfe-anatomia-details",
   "compatibility_date": "2026-10-01",
-  // Solo la URL de producción: sin URLs de vista previa por cada versión subida.
+  // Production URL only: no preview URLs for each uploaded version.
   "preview_urls": false,
   "assets": {
     "directory": "./dist",

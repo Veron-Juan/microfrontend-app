@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "El design system compartido: paleta, tipograf\u00edas y colores de render como tema de Tailwind. Cada app lo importa en su CSS.",
+  "description": "The shared design system: palette, typefaces and render colors as a Tailwind theme. Each app imports it in its CSS.",
   "exports": {
     "./theme.css": "./theme.css",
     "./compile": "./compile.ts"

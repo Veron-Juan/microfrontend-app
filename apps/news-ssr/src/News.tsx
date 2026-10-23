@@ -1,6 +1,6 @@
 /** @jsxRuntime automatic */
-// Componente React que solo se ejecuta en el servidor. El navegador recibe HTML ya armado.
-// (El pragma de arriba fija el runtime de JSX aunque tsx no vea este tsconfig, p. ej. en los tests.)
+// A React component that only runs on the server. The browser receives HTML that's already built.
+// (The pragma above pins the JSX runtime even when tsx doesn't see this tsconfig, e.g. in the tests.)
 import type { ReactNode } from "react";
 import type { Feed, LiveData } from "./live-data.ts";
 import { phaseOf, SPORTSDB_SITE, statusLabel, type Match } from "./sportsdb.ts";
@@ -11,7 +11,7 @@ export interface NewsProps extends LiveData {
   requestId: string;
   served: number;
   timing: { data: number; render: number };
-  /** Cómo se muestra la hora de inicio de un partido ("21:30"). */
+  /** How a match's kickoff time is shown ("21:30"). */
   formatTime: (iso: string) => string;
 }
 
@@ -25,25 +25,23 @@ export function News({ rendered, requestId, served, timing, matches, premieres, 
   return (
     <section className="nws:grid nws:gap-4 nws:font-sans" data-request={requestId}>
       <header className="nws:flex nws:min-h-8 nws:flex-wrap nws:items-center nws:justify-between nws:gap-x-3 nws:gap-y-1">
-        <h3 className="nws:m-0 nws:text-[15px] nws:font-semibold nws:tracking-[-.01em] nws:text-strong">
-          Novedades en vivo
-        </h3>
+        <h3 className="nws:m-0 nws:text-[15px] nws:font-semibold nws:tracking-[-.01em] nws:text-strong">Live news</h3>
         <span className="nws:font-mono nws:text-[11px] nws:leading-[normal] nws:text-muted">
-          renderizado en el servidor a las <b className="nws:font-medium nws:text-ssr">{rendered}</b>
+          rendered on the server at <b className="nws:font-medium nws:text-ssr">{rendered}</b>
         </span>
       </header>
       <div className="nws:grid nws:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] nws:gap-5 nws:max-md:grid-cols-1">
         <div>
-          <p className={caption}>Fútbol hoy</p>
-          <FeedList feed={matches} empty="No hay partidos programados para hoy." as="ul">
+          <p className={caption}>Football today</p>
+          <FeedList feed={matches} empty="No matches scheduled for today." as="ul">
             {matches.items.map((match) => (
               <MatchCard key={match.id} match={match} formatTime={formatTime} />
             ))}
           </FeedList>
         </div>
         <div>
-          <p className={caption}>Hoy en streaming</p>
-          <FeedList feed={premieres} empty="Hoy no hay estrenos en streaming." as="ol">
+          <p className={caption}>Streaming today</p>
+          <FeedList feed={premieres} empty="No streaming premieres today." as="ol">
             {premieres.items.map((item) => (
               <PremiereCard key={item.id} item={item} />
             ))}
@@ -57,10 +55,10 @@ export function News({ rendered, requestId, served, timing, matches, premieres, 
             {requestId}
           </code>
         </span>
-        <span>request nº {served} de este servidor</span>
+        <span>request #{served} on this server</span>
         <span>APIs {timing.data} ms</span>
         <span>
-          datos: <Credit href={SPORTSDB_SITE} name="TheSportsDB" feed={matches} /> ·{" "}
+          data: <Credit href={SPORTSDB_SITE} name="TheSportsDB" feed={matches} /> ·{" "}
           <Credit href={TVMAZE_SITE} name="TVmaze" feed={premieres} />
         </span>
       </footer>
@@ -75,7 +73,7 @@ const STATUS_CLASSES = {
   other: "nws:bg-faint nws:text-muted",
 } as const;
 
-/** Un partido como en un marcador: la liga, el estado y una fila por equipo con su escudo y sus goles. */
+/** A match as on a scoreboard: the league, the status and one row per team with its badge and goals. */
 function MatchCard({ match, formatTime }: { match: Match; formatTime: (iso: string) => string }) {
   const phase = phaseOf(match);
   const [home, away] = match.goals ?? [null, null];
@@ -134,7 +132,7 @@ function TeamRow({ name, badge, goals, winner }: TeamRowProps) {
   );
 }
 
-/** Un estreno: la carátula, el título, el episodio y la plataforma. */
+/** A premiere: the poster, the title, the episode and the platform. */
 function PremiereCard({ item }: { item: Premiere }) {
   return (
     <li className={`${tile} nws:grid nws:grid-cols-[46px_minmax(0,1fr)] nws:items-center nws:gap-3 nws:p-2 nws:pr-3`}>
@@ -179,16 +177,16 @@ interface FeedListProps {
   children: ReactNode;
 }
 
-/** La lista de una fuente, o un aviso si la API falló o no trajo nada. */
+/** A source's list, or a notice if the API failed or returned nothing. */
 function FeedList({ feed, empty, as: List, children }: FeedListProps) {
-  if (!feed.ok) return <p className={notice}>La fuente no respondió. El resto del fragmento sigue funcionando.</p>;
+  if (!feed.ok) return <p className={notice}>The source didn't respond. The rest of the fragment keeps working.</p>;
   if (feed.items.length === 0) return <p className={notice}>{empty}</p>;
   return <List className="nws:m-0 nws:grid nws:list-none nws:gap-2 nws:p-0">{children}</List>;
 }
 
-/** El crédito de una fuente, con la antigüedad de sus datos: así se ve que la caché actúa. */
+/** A source's credit, with the age of its data: that's how you see the cache at work. */
 function Credit({ href, name, feed }: { href: string; name: string; feed: Feed<unknown> }) {
-  const age = !feed.ok ? "sin respuesta" : feed.age === 0 ? "recién pedidos" : `de hace ${feed.age} s`;
+  const age = !feed.ok ? "no response" : feed.age === 0 ? "just fetched" : `${feed.age} s old`;
   return (
     <>
       <a href={href} className="nws:text-text nws:underline nws:underline-offset-2">

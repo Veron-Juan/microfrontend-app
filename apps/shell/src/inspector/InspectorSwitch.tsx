@@ -2,7 +2,7 @@ import { toggleInspector, useStore } from "../state/store.ts";
 import { Button } from "../ui/Button.tsx";
 import type { ButtonVariant } from "../ui/button-class.ts";
 
-/** El interruptor del inspector: el de la barra de arriba y el de la ventana de la demo son el mismo. */
+/** The inspector switch: the one in the top bar and the one in the demo window are the same. */
 export function InspectorSwitch({ variant = "pill", hotkey = true }: { variant?: ButtonVariant; hotkey?: boolean }) {
   const inspector = useStore((s) => s.inspector);
   return (

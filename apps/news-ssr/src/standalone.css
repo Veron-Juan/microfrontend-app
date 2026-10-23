@@ -1,6 +1,6 @@
 /*
- * Solo para GET /: la página completa que se ve sin el shell. Pone el reset (preflight) y el
- * fondo que en producción aporta el shell. No genera utilidades: esas viajan en el fragmento.
+ * Only for GET /: the full page seen without the shell. It adds the reset (preflight) and the
+ * background the shell provides in production. It generates no utilities: those travel in the fragment.
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme) prefix(nws);

@@ -8,22 +8,22 @@ const catalog = {
   url: "https://catalog.example.com/mf-manifest.json",
   module: "./Catalog",
   version: "1.4.0",
-  metadata: { name: "catalog", team: "Descubrimiento", render: "CSR" },
+  metadata: { name: "catalog", team: "Browse team", render: "CSR" },
 };
 
-test("lee un remote de Module Federation", () => {
+test("reads a Module Federation remote", () => {
   const discovery = parseDiscovery({ environment: "prod", microFrontends: { catalog } }, BASE);
   assert.equal(discovery.environment, "prod");
   assert.deepEqual(discovery.microFrontends.catalog, catalog);
 });
 
-test("resuelve URLs relativas contra la ubicación del archivo", () => {
+test("resolves relative URLs against the file's location", () => {
   const guide = { ...catalog, type: "fragment", module: undefined, url: "guide/fragment.html" };
   const discovery = parseDiscovery({ environment: "preview", microFrontends: { guide } }, BASE);
   assert.equal(discovery.microFrontends.guide?.url, "https://shell.example.com/guide/fragment.html");
 });
 
-test("rechaza entradas incompletas con un mensaje que dice cuál", () => {
+test("rejects incomplete entries with a message saying which one", () => {
   const broken = { ...catalog, module: undefined };
   assert.throws(
     () => parseDiscovery({ environment: "prod", microFrontends: { catalog: broken } }, BASE),

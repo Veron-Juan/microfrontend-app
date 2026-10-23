@@ -1,41 +1,41 @@
-// La forma de la guía de episodios y su validación. Separadas del componente y del script de build
-// para poder probarlas en un test.
+// The episode guide's shape and its validation. Kept apart from the component and the build script
+// so they can be tested.
 
 export interface Episode {
   season: number;
   number: number;
   name: string;
-  /** "2008-01-20". Vacío si la fuente no lo sabe. */
+  /** "2008-01-20". Empty if the source doesn't know. */
   airdate: string;
-  /** Nota media en TVmaze, de 0 a 10. */
+  /** Average TVmaze rating, from 0 to 10. */
   rating: number | null;
-  /** Una captura del episodio (https, apaisada y chica), si TVmaze tiene. */
+  /** A still from the episode (https, landscape and small), if TVmaze has one. */
   image?: string;
 }
 
 export interface Series {
   id: number;
   name: string;
-  /** "Ended", "Running"… tal como lo da TVmaze. */
+  /** "Ended", "Running"… exactly as TVmaze gives it. */
   status: string;
-  /** El canal o la plataforma donde se emitió. */
+  /** The network or platform it aired on. */
   network: string | null;
-  /** Carátula (https), si TVmaze tiene. */
+  /** Poster (https), if TVmaze has one. */
   image?: string;
-  /** Géneros, en inglés como los da TVmaze ("Drama", "Crime"…). */
+  /** Genres, as TVmaze gives them ("Drama", "Crime"…). */
   genres?: string[];
   episodes: Episode[];
 }
 
 export interface Season {
   number: number;
-  /** Año del primer episodio. */
+  /** Year of the first episode. */
   year: string;
-  /** En orden: el de la posición i es el episodio i + 1. */
+  /** In order: the one at position i is episode i + 1. */
   episodes: Episode[];
 }
 
-/** Agrupa los episodios por temporada, en orden. */
+/** Groups the episodes by season, in order. */
 export function seasonsOf(episodes: readonly Episode[]): Season[] {
   const bySeason = new Map<number, Episode[]>();
   for (const episode of episodes) bySeason.set(episode.season, [...(bySeason.get(episode.season) ?? []), episode]);
@@ -52,16 +52,16 @@ export interface RatingRange {
   max: number;
 }
 
-/** La nota más baja y la más alta de la serie, o null si ningún episodio tiene nota. */
+/** The show's lowest and highest ratings, or null if no episode has a rating. */
 export function ratingRange(episodes: readonly Episode[]): RatingRange | null {
   const ratings = episodes.flatMap((episode) => (episode.rating === null ? [] : [episode.rating]));
   return ratings.length === 0 ? null : { min: Math.min(...ratings), max: Math.max(...ratings) };
 }
 
-/** Cuántos tonos tiene el mapa de calor. */
+/** How many shades the heat map has. */
 export const RATING_LEVELS = 5;
 
-/** El tono de una nota dentro de la serie: 0 para la peor, RATING_LEVELS - 1 para la mejor. */
+/** A rating's shade within the show: 0 for the worst, RATING_LEVELS - 1 for the best. */
 export function ratingLevel(rating: number | null, range: RatingRange | null): number | null {
   if (rating === null || range === null) return null;
   if (range.max === range.min) return RATING_LEVELS - 1;
@@ -69,13 +69,13 @@ export function ratingLevel(rating: number | null, range: RatingRange | null): n
   return Math.min(RATING_LEVELS - 1, level);
 }
 
-/** La nota media de los episodios que tienen nota, o null si ninguno tiene. */
+/** The average rating of the episodes that have one, or null if none do. */
 export function averageRating(episodes: readonly Episode[]): number | null {
   const ratings = episodes.flatMap((episode) => (episode.rating === null ? [] : [episode.rating]));
   return ratings.length === 0 ? null : ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
 }
 
-/** Los episodios con mejor nota, de mayor a menor; si empatan, primero el que salió antes. */
+/** The best-rated episodes, highest first; on a tie, the one that aired earlier goes first. */
 export function topEpisodes(episodes: readonly Episode[], count: number): Episode[] {
   return episodes
     .filter((episode) => episode.rating !== null)
@@ -86,31 +86,13 @@ export function topEpisodes(episodes: readonly Episode[], count: number): Episod
 }
 
 const GENRES: Readonly<Record<string, string>> = {
-  Action: "Acción",
-  Adventure: "Aventura",
-  Comedy: "Comedia",
-  Crime: "Crimen",
-  Drama: "Drama",
-  Family: "Familia",
-  Fantasy: "Fantasía",
-  History: "Historia",
-  Horror: "Terror",
-  Medical: "Médica",
-  Music: "Música",
-  Mystery: "Misterio",
-  Romance: "Romance",
-  "Science-Fiction": "Ciencia ficción",
-  Sports: "Deportes",
-  Supernatural: "Sobrenatural",
-  Thriller: "Suspenso",
-  War: "Bélica",
-  Western: "Western",
+  "Science-Fiction": "Sci-Fi",
 };
 
-/** Un género de TVmaze en español, o tal cual si no está en la lista. */
+/** A TVmaze genre as a short label, or as is if it isn't on the list. */
 export const genreLabel = (genre: string) => GENRES[genre] ?? genre;
 
-/** El episodio con la mejor nota; si empatan, el que salió primero. */
+/** The episode with the best rating; on a tie, the one that aired first. */
 export function bestEpisode(episodes: readonly Episode[]): Episode | null {
   let best: Episode | null = null;
   for (const episode of episodes) {
@@ -120,37 +102,37 @@ export function bestEpisode(episodes: readonly Episode[]): Episode | null {
 }
 
 /**
- * Problemas de la serie. El más importante es el primero: la guía es SSG sin rebuilds programados,
- * así que solo tiene sentido con una serie terminada, cuyos datos ya no cambian.
+ * The show's problems. The most important one comes first: the guide is SSG with no scheduled
+ * rebuilds, so it only makes sense for a show that has ended, whose data no longer changes.
  */
 export function seriesProblems(series: Series): string[] {
   const problems: string[] = [];
   if (series.status !== "Ended") {
-    problems.push(`${series.name} sigue en emisión ("${series.status}"): sus datos cambian y la guía quedaría vieja`);
+    problems.push(`${series.name} is still airing ("${series.status}"): its data changes and the guide would go stale`);
   }
-  if (series.episodes.length === 0) problems.push(`${series.name} no tiene episodios`);
+  if (series.episodes.length === 0) problems.push(`${series.name} has no episodes`);
   for (const season of seasonsOf(series.episodes)) {
     if (season.episodes.some((episode, index) => episode.number !== index + 1)) {
-      problems.push(`T${season.number}: los episodios no van del 1 al ${season.episodes.length}`);
+      problems.push(`S${season.number}: the episodes don't run from 1 to ${season.episodes.length}`);
     }
   }
   return problems;
 }
 
-/** Fecha y hora del build tal como se muestra, p. ej. "19 oct a las 18:12:34". */
+/** The build's date and time as shown, e.g. "19 Oct at 18:12:34". */
 export function formatBuiltAt(date: Date): string {
-  return `${date.toLocaleDateString("es", { day: "2-digit", month: "short" })} a las ${date.toLocaleTimeString("es", { hour12: false })}`;
+  return `${date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })} at ${date.toLocaleTimeString("en-GB", { hour12: false })}`;
 }
 
-/** "8,3": la nota con un decimal, como se escribe en español. */
+/** "8.3": the rating with one decimal. */
 export const formatRating = (rating: number) =>
-  rating.toLocaleString("es", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  rating.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-/** "20 ene 2008". */
+/** "20 Jan 2008". */
 export const formatAirdate = (airdate: string) =>
   airdate === ""
-    ? "sin fecha"
-    : new Date(`${airdate}T12:00:00Z`).toLocaleDateString("es", {
+    ? "no date"
+    : new Date(`${airdate}T12:00:00Z`).toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
         year: "numeric",

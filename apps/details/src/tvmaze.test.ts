@@ -29,7 +29,7 @@ const tvmazeShow = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-test("parseDetails se queda con lo que usa la ficha", () => {
+test("parseDetails keeps what the details page uses", () => {
   assert.deepEqual(parseDetails(tvmazeShow()), {
     id: 169,
     name: "Breaking Bad",
@@ -43,14 +43,14 @@ test("parseDetails se queda con lo que usa la ficha", () => {
     summary: "Breaking Bad follows Walter White.",
     cast: [
       { person: "Bryan Cranston", character: "Walter White", image: "https://static.tvmaze.com/bryan.jpg" },
-      // Solo fotos https: la de http se descarta.
+      // https photos only: the http one is dropped.
       { person: "Aaron Paul", character: "Jesse Pinkman", image: null },
     ],
     image: "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253519.jpg",
   });
 });
 
-test("parseDetails tolera datos que faltan y descarta lo que no es seguro", () => {
+test("parseDetails tolerates missing data and drops what isn't safe", () => {
   const details = parseDetails(
     tvmazeShow({
       url: "https://evil.test/phish",
@@ -72,22 +72,22 @@ test("parseDetails tolera datos que faltan y descarta lo que no es seguro", () =
   assert.deepEqual([details.seasons, details.cast], [0, []]);
 });
 
-test("parseDetails muestra solo las primeras personas del elenco", () => {
+test("parseDetails shows only the first cast members", () => {
   const cast = Array.from({ length: 9 }, (_, index) => member(`Persona ${index}`, `Papel ${index}`));
   assert.equal(parseDetails(tvmazeShow({ _embedded: { cast, seasons: [] } })).cast.length, CAST_COUNT);
 });
 
-test("parseDetails falla si la respuesta no es un programa", () => {
-  assert.throws(() => parseDetails([]), /se esperaba un programa/);
+test("parseDetails fails if the response isn't a show", () => {
+  assert.throws(() => parseDetails([]), /expected a show/);
 });
 
-test("summaryText quita las etiquetas y decodifica las entidades, sin dejar HTML vivo", () => {
+test("summaryText strips tags and decodes entities, leaving no live HTML", () => {
   assert.equal(
     summaryText("<p>Tom &amp; Jerry&#39;s <i>show</i>&nbsp;&#x2014; again</p>"),
     "Tom & Jerry's show — again",
   );
-  assert.equal(summaryText('<img src=x onerror="alert(1)">Hola<script>x()</script>'), "Hola x()");
-  // Una entidad que se decodifica en "<" queda como texto: React la escapa al renderizar.
+  assert.equal(summaryText('<img src=x onerror="alert(1)">Hello<script>x()</script>'), "Hello x()");
+  // An entity that decodes to "<" stays as text: React escapes it when rendering.
   assert.equal(summaryText("a &lt;b&gt; c"), "a <b> c");
   assert.equal(summaryText("&bogus; &#0;"), "&bogus; &#0;");
 });

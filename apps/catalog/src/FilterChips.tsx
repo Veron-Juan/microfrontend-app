@@ -4,10 +4,10 @@ interface FilterChipsProps {
   onSelect: (option: string) => void;
 }
 
-/** Filtros por tipo. aria-pressed marca el activo (y lo usa el estilo). */
+/** Filters by kind. aria-pressed marks the active one (and the styling uses it). */
 export function FilterChips({ options, selected, onSelect }: FilterChipsProps) {
   return (
-    <div role="group" aria-label="Filtrar por tipo" className="cat:flex cat:flex-wrap cat:gap-1.5">
+    <div role="group" aria-label="Filter by kind" className="cat:flex cat:flex-wrap cat:gap-1.5">
       {options.map((option) => (
         <button
           key={option}

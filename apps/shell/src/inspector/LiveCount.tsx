@@ -1,7 +1,7 @@
 import { remotes } from "../mfe/registry.ts";
 import { useStore } from "../state/store.ts";
 
-/** Un punto por remote, del color de su render, que se enciende cuando terminó de cargar. */
+/** One dot per remote, in its render color, that lights up once it has finished loading. */
 export function LiveCount() {
   const loads = useStore((s) => s.loads);
   const all = remotes();
@@ -9,7 +9,7 @@ export function LiveCount() {
   return (
     <span
       className="mr-1.5 flex items-center gap-1 font-mono text-xs text-muted max-[900px]:hidden"
-      title="Remotes cargados en esta página"
+      title="Remotes loaded on this page"
     >
       {all.map((app) => (
         <i

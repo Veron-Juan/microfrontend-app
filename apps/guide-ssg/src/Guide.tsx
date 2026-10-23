@@ -1,8 +1,8 @@
 /** @jsxRuntime automatic */
-// La guía de episodios de una serie terminada: sus datos ya no cambian, así que se genera una vez,
-// en el build (SSG), y no hace falta reconstruirla hasta que cambie el código.
-// Es HTML sin JavaScript: el realce al pasar el mouse y los recuadros con el episodio son solo CSS.
-// (El pragma de arriba fija el runtime de JSX aunque tsx no vea este tsconfig, p. ej. en los tests.)
+// The episode guide of a show that has ended: its data no longer changes, so it's generated once,
+// at build time (SSG), and doesn't need rebuilding until the code changes.
+// It's HTML without JavaScript: the hover highlight and the episode tooltips are CSS only.
+// (The pragma above pins the JSX runtime even when tsx doesn't see this tsconfig, e.g. in the tests.)
 import type { ReactNode } from "react";
 import {
   averageRating,
@@ -19,12 +19,12 @@ import {
   type Series,
 } from "./series.ts";
 
-/** De dónde salieron los datos de la guía. */
+/** Where the guide's data came from. */
 export interface GuideSource {
   name: string;
-  /** Enlace de atribución, si la fuente lo pide. */
+  /** Attribution link, if the source asks for one. */
   url?: string;
-  /** Cuándo se pidieron, o por qué se usó la copia guardada. */
+  /** When it was fetched, or why the stored copy was used. */
   detail: string;
 }
 
@@ -35,11 +35,11 @@ export interface GuideProps {
   source: GuideSource;
 }
 
-/** Cuántos episodios van en "Los mejores episodios". */
+/** How many episodes go in "Top episodes". */
 export const TOP_COUNT = 3;
 
-// Un tono por nivel (RATING_LEVELS), de la peor nota a la mejor. Las clases van completas para que
-// Tailwind las encuentre al compilar.
+// One shade per level (RATING_LEVELS), from the worst rating to the best. The classes are written out
+// in full so Tailwind finds them when compiling.
 const LEVEL_CLASSES: readonly string[] = [
   "gde:bg-ssg/10 gde:text-strong",
   "gde:bg-ssg/25 gde:text-strong",
@@ -48,7 +48,7 @@ const LEVEL_CLASSES: readonly string[] = [
   "gde:bg-ssg gde:text-card",
 ];
 
-const label = (episode: Episode) => `T${episode.season} E${episode.number}`;
+const label = (episode: Episode) => `S${episode.season} E${episode.number}`;
 const caption =
   "gde:m-0 gde:font-mono gde:text-[10px] gde:leading-[normal] gde:tracking-[.08em] gde:text-muted gde:uppercase";
 
@@ -62,10 +62,10 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
     <section className="gde:grid gde:gap-5 gde:font-sans">
       <header className="gde:flex gde:min-h-8 gde:flex-wrap gde:items-center gde:justify-between gde:gap-x-3 gde:gap-y-1">
         <h3 className="gde:m-0 gde:text-[15px] gde:font-semibold gde:tracking-[-.01em] gde:text-strong">
-          Guía de episodios
+          Episode guide
         </h3>
         <span className="gde:font-mono gde:text-[11px] gde:leading-[normal] gde:text-muted">
-          generada en el build el <b className="gde:font-medium gde:text-ssg">{built}</b>
+          generated at build time on <b className="gde:font-medium gde:text-ssg">{built}</b>
         </span>
       </header>
 
@@ -73,7 +73,7 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
 
       {top.length > 0 && (
         <div className="gde:grid gde:gap-2.5">
-          <p className={caption}>Los mejores episodios</p>
+          <p className={caption}>Top episodes</p>
           <ol className="gde:m-0 gde:grid gde:list-none gde:grid-cols-3 gde:gap-3 gde:p-0 gde:max-md:snap-x gde:max-md:auto-cols-[78%] gde:max-md:grid-flow-col gde:max-md:grid-cols-none gde:max-md:overflow-x-auto gde:max-md:pb-1 gde:max-md:*:snap-start">
             {top.map((episode, index) => (
               <TopEpisode key={label(episode)} episode={episode} rank={index + 1} />
@@ -84,7 +84,7 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
 
       <div className="gde:grid gde:gap-2.5">
         <div className="gde:flex gde:flex-wrap gde:items-center gde:justify-between gde:gap-x-4 gde:gap-y-1">
-          <p className={caption}>Temporada por temporada</p>
+          <p className={caption}>Season by season</p>
           {range && (
             <span
               className="gde:flex gde:items-center gde:gap-1.5 gde:font-mono gde:text-[11px] gde:leading-[normal] gde:text-muted"
@@ -112,7 +112,7 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
                   </th>
                 ))}
                 <th className="gde:w-12 gde:pb-1 gde:text-right gde:font-mono gde:text-[10px] gde:leading-[normal] gde:font-normal gde:text-muted">
-                  media
+                  avg
                 </th>
               </tr>
             </thead>
@@ -122,7 +122,7 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
                 return (
                   <tr key={season.number}>
                     <th className="gde:pr-2 gde:text-left gde:font-[550] gde:whitespace-nowrap gde:text-strong">
-                      T{season.number}
+                      S{season.number}
                       <span className="gde:ml-1.5 gde:font-mono gde:text-[10px] gde:leading-[normal] gde:font-normal gde:text-muted">
                         {season.year}
                       </span>
@@ -135,7 +135,7 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
                           episode={episode}
                           range={range}
                           best={episode === best}
-                          // La primera fila muestra el recuadro debajo, para que no se corte arriba.
+                          // The first row shows the tooltip below, so it isn't cut off at the top.
                           below={row === 0}
                         />
                       ) : (
@@ -155,7 +155,7 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
 
       <footer className="gde:flex gde:flex-wrap gde:items-center gde:gap-x-4 gde:gap-y-2 gde:border-t gde:border-faint gde:pt-3 gde:font-mono gde:text-[11px] gde:leading-[normal] gde:text-muted">
         <span>
-          datos:{" "}
+          data:{" "}
           {source.url ? (
             <a href={source.url} className="gde:text-text gde:underline gde:underline-offset-2">
               {source.name}
@@ -165,14 +165,14 @@ export function Guide({ built, series, buildMs, source }: GuideProps) {
           )}{" "}
           · {source.detail}
         </span>
-        <span>generado en {buildMs} ms, una sola vez</span>
-        <span>servido como archivo estático desde CDN</span>
+        <span>generated in {buildMs} ms, just once</span>
+        <span>served as a static file from a CDN</span>
       </footer>
     </section>
   );
 }
 
-/** "2008–2013": del año del primer episodio al del último. */
+/** "2008–2013": from the year of the first episode to that of the last. */
 function yearsOf(seasons: readonly { year: string }[]): string {
   if (seasons.length === 0) return "";
   const first = seasons[0].year;
@@ -181,8 +181,8 @@ function yearsOf(seasons: readonly { year: string }[]): string {
 }
 
 /**
- * La portada: siempre oscura, como la de una app de streaming, con la carátula desenfocada de
- * fondo. Los colores van fijos (no los del tema) porque el fondo es oscuro en los dos temas.
+ * The hero: always dark, like a streaming app's, with the blurred poster as the background. The
+ * colors are fixed (not the theme's) because the background is dark in both themes.
  */
 function Hero({ series, seasons, years }: { series: Series; seasons: number; years: string }) {
   const average = averageRating(series.episodes);
@@ -205,7 +205,7 @@ function Hero({ series, seasons, years }: { series: Series; seasons: number; yea
         {series.image ? (
           <img
             src={series.image}
-            alt={`Carátula de ${series.name}`}
+            alt={`Poster for ${series.name}`}
             width={104}
             height={156}
             className="gde:block gde:aspect-[2/3] gde:w-full gde:rounded-lg gde:object-cover gde:shadow-[0_18px_40px_-12px_rgb(0_0_0/.85)] gde:ring-1 gde:ring-white/15"
@@ -216,10 +216,10 @@ function Hero({ series, seasons, years }: { series: Series; seasons: number; yea
         <div className="gde:grid gde:min-w-0 gde:gap-2">
           <span className="gde:flex gde:flex-wrap gde:items-center gde:gap-2">
             <span className="gde:rounded-full gde:bg-white/12 gde:px-2.5 gde:py-1 gde:font-mono gde:text-[10px] gde:leading-none gde:tracking-[.12em] gde:text-white/85 gde:uppercase">
-              Serie completa
+              Complete series
             </span>
             <span className="gde:rounded-full gde:bg-[#3dd68c]/18 gde:px-2.5 gde:py-1 gde:text-[11px] gde:leading-none gde:font-medium gde:text-[#7ef0b5]">
-              terminada: estos datos ya no cambian
+              ended: this data no longer changes
             </span>
           </span>
           <b className="gde:font-serif gde:text-[38px] gde:leading-[.95] gde:font-semibold gde:tracking-[-.01em] gde:text-white gde:max-sm:text-[28px]">
@@ -227,11 +227,11 @@ function Hero({ series, seasons, years }: { series: Series; seasons: number; yea
           </b>
           <span className="gde:text-[13px] gde:text-white/70">{facts.join(" · ")}</span>
           <dl className="gde:m-0 gde:mt-1 gde:flex gde:flex-wrap gde:gap-x-6 gde:gap-y-2">
-            <Metric label="nota media">
+            <Metric label="avg rating">
               <span className="gde:text-[#fbbf24]">★</span> {average === null ? "—" : formatRating(average)}
             </Metric>
-            <Metric label="temporadas">{seasons}</Metric>
-            <Metric label="episodios">{series.episodes.length}</Metric>
+            <Metric label="seasons">{seasons}</Metric>
+            <Metric label="episodes">{series.episodes.length}</Metric>
           </dl>
         </div>
       </div>
@@ -241,7 +241,7 @@ function Hero({ series, seasons, years }: { series: Series; seasons: number; yea
 
 function Metric({ label: name, children }: { label: string; children: ReactNode }) {
   return (
-    // El valor se ve arriba y el nombre abajo, pero en el HTML va primero el <dt>, como pide <dl>.
+    // The value shows on top and the name below, but in the HTML the <dt> comes first, as <dl> requires.
     <div className="gde:grid gde:gap-0.5">
       <dt className="gde:order-2 gde:font-mono gde:text-[10px] gde:leading-[normal] gde:tracking-[.08em] gde:text-white/55 gde:uppercase">
         {name}
@@ -253,7 +253,7 @@ function Metric({ label: name, children }: { label: string; children: ReactNode 
   );
 }
 
-/** Uno de los mejores episodios: su captura, el puesto, la nota, el título y la fecha. */
+/** One of the top episodes: its still, its rank, its rating, its title and its date. */
 function TopEpisode({ episode, rank }: { episode: Episode; rank: number }) {
   return (
     <li className="gde:group gde:overflow-hidden gde:rounded-xl gde:border gde:border-faint gde:bg-card gde:transition gde:duration-300 gde:hover:-translate-y-0.5 gde:hover:shadow-[0_14px_30px_-14px_rgb(0_0_0/.45)]">
@@ -294,7 +294,7 @@ interface EpisodeCellProps {
   below: boolean;
 }
 
-/** Un episodio: su nota con el tono que le toca y, al pasar el mouse, un recuadro con el título y la fecha. */
+/** An episode: its rating in its shade and, on hover, a tooltip with the title and the date. */
 function EpisodeCell({ episode, range, best, below }: EpisodeCellProps) {
   const level = ratingLevel(episode.rating, range);
   return (

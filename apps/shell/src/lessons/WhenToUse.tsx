@@ -2,71 +2,72 @@ import { Cards } from "../ui/Card.tsx";
 import { cardClass } from "../ui/card-class.ts";
 import { Lesson, Rules } from "../ui/Lesson.tsx";
 
-/** Los términos de la lección, agrupados por lo que nombran. */
+/** The lesson's terms, grouped by what they name. */
 const GLOSSARY = [
-  { term: "Shell / host", group: "piezas", definition: "La app que contiene y orquesta a las demás." },
-  { term: "Remote", group: "piezas", definition: "Una app que expone pedazos para que otra los consuma." },
+  { term: "Shell / host", group: "pieces", definition: "The app that contains and orchestrates the others." },
+  { term: "Remote", group: "pieces", definition: "An app that exposes pieces for another one to consume." },
   {
     term: "mf-manifest.json",
-    group: "conexión",
-    definition: "Lo que publica un remote de Module Federation: qué expone, qué comparte y dónde están sus archivos.",
+    group: "wiring",
+    definition: "What a Module Federation remote publishes: what it exposes, what it shares and where its files are.",
   },
   {
     term: "Discovery",
-    group: "conexión",
-    definition: "El servicio (o archivo) que dice dónde vive cada micro-frontend en cada entorno. Aquí, remotes.json.",
+    group: "wiring",
+    definition:
+      "The service (or file) that says where each micro-frontend lives in each environment. Here, remotes.json.",
   },
-  { term: "Fragmento", group: "conexión", definition: "Un trozo de HTML sin <html> ni <body>, listo para incrustar." },
+  { term: "Fragment", group: "wiring", definition: "A piece of HTML with no <html> or <body>, ready to embed." },
   {
     term: "ESI / SSI",
-    group: "conexión",
-    definition: "Etiquetas que un CDN o un servidor reemplaza por fragmentos antes de responder.",
+    group: "wiring",
+    definition: "Tags that a CDN or a server replaces with fragments before responding.",
   },
   {
-    term: "Hidratación",
-    group: "render",
-    definition: "Conectar JavaScript a un HTML que ya llegó renderizado para volverlo interactivo.",
+    term: "Hydration",
+    group: "rendering",
+    definition: "Attaching JavaScript to HTML that arrived already rendered, to make it interactive.",
   },
   {
-    term: "Islas",
-    group: "render",
-    definition: "Partes interactivas que se hidratan por separado dentro de una página de HTML estático.",
+    term: "Islands",
+    group: "rendering",
+    definition: "Interactive parts that hydrate separately inside a page of static HTML.",
   },
   {
     term: "Singleton",
-    group: "dependencias",
-    definition: "Una dependencia compartida de la que toda la página usa una sola instancia, como React.",
+    group: "dependencies",
+    definition: "A shared dependency of which the whole page uses a single instance, like React.",
   },
   {
     term: "Design tokens",
-    group: "estilo",
-    definition: "Valores de diseño compartidos (colores, tipografías). Cada app compila sus propios estilos con ellos.",
+    group: "styling",
+    definition: "Shared design values (colors, typefaces). Each app compiles its own styles from them.",
   },
 ] as const;
 
 export function WhenToUse() {
   return (
-    <Lesson id="cuando" title="¿Cuándo conviene?" kicker="Es una solución organizacional antes que técnica.">
+    <Lesson id="when" title="When is it worth it?" kicker="It's an organizational solution before a technical one.">
       <Cards columns="two">
         <div className={cardClass}>
-          <h3 className="mb-1.5 text-sm font-semibold text-strong">Conviene cuando…</h3>
+          <h3 className="mb-1.5 text-sm font-semibold text-strong">It's worth it when…</h3>
           <Rules>
-            <li>Hay varios equipos trabajando sobre el mismo producto y se bloquean entre sí.</li>
-            <li>Partes del sitio tienen ritmos de cambio muy distintos (la guía vs. el catálogo).</li>
-            <li>Necesitas migrar de a poco una app vieja sin reescribirla de una vez.</li>
+            <li>Several teams work on the same product and keep blocking each other.</li>
+            <li>Parts of the site change at very different paces (the guide vs. the catalog).</li>
+            <li>You need to migrate an old app bit by bit without rewriting it all at once.</li>
             <li>
-              Cada parte necesita su propio render y además su propio deploy (si solo es el render, un framework lo
-              resuelve por ruta).
+              Each part needs its own rendering and also its own deploy (if it's only the rendering, a framework solves
+              that per route).
             </li>
           </Rules>
         </div>
         <div className={cardClass}>
-          <h3 className="mb-1.5 text-sm font-semibold text-strong">Cuesta…</h3>
+          <h3 className="mb-1.5 text-sm font-semibold text-strong">It costs…</h3>
           <Rules>
-            <li>Más infraestructura: varios pipelines, servidores y versiones que vigilar.</li>
-            <li>Consistencia visual: hace falta un design system compartido (aquí, @mfe/design-tokens).</li>
-            <li>Rendimiento: dependencias duplicadas si no se comparten bien.</li>
-            <li>Disciplina: contratos de eventos y rutas que no se pueden romper sin versionarlos.</li>
+            <li>More infrastructure: several pipelines, servers and versions to watch.</li>
+            <li>Visual consistency: you need a shared design system (here, @mfe/design-tokens).</li>
+            <li>Performance: duplicated dependencies if they aren't shared well.</li>
+            <li>Discipline: event and route contracts that can't be broken without versioning them.</li>
           </Rules>
         </div>
       </Cards>
@@ -79,9 +80,9 @@ function Glossary() {
   return (
     <div className="mt-10">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-serif text-[26px] font-medium tracking-[-.01em] text-strong">Glosario</h3>
+        <h3 className="font-serif text-[26px] font-medium tracking-[-.01em] text-strong">Glossary</h3>
         <span className="font-mono text-[11px] tracking-[.1em] text-muted uppercase">
-          {GLOSSARY.length} términos de esta lección
+          {GLOSSARY.length} terms from this lesson
         </span>
       </div>
       <dl className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">

@@ -1,4 +1,4 @@
-// Datos fijos con la forma de LiveData, para probar el render y el servidor sin llamar a las APIs.
+// Fixed data shaped like LiveData, to test the render and the server without calling the APIs.
 import type { LiveData } from "./live-data.ts";
 
 export const SAMPLE_DATA: LiveData = {
@@ -45,12 +45,12 @@ export const SAMPLE_DATA: LiveData = {
       {
         id: 10,
         show: "The Terminal List",
-        episode: "T2 · estreno",
+        episode: "S2 · premiere",
         platform: "Prime Video",
         image: "https://static.tvmaze.com/10.jpg",
       },
-      { id: 11, show: "Where's Wanda?", episode: "T2 · estreno", platform: "Apple TV", image: null },
-      { id: 12, show: "Ellie & Natasia", episode: "T2 E3", platform: "BBC iPlayer", image: null },
+      { id: 11, show: "Where's Wanda?", episode: "S2 · premiere", platform: "Apple TV", image: null },
+      { id: 12, show: "Ellie & Natasia", episode: "S2 E3", platform: "BBC iPlayer", image: null },
     ],
   },
 };

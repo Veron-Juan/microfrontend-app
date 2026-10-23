@@ -1,17 +1,17 @@
 /*
- * Estilos del shell.
+ * The shell's styles.
  *
- * El shell es la única app que carga Tailwind completo, con su reset (preflight). Los remotes
- * compilan su propio CSS con prefijo (cat:, dtl:, nws:, gde:) y sin reset, así que nunca pisan
- * estos estilos ni los de otro remote. Lo que todos comparten son los tokens.
+ * The shell is the only app that loads all of Tailwind, with its reset (preflight). The remotes
+ * compile their own CSS with a prefix (cat:, dtl:, nws:, gde:) and no reset, so they never override
+ * these styles or another remote's. What they all share are the tokens.
  */
 @import "tailwindcss";
 @import "@mfe/design-tokens/theme.css";
-/* El kit de figuras trae su propio CSS; va en la capa components para que las utilidades lo ajusten. */
+/* The figures kit brings its own CSS; it goes in the components layer so utilities can adjust it. */
 @import "@mfe/figures/iso.css" layer(components);
 
 @theme {
-  /* "both": con la demora de la cascada, la pieza queda invisible hasta que le toca. */
+  /* "both": with the cascade delay, the piece stays invisible until its turn. */
   --animate-tag-in: tag-in 0.4s cubic-bezier(0.32, 0.72, 0, 1) both;
   --animate-shimmer: shimmer 1.2s infinite;
   --animate-scan: scan 0.95s cubic-bezier(0.45, 0, 0.25, 1) both;
@@ -85,7 +85,7 @@
     font-weight: 550;
   }
 
-  /* Cada elemento con data-render expone su color en --c, para usarlo con bg-(--c), text-(--c), etc. */
+  /* Every element with data-render exposes its color as --c, for use with bg-(--c), text-(--c), etc. */
   [data-render="CSR"] {
     --c: --theme(--color-csr);
   }
@@ -98,8 +98,8 @@
 }
 
 /*
- * Las figuras son SVG generados en el build (packages/figures), sin JSX donde poner clases.
- * Estas reglas ajustan ese SVG y por eso se escriben como CSS.
+ * The figures are SVGs generated at build time (packages/figures), with no JSX to put classes on.
+ * These rules adjust that SVG, which is why they're written as CSS.
  */
 @layer components {
   .iso-plate {
@@ -109,8 +109,8 @@
       0 0 0 1px --theme(--color-line),
       --theme(--shadow-lift);
   }
-  /* El contorno del navegador es un rectángulo que no sigue a la pieza al animarse: el foco se ve
-     como el hover, resaltando la pieza (AssemblyFigure), y en la etiqueta del shell subrayándola. */
+  /* The browser's outline is a rectangle that doesn't follow the piece as it animates: focus looks
+     like hover, highlighting the piece (AssemblyFigure), and underlining the shell's label. */
   .iso-figure [data-slot] {
     cursor: pointer;
     outline: none;
@@ -121,9 +121,9 @@
 }
 
 /*
- * Las hojas de la portada (lessons/RenderSheets.tsx): una animación por tipo de render. Todo es CSS:
- * ningún cuadro necesita JavaScript. "both" deja cada pieza en su primer cuadro mientras espera su
- * demora; sin animación (movimiento reducido) se ve el estado base, que es la ilustración quieta.
+ * The hero's sheets (lessons/RenderSheets.tsx): one animation per kind of rendering. It's all CSS:
+ * no frame needs JavaScript. "both" keeps each piece on its first frame while it waits out its delay;
+ * without animation (reduced motion) you see the base state, which is the still illustration.
  */
 @theme {
   --animate-sh-mount: sh-mount 6s cubic-bezier(0.32, 0.72, 0, 1) infinite both;
@@ -144,7 +144,7 @@
   --animate-sh-deliver: sh-deliver 4.5s cubic-bezier(0.45, 0, 0.25, 1) infinite both;
   --animate-sh-arrive: sh-arrive 4.5s ease-out infinite both;
 
-  /* Shell: cada remote entra en su lugar del layout. */
+  /* Shell: each remote enters its place in the layout. */
   @keyframes sh-mount {
     0% {
       opacity: 0;
@@ -162,7 +162,7 @@
     }
   }
 
-  /* SSR: llega un request, el servidor se enciende y sale una hoja recién impresa. */
+  /* SSR: a request arrives, the server lights up and a freshly printed sheet comes out. */
   @keyframes sh-request {
     0% {
       opacity: 0;
@@ -226,7 +226,7 @@
     }
   }
 
-  /* CSR: bajan los archivos JS y la grilla se arma en la pantalla; después alguien elige. */
+  /* CSR: the JS files come down and the grid is built on screen; then someone picks. */
   @keyframes sh-chunk {
     0% {
       opacity: 0;
@@ -299,7 +299,7 @@
     }
   }
 
-  /* La ficha: llega el evento, muestra el esqueleto mientras pide a la API y se completa. */
+  /* Details: the event arrives, it shows the skeleton while querying the API, and fills in. */
   @keyframes sh-tag {
     0% {
       opacity: 0;
@@ -390,7 +390,7 @@
     }
   }
 
-  /* SSG: la misma copia, impresa en el build, viaja del CDN a cada visitante. */
+  /* SSG: the same copy, printed at build time, travels from the CDN to every visitor. */
   @keyframes sh-deliver {
     0% {
       opacity: 0;

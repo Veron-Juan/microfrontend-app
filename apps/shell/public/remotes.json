@@ -5,27 +5,27 @@
       "type": "fragment",
       "url": "http://localhost:5003/fragment/news",
       "version": "3.2.0",
-      "metadata": { "name": "news-ssr", "team": "Equipo Contenidos", "render": "SSR" }
+      "metadata": { "name": "news-ssr", "team": "Content team", "render": "SSR" }
     },
     "catalog": {
       "type": "module-federation",
       "url": "http://localhost:5001/mf-manifest.json",
       "module": "./Catalog",
       "version": "2.1.0",
-      "metadata": { "name": "catalog", "team": "Equipo Descubrimiento", "render": "CSR" }
+      "metadata": { "name": "catalog", "team": "Browse team", "render": "CSR" }
     },
     "details": {
       "type": "module-federation",
       "url": "http://localhost:5002/mf-manifest.json",
       "module": "./Details",
       "version": "3.1.0",
-      "metadata": { "name": "details", "team": "Equipo Fichas", "render": "CSR" }
+      "metadata": { "name": "details", "team": "Details team", "render": "CSR" }
     },
     "guide": {
       "type": "fragment",
       "url": "http://localhost:5004/fragment/guide.html",
       "version": "2.1.0",
-      "metadata": { "name": "guide-ssg", "team": "Equipo Programación", "render": "SSG" }
+      "metadata": { "name": "guide-ssg", "team": "Schedule team", "render": "SSG" }
     }
   }
 }

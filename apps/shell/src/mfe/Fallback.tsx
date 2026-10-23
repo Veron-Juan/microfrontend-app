@@ -3,7 +3,7 @@ import { reload } from "../state/store.ts";
 import { Button } from "../ui/Button.tsx";
 import type { RemoteApp } from "./registry.ts";
 
-/** Lo que se ve en el lugar de un remote que no cargó. El resto de la página sigue igual. */
+/** What shows in place of a remote that didn't load. The rest of the page stays the same. */
 export function Fallback({ app, error }: { app: RemoteApp; error: unknown }) {
   return (
     <div
@@ -17,15 +17,15 @@ export function Fallback({ app, error }: { app: RemoteApp; error: unknown }) {
         ×
       </span>
       <div>
-        <strong className="text-sm">{app.title} no está disponible</strong>
+        <strong className="text-sm">{app.title} is unavailable</strong>
         <p className="mt-0.5 mb-1.5 text-[13px]">
-          El shell y el resto de la página siguen funcionando. Esto es el <em>aislamiento de fallos</em>: cada remote
-          cae solo.
+          The shell and the rest of the page keep working. This is <em>failure isolation</em>: each remote goes down on
+          its own.
         </p>
         <code className="text-[11px] break-all">{errorMessage(error).slice(0, 140)}</code>
       </div>
       <Button variant="outline" className="bg-card" onClick={() => reload(app.id)}>
-        Reintentar
+        Retry
       </Button>
     </div>
   );

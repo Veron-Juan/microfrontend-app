@@ -1,24 +1,24 @@
 import type { RenderMode } from "@mfe/contracts";
 
 /*
- * El documento de discovery: dónde vive cada micro-frontend en un entorno.
+ * The discovery document: where each micro-frontend lives in an environment.
  *
- * El shell no compila las URLs de los remotes: las lee al arrancar de /remotes.json. En producción
- * ese archivo lo sirve un servicio o un CDN, y el pipeline de cada remote actualiza su entrada al
- * desplegar una versión nueva. Así un remote sale a producción (o vuelve atrás) sin tocar el shell.
- * La forma está inspirada en el Frontend Discovery Service de AWS, una especificación abierta.
+ * The shell doesn't compile in the remotes' URLs: it reads them from /remotes.json at startup. In
+ * production that file is served by a service or a CDN, and each remote's pipeline updates its entry
+ * when it deploys a new version. That way a remote ships to production (or rolls back) without
+ * touching the shell. The shape is inspired by AWS's Frontend Discovery Service, an open spec.
  */
 
 export type RemoteType = "module-federation" | "fragment";
 
 export interface DiscoveredRemote {
   type: RemoteType;
-  /** mf-manifest.json para Module Federation; la URL del HTML para un fragmento. */
+  /** mf-manifest.json for Module Federation; the HTML's URL for a fragment. */
   url: string;
-  /** Módulo expuesto ("./Catalog"). Solo para Module Federation. */
+  /** Exposed module ("./Catalog"). Module Federation only. */
   module?: string;
   version: string;
-  /** Lo que el pipeline del remote publica sobre sí mismo. El shell solo lo muestra. */
+  /** What the remote's pipeline publishes about itself. The shell only displays it. */
   metadata: { name: string; team: string; render: RenderMode };
 }
 
@@ -34,30 +34,30 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
 /**
- * Valida el JSON de discovery. Viene de la red y lo escribe otro sistema: mejor fallar al arrancar
- * con un mensaje claro que a mitad de camino con un "undefined is not a function".
- * Las URLs relativas se resuelven contra `base` (la URL del propio archivo).
+ * Validates the discovery JSON. It comes from the network and another system writes it: better to
+ * fail at startup with a clear message than halfway through with an "undefined is not a function".
+ * Relative URLs are resolved against `base` (the file's own URL).
  */
 export function parseDiscovery(json: unknown, base: string): Discovery {
   if (!isRecord(json) || typeof json.environment !== "string" || !isRecord(json.microFrontends)) {
-    throw new Error("discovery: se esperaba { environment, microFrontends }");
+    throw new Error("discovery: expected { environment, microFrontends }");
   }
   const microFrontends: Record<string, DiscoveredRemote> = {};
   for (const [id, entry] of Object.entries(json.microFrontends)) {
     const problem = (detail: string) => new Error(`discovery: "${id}" ${detail}`);
-    if (!isRecord(entry)) throw problem("no es un objeto");
+    if (!isRecord(entry)) throw problem("is not an object");
     const { type, url, module, version, metadata } = entry;
-    if (typeof type !== "string" || !TYPES.includes(type)) throw problem(`tiene un type inválido (${String(type)})`);
-    if (typeof url !== "string") throw problem("no tiene url");
-    if (typeof version !== "string") throw problem("no tiene version");
+    if (typeof type !== "string" || !TYPES.includes(type)) throw problem(`has an invalid type (${String(type)})`);
+    if (typeof url !== "string") throw problem("has no url");
+    if (typeof version !== "string") throw problem("has no version");
     if (type === "module-federation" && (typeof module !== "string" || !module.startsWith("./"))) {
-      throw problem('necesita "module", por ejemplo "./Catalog"');
+      throw problem('needs "module", for example "./Catalog"');
     }
     if (!isRecord(metadata) || typeof metadata.name !== "string" || typeof metadata.team !== "string") {
-      throw problem("necesita metadata.name y metadata.team");
+      throw problem("needs metadata.name and metadata.team");
     }
     if (typeof metadata.render !== "string" || !RENDER_MODES.includes(metadata.render)) {
-      throw problem("necesita metadata.render: CSR, SSR o SSG");
+      throw problem("needs metadata.render: CSR, SSR or SSG");
     }
     microFrontends[id] = {
       type: type as RemoteType,
@@ -70,9 +70,9 @@ export function parseDiscovery(json: unknown, base: string): Discovery {
   return { environment: json.environment, microFrontends };
 }
 
-/** Descarga y valida el discovery del entorno actual. */
+/** Downloads and validates the current environment's discovery. */
 export async function fetchDiscovery(url: string): Promise<Discovery> {
   const response = await fetch(url, { cache: "no-cache" });
-  if (!response.ok) throw new Error(`discovery: HTTP ${response.status} al pedir ${url}`);
+  if (!response.ok) throw new Error(`discovery: HTTP ${response.status} fetching ${url}`);
   return parseDiscovery(await response.json(), response.url || url);
 }

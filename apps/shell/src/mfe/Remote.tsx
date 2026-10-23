@@ -8,7 +8,7 @@ import { RemoteBoundary } from "./RemoteBoundary.tsx";
 import { Skeleton } from "./Skeleton.tsx";
 import { useRemoteRequest, type RemoteLoader } from "./use-remote-request.ts";
 
-/** Monta el remote que corresponde a un id, eligiendo cómo componerlo según su tipo. */
+/** Mounts the remote for an id, choosing how to compose it based on its kind. */
 export function Remote({ id }: { id: RemoteId }) {
   const app = remoteById(id);
   return app.kind === "federated" ? <FederatedRemote app={app} /> : <FragmentRemote app={app} />;
@@ -33,7 +33,7 @@ function FederatedRemote({ app }: { app: FederatedApp }) {
   );
 }
 
-// Mide cuánto tarda React en montar el remote después de descargarlo: el "render en el cliente".
+// Measures how long React takes to mount the remote after downloading it: the "client render".
 function PaintTimer({ id }: { id: AppId }) {
   useLayoutEffect(() => {
     const end = store.get().loads[id]?.end ?? performance.now();
@@ -45,7 +45,7 @@ function PaintTimer({ id }: { id: AppId }) {
   return null;
 }
 
-// ── Fragmentos HTML (SSR y SSG) ──────────────────────────────────────────────────
+// ── HTML fragments (SSR and SSG) ─────────────────────────────────────────────────
 const fragmentLoader: RemoteLoader<FragmentApp, Fragment> = {
   request: (app, options) => fetchFragment(app, options),
   measure: (app, fragment) => ({
@@ -62,6 +62,6 @@ function FragmentRemote({ app }: { app: FragmentApp }) {
   const { result } = useRemoteRequest(app, fragmentLoader);
   if (result.status === "loading") return <Skeleton label={app.title} />;
   if (result.status === "error") return <Fallback app={app} error={result.error} />;
-  // El HTML llega ya renderizado: el shell solo lo inserta. No se ejecuta JS del remote.
+  // The HTML arrives already rendered: the shell only inserts it. No JS from the remote runs.
   return <div dangerouslySetInnerHTML={{ __html: result.value.html }} />;
 }

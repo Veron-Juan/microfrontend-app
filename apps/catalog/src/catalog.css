@@ -1,8 +1,8 @@
 /*
- * CSS del remote "catalog". Todas las utilidades llevan el prefijo cat: (cat:flex, cat:bg-card)
- * para que nunca choquen con las del shell ni con las de otros remotes que comparten la página.
- * No incluye preflight: el reset global es del shell; un remote no debe tocar estilos fuera de
- * su propio árbol. Los valores salen de los tokens compartidos (@mfe/design-tokens).
+ * CSS for the "catalog" remote. Every utility carries the cat: prefix (cat:flex, cat:bg-card) so it
+ * never clashes with the shell's or with other remotes sharing the page. It doesn't include
+ * preflight: the global reset belongs to the shell; a remote must not touch styles outside its own
+ * tree. The values come from the shared tokens (@mfe/design-tokens).
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme) prefix(cat);

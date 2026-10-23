@@ -1,7 +1,7 @@
 /*
- * CSS del fragmento news-ssr. Prefijo `nws` y sin preflight: el reset lo pone el shell, y como
- * todas las clases de este remote empiezan con `nws:`, su CSS nunca choca con el del shell ni
- * con el de otros remotes que estén en la misma página.
+ * CSS for the news-ssr fragment. `nws` prefix and no preflight: the shell provides the reset, and
+ * since every class in this remote starts with `nws:`, its CSS never clashes with the shell's or with
+ * other remotes on the same page.
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme) prefix(nws);
@@ -9,7 +9,7 @@
 @import "@mfe/design-tokens/theme.css";
 
 @theme {
-  /* El punto de "en vivo". El keyframe lleva el prefijo a mano: Tailwind no lo prefija. */
+  /* The "live" dot. The keyframe is prefixed by hand: Tailwind doesn't prefix it. */
   --animate-live: nws-live 1.4s ease-in-out infinite;
 
   @keyframes nws-live {

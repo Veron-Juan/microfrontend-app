@@ -3,22 +3,23 @@ import { loadRemote, registerRemotes } from "@module-federation/runtime";
 import type { RemoteMeta } from "@mfe/contracts";
 import { remotes, type FederatedApp } from "./registry.ts";
 
-/** Lo que exporta un módulo expuesto por un remote: su componente y su ficha. */
+/** What a module exposed by a remote exports: its component and its metadata. */
 export interface RemoteModule {
   default: ComponentType;
   meta?: RemoteMeta;
 }
 
 /**
- * Para simular una caída apuntamos el remote a un origen que no existe. `.invalid` es un dominio
- * reservado (RFC 2606): nunca resuelve, ni en local ni en producción, así que la falla es real.
+ * To simulate an outage we point the remote at an origin that doesn't exist. `.invalid` is a
+ * reserved domain (RFC 2606): it never resolves, locally or in production, so the failure is real.
  */
 export const OFFLINE_ORIGIN = "https://offline.invalid/";
 
 /**
- * Registra en el runtime de Module Federation los remotes que trajo el discovery. El shell no los
- * declara en su vite.config: así cambiar la URL o la versión de un remote no obliga a recompilarlo.
- * La entrada es el mf-manifest.json de cada remote, que describe qué expone y qué comparte.
+ * Registers the remotes that discovery returned with the Module Federation runtime. The shell
+ * doesn't declare them in its vite.config: that way changing a remote's URL or version doesn't force
+ * a shell rebuild. The entry is each remote's mf-manifest.json, which describes what it exposes and
+ * shares.
  */
 export function registerFederatedRemotes() {
   const federated = remotes().filter((app): app is FederatedApp => app.kind === "federated");
@@ -28,24 +29,24 @@ export function registerFederatedRemotes() {
   );
 }
 
-/** Descarga el módulo expuesto por un remote. Con `offline`, lo pide a un origen caído. */
+/** Downloads the module a remote exposes. With `offline`, requests it from a dead origin. */
 export async function loadFederatedModule(
   app: FederatedApp,
   { offline = false, attempt = 0 } = {},
 ): Promise<RemoteModule> {
   let specifier = `${app.id}/${app.expose}`;
   if (offline) {
-    // Un nombre nuevo por intento: el runtime cachea los remotes por nombre.
+    // A new name per attempt: the runtime caches remotes by name.
     const name = `${app.id}_offline_${attempt}`;
     registerRemotes([{ name, entry: `${OFFLINE_ORIGIN}mf-manifest.json` }]);
     specifier = `${name}/${app.expose}`;
   }
   const module = await loadRemote<RemoteModule>(specifier);
-  if (!module?.default) throw new Error(`${app.name} no expuso un componente por defecto`);
+  if (!module?.default) throw new Error(`${app.name} didn't expose a default component`);
   return module;
 }
 
-/** Cuántos archivos pidió el navegador a un origen desde un instante dado. */
+/** How many files the browser requested from an origin since a given moment. */
 export const filesRequestedFrom = (origin: string, since: number) =>
   performance
     .getEntriesByType("resource")

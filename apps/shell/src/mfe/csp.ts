@@ -1,19 +1,19 @@
 /**
- * La Content-Security-Policy del shell en producción. Se arma en el deploy, cuando ya se conocen los
- * orígenes del discovery: la página solo ejecuta código del shell y de los remotes federados, y solo
- * se conecta a los remotes y a la API que consultan el catálogo y la ficha. Si un fragmento HTML
- * trajera un script o un atributo como onerror, el navegador no lo ejecutaría.
+ * The shell's Content-Security-Policy in production. It's built at deploy time, once the discovery
+ * origins are known: the page only runs code from the shell and the federated remotes, and only
+ * connects to the remotes and the API the catalog and details query. If an HTML fragment brought a
+ * script or an attribute like onerror, the browser wouldn't run it.
  */
 export interface CspSources {
-  /** Orígenes de los remotes de Module Federation: su código corre dentro de la página. */
+  /** Origins of the Module Federation remotes: their code runs inside the page. */
   federated: readonly string[];
-  /** Orígenes de todos los remotes: el shell les pide manifiestos y fragmentos. */
+  /** Origins of every remote: the shell requests manifests and fragments from them. */
   remotes: readonly string[];
-  /** sha256 en base64 de cada script inline de index.html. */
+  /** Base64 sha256 of each inline script in index.html. */
   inlineScripts: readonly string[];
 }
 
-/** APIs que el navegador consulta directo, porque el catálogo y la ficha son CSR. */
+/** APIs the browser queries directly, because the catalog and details are CSR. */
 export const BROWSER_APIS = ["https://api.tvmaze.com"];
 
 export function contentSecurityPolicy({ federated, remotes, inlineScripts }: CspSources): string {
@@ -21,10 +21,10 @@ export function contentSecurityPolicy({ federated, remotes, inlineScripts }: Csp
     "default-src": ["'self'"],
     "script-src": ["'self'", ...federated, ...inlineScripts.map((hash) => `'sha256-${hash}'`)],
     "connect-src": ["'self'", ...remotes, ...BROWSER_APIS],
-    // Los remotes traen su CSS como <style> y React usa estilos en línea.
+    // The remotes bring their CSS as <style> and React uses inline styles.
     "style-src": ["'self'", "'unsafe-inline'", ...federated, "https://fonts.googleapis.com"],
     "font-src": ["https://fonts.gstatic.com"],
-    // Carátulas, escudos y fotos del elenco vienen de las APIs, siempre por https.
+    // Posters, team badges and cast photos come from the APIs, always over https.
     "img-src": ["'self'", "data:", "https:"],
     "object-src": ["'none'"],
     "base-uri": ["'none'"],

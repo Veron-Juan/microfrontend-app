@@ -6,12 +6,12 @@ import { Chip } from "../ui/Chip.tsx";
 import { Code } from "../ui/Code.tsx";
 import { Lesson } from "../ui/Lesson.tsx";
 
-/** Las tres llamadas que arman la página, en el orden en que ocurren. */
+/** The three calls that build the page, in the order they happen. */
 const STEPS = [
   {
-    title: "Saber dónde vive cada remote",
+    title: "Find out where each remote lives",
     file: "apps/shell/public/remotes.json",
-    text: "El discovery: un archivo por entorno. Publicar o revertir un remote es cambiar su entrada, sin tocar el shell.",
+    text: "Discovery: one file per environment. Shipping or rolling back a remote means changing its entry, without touching the shell.",
     code: `"catalog": {
   "type": "module-federation",
   "url": "http://localhost:5001/mf-manifest.json",
@@ -19,16 +19,16 @@ const STEPS = [
 }`,
   },
   {
-    title: "Cargar un remote con Module Federation",
+    title: "Load a remote with Module Federation",
     file: "apps/shell/src/mfe/federation.ts",
-    text: "El shell registra el manifiesto y baja el código recién cuando lo va a montar. React viene compartido.",
+    text: "The shell registers the manifest and downloads the code only when it is about to mount it. React comes shared.",
     code: `registerRemotes([{ name: "catalog", entry: "http://localhost:5001/mf-manifest.json" }]);
 const { default: Catalog } = await loadRemote("catalog/Catalog");`,
   },
   {
-    title: "Pedir un fragmento de HTML",
+    title: "Request an HTML fragment",
     file: "apps/shell/src/mfe/fragments.ts",
-    text: "Para SSR y SSG el shell pide HTML ya renderizado y lo inserta tal cual. No corre JavaScript del remote.",
+    text: "For SSR and SSG the shell requests already-rendered HTML and inserts it as is. No JavaScript from the remote runs.",
     code: `const response = await fetch("http://localhost:5003/fragment/news");
 const html = await response.text();`,
   },
@@ -37,26 +37,26 @@ const html = await response.text();`,
 export function Composition() {
   return (
     <Lesson
-      id="composicion"
-      title="Cómo se compone"
-      kicker="Hay cuatro formas de juntar los pedazos. Esta app usa dos."
+      id="composition"
+      title="How it's composed"
+      kicker="There are four ways to put the slices together. This app uses two."
     >
       <Cards columns="two">
-        <Card title="En el build" aside={<Tag>paquetes npm</Tag>}>
-          Cada pedazo se publica como librería y el shell lo instala. Es simple, pero cada cambio obliga a re-desplegar
-          el shell: se pierde el deploy independiente.
+        <Card title="At build time" aside={<Tag>npm packages</Tag>}>
+          Each slice is published as a library and the shell installs it. It's simple, but every change forces a shell
+          redeploy: you lose independent deploys.
         </Card>
-        <Card title="En el navegador, en runtime" aside={<Tag active>usado aquí</Tag>}>
-          Con <b>Module Federation</b> el shell lee el <code>mf-manifest.json</code> de cada remote, descarga su código
-          al momento de usarlo y comparte React con él. Así llegan el catálogo y la ficha.
+        <Card title="In the browser, at runtime" aside={<Tag active>used here</Tag>}>
+          With <b>Module Federation</b> the shell reads each remote's <code>mf-manifest.json</code>, downloads its code
+          when it's needed and shares React with it. That's how the catalog and the details page arrive.
         </Card>
-        <Card title="Fragmentos HTML" aside={<Tag active>usado aquí</Tag>}>
-          Cada remote devuelve <b>HTML ya renderizado</b> y alguien lo inserta en la página. En producción suele hacerlo
-          el servidor o el edge (SSI, ESI); aquí lo hace el shell en el navegador, para que la request se vea. Así
-          llegan Novedades y la Guía.
+        <Card title="HTML fragments" aside={<Tag active>used here</Tag>}>
+          Each remote returns <b>already-rendered HTML</b> and something inserts it into the page. In production that's
+          usually the server or the edge (SSI, ESI); here the shell does it in the browser, so you can see the request.
+          That's how News and the Guide arrive.
         </Card>
-        <Card title="Iframes" aside={<Tag>aislamiento total</Tag>}>
-          El aislamiento más fuerte, pero pesa más, complica el diseño responsivo, la accesibilidad y la comunicación.
+        <Card title="Iframes" aside={<Tag>full isolation</Tag>}>
+          The strongest isolation, but heavier, and it complicates responsive design, accessibility and communication.
         </Card>
       </Cards>
       <LoadTimeline />
@@ -65,7 +65,7 @@ export function Composition() {
   );
 }
 
-/** Marcas del eje de tiempo: valores redondos, como mucho cinco, entre 0 y el total. */
+/** Time axis ticks: round values, at most five, between 0 and the total. */
 function ticks(total: number): number[] {
   const step = [10, 25, 50, 100, 250, 500, 1000, 2000].find((size) => total / size <= 5) ?? 5000;
   return Array.from({ length: Math.floor(total / step) + 1 }, (_, index) => index * step);
@@ -73,7 +73,7 @@ function ticks(total: number): number[] {
 
 const LABEL_COLUMN = "grid-cols-[150px_minmax(0,1fr)] max-[560px]:grid-cols-[96px_minmax(0,1fr)]";
 
-/** Cuándo empezó y terminó cada carga en esta página, en una misma línea de tiempo. */
+/** When each load on this page started and ended, on a single timeline. */
 function LoadTimeline() {
   const loads = useStore((s) => s.loads);
   const rows = remotes().flatMap((app) => {
@@ -81,7 +81,7 @@ function LoadTimeline() {
     return load?.start != null ? [{ app, load, start: load.start }] : [];
   });
   const t0 = Math.min(...rows.map(({ start }) => start), Infinity);
-  // Una carga en curso todavía no tiene fin: su barra llega hasta el final de la más larga.
+  // A load in progress has no end yet: its bar reaches the end of the longest one.
   const t1 = Math.max(...rows.map(({ load, start }) => load.end ?? start), t0 + 1);
   const span = Math.max(t1 - t0, 1);
   const done = rows.length > 0 && rows.every(({ load }) => load.status !== "loading");
@@ -90,21 +90,21 @@ function LoadTimeline() {
   return (
     <figure
       className="my-[22px] overflow-hidden rounded-2xl border border-line-soft bg-card shadow-lift"
-      aria-label="Cascada de carga de los remotes"
+      aria-label="Remote loading waterfall"
     >
       <figcaption className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line-soft px-5 pt-4 pb-3.5">
         <div>
-          <p className="font-mono text-[11px] tracking-[.1em] text-muted uppercase">Cascada de carga · esta página</p>
-          <p className="mt-1 text-[15px] font-semibold text-strong">Las cuatro cargas corren a la vez</p>
+          <p className="font-mono text-[11px] tracking-[.1em] text-muted uppercase">Loading waterfall · this page</p>
+          <p className="mt-1 text-[15px] font-semibold text-strong">All four loads run at once</p>
         </div>
         {done && (
           <dl className="flex gap-2 font-mono text-[11px]">
             <div className="rounded-lg bg-strong px-3 py-1.5 text-card">
-              <dt className="opacity-70">en paralelo</dt>
+              <dt className="opacity-70">in parallel</dt>
               <dd className="text-[15px] font-semibold">{Math.round(span)} ms</dd>
             </div>
             <div className="rounded-lg border border-line px-3 py-1.5 text-muted">
-              <dt>una tras otra</dt>
+              <dt>one after another</dt>
               <dd className="text-[15px] font-semibold text-text line-through decoration-1">{sequential} ms</dd>
             </div>
           </dl>
@@ -130,7 +130,7 @@ function LoadTimeline() {
           {rows.map(({ app, load, start }) => {
             const left = ((start - t0) / span) * 100;
             const end = left + (((load.end ?? t1) - start) / span) * 100;
-            // La duración va a la derecha de la barra; si no entra, adentro y en blanco.
+            // The duration goes to the right of the bar; if it doesn't fit, inside and in white.
             const inside = end > 82;
             return (
               <div key={app.id} className={cx("grid items-center gap-4", LABEL_COLUMN)}>
@@ -152,27 +152,27 @@ function LoadTimeline() {
                     )}
                     style={inside ? { right: `${100 - end}%` } : { left: `${end}%` }}
                   >
-                    {load.status === "ready" ? `${load.ms} ms` : load.status === "error" ? "error" : "cargando…"}
+                    {load.status === "ready" ? `${load.ms} ms` : load.status === "error" ? "error" : "loading…"}
                   </span>
                 </span>
               </div>
             );
           })}
-          {rows.length === 0 && <p className="py-3 text-sm text-muted">Esperando las primeras cargas…</p>}
+          {rows.length === 0 && <p className="py-3 text-sm text-muted">Waiting for the first loads…</p>}
         </div>
         <p className="mt-3.5 text-[13px] text-muted">
-          Cada remote se pide por su lado, así que la página tarda lo que tarda el más lento, no la suma de todos.
+          Each remote is requested on its own, so the page takes as long as the slowest one, not the sum of all.
         </p>
       </div>
     </figure>
   );
 }
 
-/** Las tres llamadas que componen la página, como una secuencia numerada. */
+/** The three calls that compose the page, as a numbered sequence. */
 function Steps() {
   return (
     <div className="my-[22px]">
-      <p className="mb-3 font-mono text-[11px] tracking-[.1em] text-muted uppercase">El código, en tres pasos</p>
+      <p className="mb-3 font-mono text-[11px] tracking-[.1em] text-muted uppercase">The code, in three steps</p>
       <ol className="grid gap-3">
         {STEPS.map((step, index) => (
           <li

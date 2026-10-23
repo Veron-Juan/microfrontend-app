@@ -1,5 +1,5 @@
-/* Toques propios sobre el kit anatomy: un color por tipo de render (el color ES el tema aquí).
-   Los colores salen de @mfe/design-tokens; los valores de respaldo sirven para las páginas sueltas de dist/. */
+/* Our own touches on top of the anatomy kit: one color per kind of rendering (color IS the theme here).
+   The colors come from @mfe/design-tokens; the fallback values serve the standalone pages in dist/. */
 .iso {
   --anatomy-blue: var(--mfe-csr, #6b9bff);
   --anatomy-green: var(--mfe-ssg, #3dd68c);
@@ -14,8 +14,8 @@
   opacity: 0;
 }
 
-/* Fig 1: los nombres de las piezas se apoyan sobre su cara (su tamaño va en el SVG, en unidades del mundo);
-   la etiqueta del shell queda afuera, en texto plano. Cada pieza se tiñe con el color de su render. */
+/* Fig 1: the pieces' names lie on their face (their size is in the SVG, in world units);
+   the shell's label sits outside, in plain text. Each piece is tinted with its render's color. */
 .fig-name {
   fill: var(--anatomy-strong);
   font-family:
@@ -60,7 +60,16 @@
 [data-landed] .fig-tint {
   opacity: 0.14;
 }
-/* Fig 2: encabezados de columna, rótulos de fila en el color de su render y la celda donde se arma el HTML. */
+/* Fig 2: a board seen head-on. Each element in a row takes its render's color from --lane. */
+.fig-render [data-render="CSR"] {
+  --lane: var(--mfe-csr, #6b9bff);
+}
+.fig-render [data-render="SSR"] {
+  --lane: var(--mfe-ssr, #f5a524);
+}
+.fig-render [data-render="SSG"] {
+  --lane: var(--mfe-ssg, #3dd68c);
+}
 .fig-head {
   fill: var(--anatomy-strong);
   font-family: var(--anatomy-mono);
@@ -68,6 +77,7 @@
   letter-spacing: 0.12em;
 }
 .fig-lane {
+  fill: var(--lane);
   font-family:
     ui-sans-serif,
     system-ui,
@@ -76,23 +86,67 @@
     sans-serif;
   font-weight: 700;
 }
-.fig-lane[data-render="CSR"],
-.fig-cell[data-render="CSR"] {
-  fill: var(--mfe-csr, #6b9bff);
+.fig-app {
+  fill: var(--anatomy-strong);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  font-weight: 500;
 }
-.fig-lane[data-render="SSR"],
-.fig-cell[data-render="SSR"] {
-  fill: var(--mfe-ssr, #f5a524);
+.fig-ms {
+  font-variant-numeric: tabular-nums;
 }
-.fig-lane[data-render="SSG"],
-.fig-cell[data-render="SSG"] {
-  fill: var(--mfe-ssg, #3dd68c);
+.fig-box {
+  fill: var(--anatomy-face);
+  stroke: var(--anatomy-faint);
+  stroke-width: 1;
 }
+.fig-dot {
+  fill: none;
+  stroke: var(--anatomy-lo);
+  stroke-width: 0.8;
+}
+/* The cell where the HTML is built: a faint background and a border, both in the row's color. */
 .fig-cell {
+  fill: var(--lane);
   stroke: none;
-  opacity: 0.12;
+  opacity: 0.1;
 }
-/* En pantallas angostas la figura se encoge a la mitad: los nombres crecen y se ocultan los detalles. */
+.fig-ring {
+  fill: none;
+  stroke: var(--lane);
+  stroke-width: 1.4;
+}
+.fig-pill {
+  fill: var(--anatomy-face);
+  stroke: var(--anatomy-mid);
+  stroke-width: 0.8;
+}
+.fig-req {
+  letter-spacing: 0.06em;
+}
+.fig-piece,
+.fig-page {
+  fill: var(--anatomy-face);
+  stroke: var(--anatomy-mid);
+  stroke-width: 0.8;
+}
+.fig-piece-base {
+  fill: var(--anatomy-shade-0);
+}
+.fig-bar {
+  fill: var(--lane);
+  opacity: 0.55;
+}
+.fig-block {
+  fill: none;
+  stroke: var(--lane);
+  stroke-width: 0.8;
+}
+/* On narrow screens the figure shrinks by half: the names grow and the details are hidden. */
 @media (max-width: 560px) {
   .fig-callout .fig-name {
     font-size: 19px;
@@ -104,12 +158,20 @@
     display: none;
   }
   .fig-col {
-    font-size: 10px;
+    font-size: 17px;
   }
   .fig-row {
-    font-size: 15px;
+    font-size: 32px;
   }
-  .fig-note {
+  .fig-app {
+    display: none;
+  }
+  .fig-render .fig-ms {
+    display: inline;
+    font-size: 17px;
+  }
+  .fig-note,
+  .fig-req {
     display: none;
   }
 }

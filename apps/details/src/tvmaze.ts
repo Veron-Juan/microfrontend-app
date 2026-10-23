@@ -1,36 +1,36 @@
-// La ficha de un programa, pedida por el navegador a TVmaze (https://www.tvmaze.com/api): gratis,
-// sin key y con CORS. Exige atribución (CC BY-SA), que va en el pie de la ficha.
+// A show's details, fetched by the browser from TVmaze (https://www.tvmaze.com/api): free, keyless
+// and with CORS. It requires attribution (CC BY-SA), which goes in the card's footer.
 
 export const TVMAZE_API = "https://api.tvmaze.com";
 export const TVMAZE_SITE = "https://www.tvmaze.com";
 
-/** Cuántas personas del elenco se muestran. */
+/** How many cast members are shown. */
 export const CAST_COUNT = 4;
 
 export interface CastMember {
   person: string;
   character: string | null;
-  /** Foto chica (https) de la persona, o null. */
+  /** The person's small photo (https), or null. */
   image: string | null;
 }
 
 export interface ShowDetails {
   id: number;
   name: string;
-  /** Su página en TVmaze, para el enlace de atribución. */
+  /** Its TVmaze page, for the attribution link. */
   url: string;
-  /** "Ended", "Running"… tal como lo da TVmaze. */
+  /** "Ended", "Running"… exactly as TVmaze gives it. */
   status: string;
   premiered: string | null;
   ended: string | null;
-  /** El canal o la plataforma. */
+  /** The network or platform. */
   network: string | null;
   rating: number | null;
   seasons: number;
-  /** El resumen como texto plano. */
+  /** The summary as plain text. */
   summary: string;
   cast: CastMember[];
-  /** URL https de la carátula grande. */
+  /** https URL of the large poster. */
   image?: string;
 }
 
@@ -42,9 +42,9 @@ const nameOf = (value: unknown) => (isRecord(value) && typeof value.name === "st
 const ENTITIES: Readonly<Record<string, string>> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
 
 /**
- * TVmaze manda el resumen como HTML ("<p><b>Breaking Bad</b> follows…"). Nunca se inserta como
- * HTML: se le quitan las etiquetas y React escapa el texto que queda. Así un resumen con un
- * <script> o un <img onerror> no puede ejecutar nada en la página del shell.
+ * TVmaze sends the summary as HTML ("<p><b>Breaking Bad</b> follows…"). It's never inserted as
+ * HTML: its tags are stripped and React escapes the remaining text. That way a summary with a
+ * <script> or an <img onerror> can't run anything on the shell's page.
  */
 export function summaryText(html: string): string {
   return html
@@ -60,10 +60,10 @@ export function summaryText(html: string): string {
     .trim();
 }
 
-/** Se queda con lo que usa la ficha. La respuesta viene de un tercero: se valida campo por campo. */
+/** Keeps what the details page uses. The response comes from a third party: it's validated field by field. */
 export function parseDetails(json: unknown): ShowDetails {
   if (!isRecord(json) || typeof json.id !== "number" || typeof json.name !== "string") {
-    throw new Error("TVmaze: se esperaba un programa");
+    throw new Error("TVmaze: expected a show");
   }
   const embedded = isRecord(json._embedded) ? json._embedded : {};
   const cast = Array.isArray(embedded.cast) ? embedded.cast : [];
@@ -77,7 +77,7 @@ export function parseDetails(json: unknown): ShowDetails {
     status: typeof json.status === "string" ? json.status : "Unknown",
     premiered: date(json.premiered),
     ended: date(json.ended),
-    // Las series de TV tienen network; las de streaming, webChannel.
+    // TV shows have a network; streaming ones, a webChannel.
     network: nameOf(json.network) ?? nameOf(json.webChannel),
     rating: isRecord(json.rating) && typeof json.rating.average === "number" ? json.rating.average : null,
     seasons: seasons.length,
@@ -96,7 +96,7 @@ export function parseDetails(json: unknown): ShowDetails {
   };
 }
 
-/** Pide la ficha completa (con elenco y temporadas) en una sola llamada. */
+/** Fetches the full details (with cast and seasons) in a single call. */
 export async function fetchDetails(id: number, signal?: AbortSignal): Promise<ShowDetails> {
   const response = await fetch(`${TVMAZE_API}/shows/${id}?embed[]=cast&embed[]=seasons`, { signal });
   if (!response.ok) throw new Error(`TVmaze: HTTP ${response.status}`);

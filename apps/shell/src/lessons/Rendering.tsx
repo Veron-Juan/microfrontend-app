@@ -4,32 +4,37 @@ import { Lesson, Note, Prose } from "../ui/Lesson.tsx";
 import { Table } from "../ui/Table.tsx";
 
 const COMPARISON = [
-  ["El HTML se arma", "en el build, en CI", "en el servidor, en cada request", "en el navegador, con JavaScript"],
-  ["Datos", "los del momento del build", "frescos (o de una caché corta)", "los pide el propio navegador"],
+  ["The HTML is built", "at build time, in CI", "on the server, on every request", "in the browser, with JavaScript"],
+  ["Data", "as of build time", "fresh (or from a short cache)", "fetched by the browser itself"],
   [
-    "Primer contenido",
-    "muy rápido (archivo en CDN)",
-    "rápido, depende del servidor",
-    "después de bajar y ejecutar JS, y de pedir los datos",
+    "First content",
+    "very fast (file on a CDN)",
+    "fast, depends on the server",
+    "after downloading and running JS, and fetching the data",
   ],
-  ["Costo de servidor", "casi nulo", "por cada request", "solo archivos estáticos"],
-  ["SEO", "excelente", "excelente", "más difícil"],
-  ["Interactividad", "necesita hidratar o islas", "necesita hidratar o islas", "en cuanto carga el JS, sin hidratar"],
-  ["En esta app", "Guía de episodios (TVmaze)", "Novedades (TheSportsDB y TVmaze)", "Catálogo y ficha (TVmaze)"],
+  ["Server cost", "almost none", "per request", "static files only"],
+  ["SEO", "excellent", "excellent", "harder"],
+  [
+    "Interactivity",
+    "needs hydration or islands",
+    "needs hydration or islands",
+    "as soon as the JS loads, no hydration",
+  ],
+  ["In this app", "Episode guide (TVmaze)", "News (TheSportsDB and TVmaze)", "Catalog and details (TVmaze)"],
 ] as const;
 
 export function Rendering() {
   return (
     <Lesson
-      id="render"
-      title="SSR, SSG y CSR en la misma página"
-      kicker="Cada remote elige la forma de renderizar que mejor le queda."
+      id="rendering"
+      title="SSR, SSG and CSR on the same page"
+      kicker="Each remote picks the way of rendering that suits it best."
     >
       <Prose>
         <p>
-          La pregunta es siempre la misma: <b>¿dónde y cuándo se convierte el componente en HTML?</b> (En CSR no hay
-          HTML intermedio: React crea el DOM directamente en el navegador.) Como cada micro-frontend se despliega solo,
-          cada uno puede responderla distinto. En esta página conviven las tres respuestas.
+          The question is always the same: <b>where and when does the component turn into HTML?</b> (In CSR there's no
+          intermediate HTML: React creates the DOM directly in the browser.) Since each micro-frontend deploys on its
+          own, each one can answer it differently. All three answers live together on this page.
         </p>
       </Prose>
       <RenderFigure />
@@ -54,9 +59,9 @@ export function Rendering() {
         </tbody>
       </Table>
       <Note>
-        Ojo: en esta demo el shell inserta los fragmentos desde el navegador, así que su HTML no viene en el primer
-        documento. Aquí SSR y SSG no mejoran el SEO ni el primer pintado, y tampoco se hidratan: Novedades y la Guía son
-        HTML sin JavaScript. Para tener esas ventajas, los fragmentos se componen en el servidor o en el edge.
+        Note: in this demo the shell inserts the fragments from the browser, so their HTML isn't in the first document.
+        Here SSR and SSG don't improve SEO or first paint, and they aren't hydrated either: News and the Guide are HTML
+        with no JavaScript. To get those benefits, the fragments are composed on the server or at the edge.
       </Note>
     </Lesson>
   );

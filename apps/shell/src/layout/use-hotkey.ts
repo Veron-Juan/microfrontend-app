@@ -3,7 +3,7 @@ import { useEffect } from "react";
 const isTyping = (target: EventTarget | null) =>
   target instanceof HTMLElement && (target.isContentEditable || /^(input|textarea|select)$/i.test(target.tagName));
 
-/** Ejecuta `action` al pulsar `key`, salvo con modificadores o mientras se escribe en un campo. */
+/** Runs `action` when `key` is pressed, except with modifiers or while typing in a field. */
 export function useHotkey(key: string, action: () => void) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

@@ -10,7 +10,7 @@ const tvmazeEpisode = (season: number, number: number | null, overrides: Record<
   type: number === null ? "significant_special" : "regular",
   airdate: "2008-01-20",
   rating: { average: 8.3 },
-  summary: "<p>Un resumen con <b>HTML</b> que la guía no usa.</p>",
+  summary: "<p>A summary with <b>HTML</b> the guide doesn't use.</p>",
   ...overrides,
 });
 
@@ -31,7 +31,7 @@ const tvmazeShow = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-test("parseSeries se queda con la serie y los datos que usa la guía", () => {
+test("parseSeries keeps the show and the data the guide uses", () => {
   assert.deepEqual(parseSeries(tvmazeShow()), {
     id: 169,
     name: "Breaking Bad",
@@ -48,13 +48,13 @@ test("parseSeries se queda con la serie y los datos que usa la guía", () => {
         rating: 8.3,
         image: "https://static.tvmaze.com/e1.jpg",
       },
-      // Solo imágenes https: la captura http se descarta.
+      // https images only: the http still is dropped.
       { season: 1, number: 2, name: "Episodio 2", airdate: "", rating: null },
     ],
   });
 });
 
-test("parseSeries descarta especiales y episodios mal formados, y usa webChannel si no hay network", () => {
+test("parseSeries drops specials and malformed episodes, and uses webChannel if there's no network", () => {
   const series = parseSeries(
     tvmazeShow({
       network: null,
@@ -69,12 +69,12 @@ test("parseSeries descarta especiales y episodios mal formados, y usa webChannel
   );
 });
 
-test("parseSeries falla si la respuesta no es un programa o no trae los episodios", () => {
-  assert.throws(() => parseSeries([]), /se esperaba un programa/);
-  assert.throws(() => parseSeries(tvmazeShow({ _embedded: undefined })), /falta embed=episodes/);
+test("parseSeries fails if the response isn't a show or has no episodes", () => {
+  assert.throws(() => parseSeries([]), /expected a show/);
+  assert.throws(() => parseSeries(tvmazeShow({ _embedded: undefined })), /missing embed=episodes/);
 });
 
-test("fetchSeries pide la serie con sus episodios en una sola llamada", async () => {
+test("fetchSeries fetches the show with its episodes in a single call", async () => {
   const urls: string[] = [];
   const fake = (url: string | URL | Request) => {
     urls.push(String(url));
@@ -85,7 +85,7 @@ test("fetchSeries pide la serie con sus episodios en una sola llamada", async ()
   assert.deepEqual(urls, ["https://api.tvmaze.com/shows/169?embed=episodes"]);
 });
 
-test("fetchSeries falla con un error claro si TVmaze responde mal", async () => {
+test("fetchSeries fails with a clear error if TVmaze responds badly", async () => {
   const fake = () => Promise.resolve(new Response("", { status: 503 }));
   await assert.rejects(fetchSeries(169, { fetch: fake as typeof fetch }), /TVmaze: HTTP 503/);
 });

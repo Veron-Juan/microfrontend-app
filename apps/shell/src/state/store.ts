@@ -4,25 +4,25 @@ import type { AppId } from "../mfe/registry.ts";
 
 export type LoadStatus = "idle" | "loading" | "ready" | "error";
 
-/** Lo que el shell sabe de cada carga de un remote. */
+/** What the shell knows about each load of a remote. */
 export interface Load {
   status: LoadStatus;
   start?: number;
   end?: number | null;
   ms?: number;
   error?: string | null;
-  /** Archivos pedidos al origen del remote durante esta carga. */
+  /** Files requested from the remote's origin during this load. */
   files?: number;
   bytes?: number;
-  /** Cabeceras de diagnóstico de un fragmento (SSR/SSG). */
+  /** Diagnostic headers of a fragment (SSR/SSG). */
   headers?: Record<string, string>;
   cached?: boolean;
   ttfb?: number | null;
-  /** Cuántas veces se pidió este fragmento. */
+  /** How many times this fragment has been requested. */
   count?: number;
-  /** Ficha que expuso el propio remote. */
+  /** Metadata the remote itself exposed. */
   meta?: RemoteMeta;
-  /** Milisegundos entre la descarga y el primer frame pintado (CSR). */
+  /** Milliseconds between the download and the first painted frame (CSR). */
   paint?: number;
   painted?: number;
 }
@@ -35,8 +35,8 @@ export interface State {
   loads: Partial<Record<AppId, Load>>;
 }
 
-// Un store mínimo del shell. Solo el shell lo usa: los remotes no comparten estado,
-// se comunican por eventos (ver @mfe/contracts). Esa separación es una regla clave de la arquitectura.
+// A minimal store for the shell. Only the shell uses it: the remotes don't share state, they
+// communicate through events (see @mfe/contracts). That separation is a key rule of the architecture.
 export const initialState: State = {
   inspector: false,
   focus: null,

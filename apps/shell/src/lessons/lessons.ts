@@ -1,12 +1,12 @@
-/** El índice de la lección: alimenta la tabla de contenidos y numera cada sección. */
+/** The lesson index: it feeds the table of contents and numbers each section. */
 export const LESSONS = [
-  { id: "que-es", label: "Qué es" },
-  { id: "demo", label: "La demo en vivo" },
-  { id: "composicion", label: "Cómo se compone" },
-  { id: "render", label: "SSR, SSG y CSR" },
-  { id: "dependencias", label: "Dependencias compartidas" },
-  { id: "fallos", label: "Fallos aislados" },
-  { id: "cuando", label: "¿Cuándo conviene?" },
+  { id: "what-is", label: "What it is" },
+  { id: "demo", label: "The live demo" },
+  { id: "composition", label: "How it's composed" },
+  { id: "rendering", label: "SSR, SSG and CSR" },
+  { id: "shared-deps", label: "Shared dependencies" },
+  { id: "failures", label: "Isolated failures" },
+  { id: "when", label: "When is it worth it?" },
 ] as const;
 
 export type LessonId = (typeof LESSONS)[number]["id"];

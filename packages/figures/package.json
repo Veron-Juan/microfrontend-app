@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Figuras isométricas hechas con el kit de la skill anatomy (MIT, en kit/). Se generan a SVG en el build.",
+  "description": "Isometric figures made with the anatomy skill's kit (MIT, in kit/). They're generated as SVG at build time.",
   "scripts": {
     "build": "tsx build.ts",
     "typecheck": "tsc -p ."

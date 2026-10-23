@@ -9,12 +9,12 @@ const policy = contentSecurityPolicy({
 });
 const directive = (name: string) => policy.split("; ").find((part) => part.startsWith(`${name} `));
 
-test("solo ejecuta scripts del shell, de los remotes federados y los inline con su hash", () => {
+test("only runs scripts from the shell, the federated remotes and inline ones by hash", () => {
   assert.equal(directive("script-src"), "script-src 'self' https://catalog.example.com 'sha256-abc='");
   assert.ok(!policy.includes("unsafe-eval"));
 });
 
-test("se conecta a los remotes y a la API del navegador, y no se puede enmarcar", () => {
+test("connects to the remotes and the browser API, and cannot be framed", () => {
   assert.equal(
     directive("connect-src"),
     "connect-src 'self' https://catalog.example.com https://news.example.com https://api.tvmaze.com",

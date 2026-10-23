@@ -18,7 +18,7 @@ export default function App() {
   useHotkey("i", toggleInspector);
 
   return (
-    // "iso" y data-theme son para el kit de las figuras, que define su paleta sobre ese elemento.
+    // "iso" and data-theme are for the figures kit, which defines its palette on that element.
     <div className="iso min-h-screen overflow-x-clip bg-page text-text" data-theme={theme}>
       <TopBar theme={theme} onToggleTheme={toggle} />
       <div

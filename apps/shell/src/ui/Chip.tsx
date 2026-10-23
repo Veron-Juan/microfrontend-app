@@ -1,7 +1,7 @@
 import type { RenderMode } from "@mfe/contracts";
 import { cx } from "../lib/cx.ts";
 
-/** Etiqueta con el color del tipo de render (CSR, SSR o SSG). */
+/** A label in the render kind's color (CSR, SSR or SSG). */
 export function Chip({ render, className }: { render: RenderMode; className?: string }) {
   return (
     <span

@@ -12,23 +12,27 @@ export function Hero() {
   return (
     <section className={`relative pt-[72px] pb-10 *:relative ${DOT_GRID}`}>
       {environment() === "preview" && <PreviewNote />}
-      <p className="mb-3.5 font-mono text-xs tracking-[.12em] text-muted uppercase">
-        Una lección que es su propio ejemplo
-      </p>
+      <p className="mb-3.5 font-mono text-xs tracking-[.12em] text-muted uppercase">A lesson that is its own example</p>
       <h1 className="mb-[22px] font-serif text-[clamp(40px,7vw,78px)]/[.98] font-medium tracking-[-.02em] text-strong">
-        Anatomía de un micro-frontend
+        Anatomy of a micro-frontend
       </h1>
-      <p className="mb-7 max-w-[640px] font-serif text-[clamp(19px,2.2vw,23px)]/[1.45] text-text [&_b]:font-medium">
-        Esta página está hecha de <b>cinco aplicaciones independientes</b>. Cada una tiene su propio código, su propio
-        servidor y su propia versión, y elige cómo renderizar. Lo que ves parece una sola app porque un <em>shell</em>{" "}
-        las compone en vivo.
+      <p className="mb-4 max-w-[640px] font-serif text-[clamp(19px,2.2vw,23px)]/[1.45] text-text [&_b]:font-medium">
+        A project with two goals: to show how a <b>micro-frontend</b> works from the inside, and to prove that{" "}
+        <b>different kinds of rendering</b> can live together on one page.
+      </p>
+      <p className="mb-7 max-w-[640px] text-[16px]/[1.65] text-muted [&_b]:font-medium [&_b]:text-text">
+        This page is made of <b>five independent applications</b>, each with its own code, its own server and its own
+        version. A <em>shell</em> composes them live so they look like one. And since each one deploys on its own, each
+        also chooses how to render: <b>News</b> is built on the server on every visit (SSR), the <b>Guide</b> was
+        generated once at build time (SSG), and the <b>Catalog</b> and <b>Details</b> are built in your browser (CSR).
+        That's why the lesson explains each of them along the way.
       </p>
       <div className="mb-9 flex flex-wrap gap-2.5">
         <Button variant="primary" onClick={toggleInspector}>
-          {inspector ? "Apagar el inspector" : "Encender el inspector"}
+          {inspector ? "Turn off the inspector" : "Turn on the inspector"}
         </Button>
         <a className={buttonClass("pill")} href="#demo">
-          Ir a la demo
+          Go to the demo
         </a>
       </div>
       <RenderSheets />
@@ -39,9 +43,9 @@ export function Hero() {
 function PreviewNote() {
   return (
     <p className="mb-7 max-w-[680px] rounded-[10px] border border-ssr/50 bg-ssr/8 px-3.5 py-3 text-sm">
-      <b>Vista previa estática.</b> Aquí no corre el servidor SSR, así que Novedades muestra una instantánea que ese
-      servidor renderizó antes de publicar. Catálogo, ficha y guía son los builds reales. Para ver el SSR en vivo, corre{" "}
-      <code>npm run dev</code> en tu máquina.
+      <b>Static preview.</b> The SSR server doesn't run here, so News shows a snapshot that server rendered before
+      publishing. Catalog, details and guide are the real builds. To see SSR live, run <code>npm run dev</code> on your
+      machine.
     </p>
   );
 }

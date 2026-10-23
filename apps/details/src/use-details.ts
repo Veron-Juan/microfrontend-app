@@ -6,17 +6,17 @@ export type DetailsStatus = "idle" | "loading" | "ready" | "error";
 interface Result {
   id: number;
   details: ShowDetails | null;
-  /** Lo que tardó TVmaze, o null si salió de la caché. */
+  /** How long TVmaze took, or null if it came from the cache. */
   ms: number | null;
 }
 
-// Las fichas ya pedidas: volver a elegir un título no repite la llamada. Vive lo que vive la página.
+// Details already fetched: picking a title again doesn't repeat the call. It lives as long as the page.
 const cache = new Map<number, ShowDetails>();
 
 /**
- * La ficha del título elegido. Mientras llega se sigue mostrando lo que mandó el catálogo en el
- * evento; si TVmaze no responde, la ficha queda con esos datos. Elegir otro título cancela el pedido
- * anterior para que una respuesta lenta no pise a la nueva.
+ * The chosen title's details. While they arrive, what the catalog sent in the event stays on
+ * screen; if TVmaze doesn't respond, the card keeps that data. Picking another title cancels the
+ * previous request so a slow response doesn't overwrite the new one.
  */
 export function useDetails(id: number | undefined): {
   details: ShowDetails | null;
@@ -38,7 +38,7 @@ export function useDetails(id: number | undefined): {
       },
       (error: unknown) => {
         if (controller.signal.aborted) return;
-        console.warn("details: TVmaze no respondió", error);
+        console.warn("details: TVmaze didn't respond", error);
         setResult({ id, details: null, ms: null });
       },
     );

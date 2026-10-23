@@ -16,7 +16,7 @@ const event = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-test("parseEvents convierte un evento de TheSportsDB en un partido con la hora en UTC", () => {
+test("parseEvents turns a TheSportsDB event into a match with the time in UTC", () => {
   assert.deepEqual(parseEvents({ events: [event()] }), [
     {
       id: "2398136",
@@ -31,53 +31,56 @@ test("parseEvents convierte un evento de TheSportsDB en un partido con la hora e
   ]);
 });
 
-test("parseEvents solo acepta escudos https de TheSportsDB", () => {
+test("parseEvents only accepts https badges from TheSportsDB", () => {
   const badges = (home: unknown) => parseEvents({ events: [event({ strHomeTeamBadge: home })] })[0].badges[0];
   assert.equal(badges("http://r2.thesportsdb.com/images/media/team/badge/a.png"), null);
   assert.equal(badges("https://evil.test/images/a.png"), null);
   assert.equal(badges('https://r2.thesportsdb.com/images/a.png" onerror="x'), null);
 });
 
-test("phaseOf agrupa los estados de TheSportsDB", () => {
+test("phaseOf groups TheSportsDB's statuses", () => {
   const phase = (status: string) => phaseOf({ ...parseEvents({ events: [event()] })[0], status });
   assert.deepEqual(["NS", "2H", "HT", "FT", "PST"].map(phase), ["upcoming", "live", "live", "finished", "other"]);
 });
 
-test("parseEvents deja el marcador en null si el partido no empezó", () => {
+test("parseEvents leaves the score null if the match hasn't started", () => {
   const [match] = parseEvents({ events: [event({ intHomeScore: null, intAwayScore: null, strStatus: "NS" })] });
   assert.equal(match.goals, null);
   assert.equal(match.status, "NS");
 });
 
-test("parseEvents acepta un día sin partidos y descarta eventos incompletos", () => {
+test("parseEvents accepts a day without matches and drops incomplete events", () => {
   assert.deepEqual(parseEvents({ events: null }), []);
-  assert.deepEqual(parseEvents({ events: [event({ strHomeTeam: null }), event({ strTimestamp: "ayer" }), 7] }), []);
-  assert.throws(() => parseEvents("<html>"), /respuesta inesperada/);
-  assert.throws(() => parseEvents({}), /lista de eventos/);
+  assert.deepEqual(
+    parseEvents({ events: [event({ strHomeTeam: null }), event({ strTimestamp: "yesterday" }), 7] }),
+    [],
+  );
+  assert.throws(() => parseEvents("<html>"), /unexpected response/);
+  assert.throws(() => parseEvents({}), /list of events/);
 });
 
-test("statusLabel traduce los estados y muestra la hora de inicio si no empezó", () => {
+test("statusLabel labels the statuses and shows the kickoff time if not started", () => {
   const match = (status: string): Match => ({ ...parseEvents({ events: [event()] })[0], status });
   const time = () => "21:15";
   assert.equal(statusLabel(match("NS"), time), "21:15");
-  assert.equal(statusLabel(match("1H"), time), "en vivo");
-  assert.equal(statusLabel(match("HT"), time), "entretiempo");
-  assert.equal(statusLabel(match("FT"), time), "final");
-  assert.equal(statusLabel(match("PST"), time), "postergado");
+  assert.equal(statusLabel(match("1H"), time), "live");
+  assert.equal(statusLabel(match("HT"), time), "half time");
+  assert.equal(statusLabel(match("FT"), time), "full time");
+  assert.equal(statusLabel(match("PST"), time), "postponed");
   assert.equal(statusLabel(match("XYZ"), time), "XYZ");
 });
 
-test("fetchMatches pide el día con la key indicada y falla con un mensaje claro", async () => {
+test("fetchMatches requests the day with the given key and fails with a clear message", async () => {
   const urls: string[] = [];
   const ok = async (url: string | URL | Request) => {
     urls.push(String(url));
     return Response.json({ events: null });
   };
   assert.deepEqual(await fetchMatches("2026-10-21", { fetch: ok }), []);
-  await fetchMatches("2026-10-21", { fetch: ok, key: "propia" });
+  await fetchMatches("2026-10-21", { fetch: ok, key: "mykey" });
   assert.deepEqual(urls, [
     "https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d=2026-10-21&s=Soccer",
-    "https://www.thesportsdb.com/api/v1/json/propia/eventsday.php?d=2026-10-21&s=Soccer",
+    "https://www.thesportsdb.com/api/v1/json/mykey/eventsday.php?d=2026-10-21&s=Soccer",
   ]);
   const limited = async () => new Response("", { status: 429 });
   await assert.rejects(fetchMatches("2026-10-21", { fetch: limited }), /HTTP 429/);

@@ -3,19 +3,19 @@ import { artGradient, minutes } from "./format.ts";
 
 interface ShowCardProps {
   show: Show;
-  /** Si es el título que está en la ficha. */
+  /** Whether it's the title shown on the details page. */
   selected: boolean;
   onSelect: (show: Show) => void;
 }
 
-/** Una tarjeta del catálogo: la carátula (la imagen, o un degradado rayado si no hay) y el título. */
+/** A catalog card: the poster (the image, or a striped gradient if there's none) and the title. */
 export function ShowCard({ show, selected, onSelect }: ShowCardProps) {
   return (
     <button
       type="button"
       onClick={() => onSelect(show)}
       aria-pressed={selected}
-      aria-label={`Ver la ficha de ${show.title}`}
+      aria-label={`See details for ${show.title}`}
       className="cat:group cat:m-0 cat:flex cat:min-w-0 cat:cursor-pointer cat:flex-col cat:gap-2 cat:border-0 cat:bg-transparent cat:p-0 cat:text-left cat:font-[inherit] cat:text-[inherit] cat:outline-none"
     >
       <span
@@ -37,7 +37,7 @@ export function ShowCard({ show, selected, onSelect }: ShowCardProps) {
         )}
         {selected && (
           <span className="cat:absolute cat:top-1.5 cat:left-1.5 cat:rounded-full cat:bg-csr cat:px-2 cat:py-0.5 cat:font-mono cat:text-[10px] cat:leading-[normal] cat:font-medium cat:text-white cat:shadow-sm">
-            en la ficha
+            in details
           </span>
         )}
       </span>

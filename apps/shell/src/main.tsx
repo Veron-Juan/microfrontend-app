@@ -6,10 +6,10 @@ import { loadRegistry } from "./mfe/registry.ts";
 import "./styles.css";
 
 const root = document.getElementById("root");
-if (!root) throw new Error("Falta el elemento #root en index.html");
+if (!root) throw new Error("index.html is missing the #root element");
 
-// Arranque del shell: primero averigua dónde vive cada remote (discovery), después los registra
-// en Module Federation y recién entonces monta la página.
+// Shell startup: first find out where each remote lives (discovery), then register them
+// with Module Federation, and only then mount the page.
 try {
   await loadRegistry(`${import.meta.env.BASE_URL}remotes.json`);
   registerFederatedRemotes();
@@ -19,7 +19,7 @@ try {
     </StrictMode>,
   );
 } catch (error) {
-  // Sin discovery no hay página que componer: se dice por qué en lugar de dejarla en blanco.
-  root.textContent = `No se pudo arrancar el shell. ${error instanceof Error ? error.message : String(error)}`;
+  // Without discovery there is no page to compose: say why instead of leaving it blank.
+  root.textContent = `The shell could not start. ${error instanceof Error ? error.message : String(error)}`;
   throw error;
 }

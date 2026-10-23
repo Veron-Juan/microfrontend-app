@@ -4,10 +4,10 @@ export type Theme = "light" | "dark";
 
 const STORAGE_KEY = "mfe-theme";
 
-// index.html ya eligió el tema antes de pintar (para no parpadear); aquí lo leemos de <html>.
+// index.html already picked the theme before painting (to avoid a flash); here we read it from <html>.
 const initialTheme = (): Theme => (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
 
-/** El tema vive en <html data-theme>, para que el shell y todos los remotes lo vean igual. */
+/** The theme lives on <html data-theme>, so the shell and every remote see the same one. */
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
 
@@ -16,7 +16,7 @@ export function useTheme() {
     try {
       localStorage.setItem(STORAGE_KEY, theme);
     } catch {
-      // Sin almacenamiento (modo privado): el tema dura lo que dura la pestaña.
+      // No storage (private mode): the theme lasts as long as the tab.
     }
   }, [theme]);
 

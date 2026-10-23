@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Los contratos entre micro-frontends: nombres y formas de los eventos del bus y la ficha que expone cada remote.",
+  "description": "The contracts between micro-frontends: names and shapes of the bus events and the metadata each remote exposes.",
   "exports": {
     ".": "./index.ts"
   },

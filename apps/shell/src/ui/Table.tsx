@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cx } from "../lib/cx.ts";
 
-// Los estilos de celdas viven aquí, una vez, en lugar de repetirse en cada <td>.
+// Cell styles live here, once, instead of being repeated on every <td>.
 const TABLE = cx(
   "w-full border-collapse text-[13.5px]",
   "[&_td]:border-b [&_td]:border-line-soft [&_td]:px-3.5 [&_td]:py-2.5 [&_td]:text-left [&_td]:align-top",
@@ -12,10 +12,10 @@ const TABLE = cx(
 );
 
 const HEADINGS = {
-  /** Encabezados chicos en mayúsculas, para tablas de datos. */
+  /** Small uppercase headings, for data tables. */
   label:
     "[&_thead_th]:font-mono [&_thead_th]:text-[11px] [&_thead_th]:tracking-[.06em] [&_thead_th]:text-muted [&_thead_th]:uppercase",
-  /** Encabezados en texto normal, para tablas comparativas. */
+  /** Headings in normal text, for comparison tables. */
   plain: "[&_thead_th]:text-xs [&_thead_th]:text-strong",
 } as const;
 

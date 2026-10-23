@@ -2,7 +2,7 @@ import { LESSONS } from "../lessons/lessons.ts";
 
 export function Toc() {
   return (
-    <nav className="sticky top-[76px] self-start pt-14 max-[900px]:hidden" aria-label="Lecciones">
+    <nav className="sticky top-[76px] self-start pt-14 max-[900px]:hidden" aria-label="Lessons">
       <ol className="grid gap-0.5">
         {LESSONS.map(({ id, label }, index) => (
           <li key={id}>
@@ -17,7 +17,7 @@ export function Toc() {
         ))}
       </ol>
       <p className="mt-[22px] text-xs/normal text-muted">
-        Pulsa <kbd>I</kbd> en cualquier momento para ver qué app sirve cada parte.
+        Press <kbd>I</kbd> at any time to see which app serves each part.
       </p>
     </nav>
   );

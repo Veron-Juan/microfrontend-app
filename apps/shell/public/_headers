@@ -1,17 +1,17 @@
-# Cabeceras para Cloudflare (Pages o Workers) y Netlify, que usan este formato. Vite lo copia a dist/.
+# Headers for Cloudflare (Pages or Workers) and Netlify, which use this format. Vite copies it to dist/.
 
-# Seguridad: el navegador no adivina tipos de archivo, nadie puede enmarcar la página y no se
-# piden permisos que la app no usa. La Content-Security-Policy la agrega el deploy (scripts/discovery.ts).
+# Security: the browser doesn't guess file types, nobody can frame the page and no permissions the
+# app doesn't use get requested. The deploy adds the Content-Security-Policy (scripts/discovery.ts).
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 
-# El discovery dice qué versión de cada remote corre: si se cachea, un rollback no se ve.
+# Discovery says which version of each remote runs: if it gets cached, a rollback isn't seen.
 /remotes.json
   Cache-Control: no-cache
 
-# Los archivos con hash en el nombre nunca cambian: un año de caché.
+# Files with a hash in their name never change: one year of cache.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

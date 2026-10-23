@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "Una app que ense\u00f1a micro-frontends siendo ella misma un micro-frontend.",
+  "description": "An app that teaches micro-frontends by being a micro-frontend itself.",
   "workspaces": [
     "apps/*",
     "packages/*"

@@ -3,8 +3,8 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { federation } from "@module-federation/vite";
 
-// Remote "catalog": lo construye y despliega su propio equipo.
-// Expone un único módulo; el shell lo descarga en runtime desde remoteEntry.js.
+// Remote "catalog": built and deployed by its own team.
+// It exposes a single module; the shell downloads it at runtime from remoteEntry.js.
 export default defineConfig({
   base: process.env.PUBLIC_URL ?? "http://localhost:5001/",
   plugins: [

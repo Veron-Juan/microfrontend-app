@@ -1,17 +1,17 @@
-// Caché en memoria para las APIs externas. El HTML se renderiza en cada request, pero los datos
-// no hace falta pedirlos cada vez: las APIs gratuitas tienen límite de llamadas y su latencia se
-// sumaría a cada render.
+// In-memory cache for the external APIs. The HTML is rendered on every request, but the data
+// doesn't need to be fetched every time: free APIs have call limits and their latency would add up
+// on every render.
 
 export interface Cached<T> {
   value: T;
-  /** Date.now() de cuando se obtuvo. */
+  /** Date.now() of when it was obtained. */
   at: number;
 }
 
 /**
- * Envuelve una consulta: reutiliza el último resultado durante `ttlMs`, las requests simultáneas
- * comparten una sola llamada y, si la API falla, devuelve el último resultado bueno aunque haya
- * vencido (stale-if-error). Solo falla si nunca hubo uno.
+ * Wraps a query: it reuses the last result for `ttlMs`, simultaneous requests share a single call
+ * and, if the API fails, it returns the last good result even if it has expired (stale-if-error).
+ * It only fails if there never was one.
  */
 export function cached<T>(load: () => Promise<T>, ttlMs: number, now: () => number = Date.now) {
   let last: Cached<T> | null = null;

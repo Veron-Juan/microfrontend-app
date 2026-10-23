@@ -5,8 +5,8 @@ export type Tick = (dt: number, stage: HTMLDivElement, readout: HTMLSpanElement)
 const MAX_STEP = 1 / 20;
 
 /**
- * Corre `tick` en cada frame, solo mientras la figura está en pantalla.
- * Las figuras se animan tocando el SVG directamente: pasar por React a 60 fps no aporta nada.
+ * Runs `tick` on every frame, only while the figure is on screen.
+ * The figures animate by touching the SVG directly: going through React at 60 fps adds nothing.
  */
 export function useAnimationLoop(
   stageRef: RefObject<HTMLDivElement>,

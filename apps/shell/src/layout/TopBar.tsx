@@ -16,14 +16,14 @@ export function TopBar({ theme, onToggleTheme }: TopBarProps) {
         <a className="flex items-center gap-2.5 font-mono text-sm font-medium text-strong" href="#top">
           <BrandMark />
           <span className="max-[560px]:hidden">
-            mfe<i className="mx-0.5 text-muted not-italic">/</i>anatomía
+            mfe<i className="mx-0.5 text-muted not-italic">/</i>anatomy
           </span>
         </a>
         <div className="flex items-center gap-2.5">
           <LiveCount />
           <InspectorSwitch />
-          <Button onClick={onToggleTheme} aria-label="Cambiar tema" className="max-[560px]:px-2.5 max-[560px]:py-1.5">
-            {theme === "dark" ? "Claro" : "Oscuro"}
+          <Button onClick={onToggleTheme} aria-label="Toggle theme" className="max-[560px]:px-2.5 max-[560px]:py-1.5">
+            {theme === "dark" ? "Light" : "Dark"}
           </Button>
         </div>
       </header>
@@ -31,7 +31,7 @@ export function TopBar({ theme, onToggleTheme }: TopBarProps) {
   );
 }
 
-/** Cuatro módulos en un chasis, en miniatura. */
+/** Four modules in a chassis, in miniature. */
 function BrandMark() {
   const module = "fill-(--c) stroke-none opacity-90";
   return (

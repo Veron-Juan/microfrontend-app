@@ -14,7 +14,7 @@ const tvmazeShow = (id: number, name: string, overrides: Record<string, unknown>
   ...overrides,
 });
 
-test("toShow traduce el género, pasa la duración a segundos y conserva la carátula", () => {
+test("toShow takes the genre, converts the runtime to seconds and keeps the poster", () => {
   assert.deepEqual(toShow(tvmazeShow(169, "Breaking Bad")), {
     id: "tvmaze-169",
     title: "Breaking Bad",
@@ -26,40 +26,40 @@ test("toShow traduce el género, pasa la duración a segundos y conserva la car�
   });
 });
 
-test("toShow usa el formato si no hay géneros y valores por defecto si faltan datos", () => {
+test("toShow uses the format if there are no genres, and defaults if data is missing", () => {
   const show = toShow(
-    tvmazeShow(1, "Noticiero", { genres: [], type: "News", averageRuntime: null, runtime: null, image: null }),
+    tvmazeShow(1, "Newsroom", { genres: [], type: "News", averageRuntime: null, runtime: null, image: null }),
   );
-  assert.equal(show?.kind, "Noticias");
+  assert.equal(show?.kind, "News");
   assert.equal(show?.length, 1800);
   assert.equal(show?.image, undefined);
-  assert.equal(toShow(tvmazeShow(2, "Raro", { genres: ["Kaiju"] }))?.kind, "Kaiju");
+  assert.equal(toShow(tvmazeShow(2, "Odd", { genres: ["Kaiju"] }))?.kind, "Kaiju");
 });
 
-test("toShow descarta programas sin id o nombre e imágenes que no son https", () => {
-  assert.equal(toShow({ name: "Sin id" }), null);
+test("toShow drops shows without an id or name, and images that aren't https", () => {
+  assert.equal(toShow({ name: "No id" }), null);
   assert.equal(toShow(null), null);
   assert.equal(toShow(tvmazeShow(3, "Http", { image: { medium: "http://x/y.jpg" } }))?.image, undefined);
 });
 
-test("popularShows ordena por popularidad y se queda con los primeros", () => {
+test("popularShows sorts by popularity and keeps the top ones", () => {
   const shows = popularShows(
     [
-      tvmazeShow(1, "Poco", { weight: 10 }),
-      tvmazeShow(2, "Mucho", { weight: 99 }),
-      { roto: true },
-      tvmazeShow(3, "Medio", { weight: 50 }),
+      tvmazeShow(1, "Low", { weight: 10 }),
+      tvmazeShow(2, "High", { weight: 99 }),
+      { broken: true },
+      tvmazeShow(3, "Mid", { weight: 50 }),
     ],
     2,
   );
   assert.deepEqual(
     shows.map((show) => show.title),
-    ["Mucho", "Medio"],
+    ["High", "Mid"],
   );
-  assert.throws(() => popularShows({}), /lista de programas/);
+  assert.throws(() => popularShows({}), /list of shows/);
 });
 
-test("searchResults respeta el orden de relevancia de TVmaze", () => {
+test("searchResults keeps TVmaze's relevance order", () => {
   const shows = searchResults([
     { score: 0.9, show: tvmazeShow(10, "Star Trek") },
     { score: 0.5, show: tvmazeShow(11, "Lone Star") },
@@ -69,5 +69,5 @@ test("searchResults respeta el orden de relevancia de TVmaze", () => {
     shows.map((show) => show.title),
     ["Star Trek", "Lone Star"],
   );
-  assert.throws(() => searchResults(null), /lista de resultados/);
+  assert.throws(() => searchResults(null), /list of results/);
 });

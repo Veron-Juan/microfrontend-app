@@ -17,47 +17,47 @@ const episode = (id: number, name: string, season: number, number: number, weigh
   },
 });
 
-test("parseWebSchedule pone primero los estrenos de temporada y después los más populares", () => {
+test("parseWebSchedule puts season premieres first and then the most popular", () => {
   const items = parseWebSchedule(
     [
       episode(1, "Popular", 3, 5, 99),
-      episode(2, "Estreno chico", 1, 1, 40, "Tubi"),
-      episode(3, "Estreno grande", 2, 1, 90, "Prime Video"),
-      episode(4, "Otro", 1, 2, 10),
+      episode(2, "Small premiere", 1, 1, 40, "Tubi"),
+      episode(3, "Big premiere", 2, 1, 90, "Prime Video"),
+      episode(4, "Other", 1, 2, 10),
     ],
     3,
   );
   assert.deepEqual(items, [
-    // Solo carátulas https: la de "Estreno chico" es http y se descarta.
+    // https posters only: the one for "Small premiere" is http and is dropped.
     {
       id: 3,
-      show: "Estreno grande",
-      episode: "T2 · estreno",
+      show: "Big premiere",
+      episode: "S2 · premiere",
       platform: "Prime Video",
       image: "https://static.tvmaze.com/3.jpg",
     },
-    { id: 2, show: "Estreno chico", episode: "T1 · estreno", platform: "Tubi", image: null },
-    { id: 1, show: "Popular", episode: "T3 E5", platform: "Netflix", image: null },
+    { id: 2, show: "Small premiere", episode: "S1 · premiere", platform: "Tubi", image: null },
+    { id: 1, show: "Popular", episode: "S3 E5", platform: "Netflix", image: null },
   ]);
 });
 
-test("parseWebSchedule muestra cada programa una sola vez y descarta lo que no tiene forma de episodio", () => {
+test("parseWebSchedule shows each show only once and drops anything not shaped like an episode", () => {
   const items = parseWebSchedule(
-    [episode(1, "Maratón", 1, 1, 50), episode(1, "Maratón", 1, 2, 50), { season: 1 }, null, { _embedded: {} }],
+    [episode(1, "Marathon", 1, 1, 50), episode(1, "Marathon", 1, 2, 50), { season: 1 }, null, { _embedded: {} }],
     5,
   );
   assert.deepEqual(
     items.map((item) => item.episode),
-    ["T1 · estreno"],
+    ["S1 · premiere"],
   );
-  assert.throws(() => parseWebSchedule({}, 3), /lista de episodios/);
+  assert.throws(() => parseWebSchedule({}, 3), /list of episodes/);
 });
 
-test("fetchPremieres pide el día y falla con un mensaje claro", async () => {
+test("fetchPremieres requests the day and fails with a clear message", async () => {
   const urls: string[] = [];
   const ok = async (url: string | URL | Request) => {
     urls.push(String(url));
-    return Response.json([episode(1, "Uno", 1, 1, 50)]);
+    return Response.json([episode(1, "One", 1, 1, 50)]);
   };
   assert.equal((await fetchPremieres("2026-10-21", 3, { fetch: ok })).length, 1);
   assert.deepEqual(urls, ["https://api.tvmaze.com/schedule/web?date=2026-10-21"]);

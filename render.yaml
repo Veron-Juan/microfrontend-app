@@ -1,5 +1,5 @@
-# Blueprint de Render para news-ssr, el único remote que necesita un servidor.
-# En Render: New → Blueprint → este repo. Se vuelve a desplegar solo con cada push a main que lo toque.
+# Render Blueprint for news-ssr, the only remote that needs a server.
+# In Render: New → Blueprint → this repo. It redeploys by itself on every push to main that touches it.
 services:
   - type: web
     name: mfe-anatomia-news
@@ -7,7 +7,7 @@ services:
     plan: free
     branch: main
     autoDeploy: true
-    # El Dockerfile se construye desde la raíz, porque usa el paquete @mfe/design-tokens.
+    # The Dockerfile is built from the root, because it uses the @mfe/design-tokens package.
     dockerfilePath: ./apps/news-ssr/Dockerfile
     dockerContext: .
     healthCheckPath: /health
@@ -18,7 +18,7 @@ services:
         - package.json
         - package-lock.json
     envVars:
-      # La zona horaria de la hora de los partidos (por ejemplo, America/Argentina/Buenos_Aires).
-      # Render la pide al crear el servicio.
+      # The time zone for the match kickoff times (for example, America/Argentina/Buenos_Aires).
+      # Render asks for it when creating the service.
       - key: TZ
         sync: false

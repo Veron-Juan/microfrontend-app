@@ -1,8 +1,8 @@
-// Fig 1 · La página armada. Una vista explotada de la demo: el shell es la ventana con el layout
-// y la navegación, y deja un hueco por remote. Cada remote es una pieza que flota sobre su hueco
-// mientras se descarga desde su propio servidor y baja a su lugar cuando llega. Si su servidor
-// cae, la pieza no baja, el hueco muestra el aviso y el resto de la página sigue armada.
-// Los nombres van en texto plano, sin perspectiva, para que se lean a cualquier tamaño.
+// Fig 1 · The assembled page. An exploded view of the demo: the shell is the window with the
+// layout and the navigation, and it leaves a slot per remote. Each remote is a piece that floats
+// above its slot while it downloads from its own server and drops into place when it arrives. If
+// its server goes down, the piece doesn't drop, the slot shows the notice and the rest of the page
+// stays assembled. The names are plain text, without perspective, so they read at any size.
 import * as k from "./kit/iso-kit.ts";
 import { faceLabel, type Line } from "./text.ts";
 
@@ -12,7 +12,7 @@ export interface Tile {
   title: string;
   render: Render;
   plan: k.Plan;
-  /** Dónde va el nombre, como fracción del ancho. Corre el de novedades para que no lo tape el catálogo al flotar. */
+  /** Where the name goes, as a fraction of the width. Shifts News's so the floating catalog doesn't cover it. */
   labelAt?: number;
 }
 
@@ -22,19 +22,19 @@ export const HEIGHT = 420;
 const PAGE = { x: -100, y: -86, w: 200, d: 172, r: 7 };
 const PAGE_H = 9;
 export const TILE_H = 5;
-export const HOVER = 64; // altura a la que flota una pieza mientras se descarga
+export const HOVER = 64; // height a piece floats at while it downloads
 
-// Los huecos copian el layout de la demo: novedades arriba, catálogo y ficha lado a lado, la guía abajo.
+// The slots copy the demo's layout: news on top, catalog and details side by side, the guide at the bottom.
 export const TILES: Tile[] = [
-  { id: "news", title: "Novedades", render: "SSR", plan: { x: -92, y: -46, w: 184, d: 30, r: 2.5 }, labelAt: 0.76 },
-  { id: "catalog", title: "Catálogo", render: "CSR", plan: { x: -92, y: -11, w: 112, d: 46, r: 2.5 } },
-  { id: "details", title: "Ficha", render: "CSR", plan: { x: 25, y: -11, w: 67, d: 46, r: 2.5 } },
-  { id: "guide", title: "Guía", render: "SSG", plan: { x: -92, y: 40, w: 184, d: 38, r: 2.5 } },
+  { id: "news", title: "News", render: "SSR", plan: { x: -92, y: -46, w: 184, d: 30, r: 2.5 }, labelAt: 0.76 },
+  { id: "catalog", title: "Catalog", render: "CSR", plan: { x: -92, y: -11, w: 112, d: 46, r: 2.5 } },
+  { id: "details", title: "Details", render: "CSR", plan: { x: 25, y: -11, w: 67, d: 46, r: 2.5 } },
+  { id: "guide", title: "Guide", render: "SSG", plan: { x: -92, y: 40, w: 184, d: 38, r: 2.5 } },
 ];
 const NAV = { x: -92, y: -66, w: 184, d: 14, r: 2.5 };
 const TONE: Record<Render, string> = { CSR: "blue", SSR: "amber", SSG: "green" };
 
-// El encuadre se ajusta a lo que se dibuja: la página abajo y las piezas flotando arriba.
+// The framing fits what's drawn: the page below and the pieces floating above.
 export const P = k.fitProjection(
   [...k.boxCorners(PAGE, -PAGE_H, 0), ...TILES.flatMap((tile) => k.boxCorners(tile.plan, HOVER, HOVER + TILE_H))],
   WIDTH,
@@ -51,7 +51,7 @@ const centerOf = ({ x, y, w, d }: k.Plan): k.Plane => [x + w / 2, y + d / 2];
 
 const label = (at: k.Plane, z: number, lines: Line[]) => faceLabel(at, z, P, lines);
 
-/** Las aristas verticales que unen una pieza a la altura z con su hueco. El shell las recalcula al animar. */
+/** The vertical edges joining a piece at height z to its slot. The shell recomputes them as it animates. */
 function guides(plan: k.Plan, z: number, projection: k.Projection) {
   if (z < 0.5) return "";
   return k
@@ -69,7 +69,7 @@ function page() {
     }),
   );
   out.push(L(k.planOutline(k.insetPlan(PAGE, 4), 0, P), { tone: "lo" }));
-  // Barra del navegador: tres botones y la barra de direcciones.
+  // Browser bar: three buttons and the address bar.
   const bar = PAGE.y + 10;
   out.push(L(k.lineOnTop([PAGE.x + 4, PAGE.y + 18], [PAGE.x + PAGE.w - 4, PAGE.y + 18], 0, P), { tone: "faint" }));
   out.push(
@@ -78,7 +78,7 @@ function page() {
     }),
   );
   out.push(L(k.planOutline({ x: PAGE.x + 40, y: bar - 4, w: 130, d: 8, r: 4 }, 0, P, 6), { tone: "lo" }));
-  // La navegación de la app es del shell: no la sirve ningún remote.
+  // The app's navigation belongs to the shell: no remote serves it.
   out.push(S(k.slabOf(NAV, 0, 2.2, P, 3, 0.4), { tone: "mid", crease: "lo" }));
   out.push(D([at([NAV.x + 8, NAV.y + NAV.d / 2, 2.2])], { size: 1.6, tone: "hi" }));
   out.push(
@@ -92,17 +92,17 @@ function page() {
     ),
   );
   for (const tile of TILES) {
-    // El hueco vacío que el shell reserva en el layout.
+    // The empty slot the shell reserves in the layout.
     out.push(
       `<g data-part="slot-${tile.id}">${L(k.planOutline(tile.plan, 0, P, 3), { tone: "mid", dashed: true })}</g>`,
     );
     out.push(
       `<path class="iso-halo" data-part="shadow-${tile.id}" d="${k.haloOf(k.insetPlan(tile.plan, 3), 0, 0.1, P)}" style="filter:blur(5px);opacity:0"/>`,
     );
-    // El aviso que el shell pone si el remote no llega.
+    // The notice the shell shows if the remote doesn't arrive.
     const [cx, cy] = centerOf(tile.plan);
     out.push(
-      `<g data-part="fail-${tile.id}" data-on="false">${L(k.planOutline(k.insetPlan(tile.plan, 2), 0, P, 3), { tone: "red", dashed: true })}${label([cx, cy], 0, [{ text: "sin servicio", className: "fig-fail", size: 5 }])}</g>`,
+      `<g data-part="fail-${tile.id}" data-on="false">${L(k.planOutline(k.insetPlan(tile.plan, 2), 0, P, 3), { tone: "red", dashed: true })}${label([cx, cy], 0, [{ text: "unavailable", className: "fig-fail", size: 5 }])}</g>`,
     );
   }
   return out.join("");
@@ -129,7 +129,7 @@ function tile(t: Tile) {
   return out.join("");
 }
 
-/** La etiqueta del shell, afuera de la ventana y unida a su costado con una línea. */
+/** The shell's label, outside the window and joined to its side by a line. */
 function shellCallout() {
   const anchor = at([PAGE.x + 34, PAGE.y + PAGE.d, -PAGE_H / 2]);
   const [x, y] = [anchor[0] + 18, anchor[1] + 56];
@@ -137,13 +137,13 @@ function shellCallout() {
     `<path class="iso-line" data-tone="mid" d="M${tenth(anchor[0])} ${tenth(anchor[1])}L${tenth(x)} ${tenth(y - 14)}"/>`,
     D([anchor], { size: 1.4, tone: "hi" }),
     `<text class="fig-name" x="${tenth(x)}" y="${tenth(y)}" text-anchor="middle">Shell (host)</text>`,
-    `<text class="fig-meta" data-part="origin-shell" x="${tenth(x)}" y="${tenth(y + 14)}" text-anchor="middle">layout y navegación</text>`,
+    `<text class="fig-meta" data-part="origin-shell" x="${tenth(x)}" y="${tenth(y + 14)}" text-anchor="middle">layout and navigation</text>`,
   ].join("")}</g>`;
 }
 
 export function build() {
   const body = [page()];
-  // De atrás hacia adelante, para que las piezas de adelante tapen a las de atrás.
+  // Back to front, so the pieces in front cover the ones behind.
   for (const t of TILES) body.push(tile(t));
   body.push(shellCallout());
   const svg = k.figureSvg({
@@ -151,7 +151,7 @@ export function build() {
     height: HEIGHT,
     className: "fig-assembly",
     label:
-      "Una vista explotada de la demo. Abajo, la ventana del navegador: es el shell, con la barra de navegación y cuatro huecos punteados. Arriba flotan cuatro piezas con su nombre: Novedades (SSR), Catálogo y Ficha (CSR) y Guía (SSG). Cada pieza baja a su hueco cuando su remote termina de descargarse desde su propio servidor. Si un servidor cae, su pieza se queda arriba, el hueco muestra un aviso y las demás siguen en su lugar.",
+      "An exploded view of the demo. At the bottom, the browser window: it's the shell, with the navigation bar and four dotted slots. Above it float four named pieces: News (SSR), Catalog and Details (CSR) and Guide (SSG). Each piece drops into its slot when its remote finishes downloading from its own server. If a server goes down, its piece stays up top, the slot shows a notice and the others stay in place.",
     body,
   });
   return { svg, data: { P, HOVER, TILES } };

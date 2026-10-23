@@ -1,234 +1,261 @@
-# Anatomía de un micro-frontend
+# Anatomy of a micro-frontend
 
-Una app que enseña la arquitectura micro-frontend **siendo ella misma un micro-frontend**.
-Cinco aplicaciones independientes, cada una con su servidor, su versión y su forma de renderizar,
-compuestas en vivo por un shell. Con el **inspector** (tecla `I`) ves qué app sirve cada parte.
+An app that teaches micro-frontend architecture **by being a micro-frontend itself**, and that also proves
+**different kinds of rendering (SSR, SSG and CSR) can live together on one page**. Five independent applications,
+each with its own server, version and way of rendering, composed live by a shell. The **inspector** (press `I`) shows
+which app serves each part.
 
 ```
                          ┌──────────────────────── shell :5000 (host, CSR) ────────────────────────┐
-                         │  layout · lecciones · inspector · bus de eventos (window)               │
+                         │  layout · lessons · inspector · event bus (window)                      │
                          │                                                                         │
- news-ssr  :5003 ──HTML──▶  [ Novedades ]   fragmento renderizado en cada request         (SSR)    │
- catalog   :5001 ──JS────▶  [ Catálogo  ]   Module Federation, corre en el navegador      (CSR)    │
- details   :5002 ──JS────▶  [ Ficha     ]   Module Federation, escucha "mfe:select"       (CSR)    │
- guide-ssg :5004 ──HTML──▶  [ Guía      ]   archivo generado en el build, servido como CDN (SSG)   │
+ news-ssr  :5003 ──HTML──▶  [ News     ]   fragment rendered on every request            (SSR)    │
+ catalog   :5001 ──JS────▶  [ Catalog  ]   Module Federation, runs in the browser         (CSR)    │
+ details   :5002 ──JS────▶  [ Details  ]   Module Federation, listens for "mfe:select"    (CSR)    │
+ guide-ssg :5004 ──HTML──▶  [ Guide    ]   file generated at build time, served like a CDN (SSG)   │
                          └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Correrlo
+## Running it
 
-Requiere Node 22 o superior (hay un `.nvmrc`).
+Requires Node 22 or later (there's an `.nvmrc`).
 
 ```bash
 npm install
-npm run dev      # construye los remotes y levanta los 5 servidores
-# abre http://localhost:5000
+npm run dev      # builds the remotes and starts the 5 servers
+# open http://localhost:5000
 ```
 
-`npm run build && npm start` hace lo mismo pero sirviendo también el shell ya construido.
+`npm run build && npm start` does the same, but also serves the already-built shell.
 
-Los datos vienen de APIs públicas (ver [Los datos](#los-datos-apis-públicas-reales)). Sin conexión todo sigue andando:
-cada remote usa sus datos de respaldo y lo dice en pantalla.
+The data comes from public APIs (see [The data](#the-data-real-public-apis)). Everything keeps working offline: each
+remote falls back to its own backup data and says so on screen.
 
-| Comando             | Qué hace                                                        |
-| ------------------- | --------------------------------------------------------------- |
-| `npm run check`     | Todo lo de abajo junto. Es lo que corre la CI en cada push.     |
-| `npm run lint`      | ESLint (typescript-eslint estricto + reglas de hooks de React). |
-| `npm run typecheck` | `tsc` en todos los paquetes.                                    |
-| `npm test`          | Tests unitarios con el runner nativo de Node (`node:test`).     |
-| `npm run format`    | Prettier, que además ordena las clases de Tailwind.             |
+| Command             | What it does                                                              |
+| ------------------- | ------------------------------------------------------------------------- |
+| `npm run check`     | Everything below together. It's what CI runs on every push.               |
+| `npm run lint`      | ESLint (strict typescript-eslint + React hooks rules).                    |
+| `npm run typecheck` | `tsc` across every package. Needs the figures built (`npm run figures`).  |
+| `npm test`          | Unit tests with Node's built-in runner (`node:test`).                     |
+| `npm run format`    | Prettier, which also sorts the Tailwind classes.                          |
+| `npm run figures`   | Generates the isometric figures (`packages/figures/dist`). `dev` runs it. |
 
-| App       | Puerto | Render | Composición                                                  | Código           |
-| --------- | ------ | ------ | ------------------------------------------------------------ | ---------------- |
-| shell     | 5000   | CSR    | host de Module Federation                                    | `apps/shell`     |
-| catalog   | 5001   | CSR    | remote de Module Federation                                  | `apps/catalog`   |
-| details   | 5002   | CSR    | remote de Module Federation (la ficha)                       | `apps/details`   |
-| news-ssr  | 5003   | SSR    | fragmento HTML (Express + `renderToString`)                  | `apps/news-ssr`  |
-| guide-ssg | 5004   | SSG    | fragmento HTML estático (`renderToStaticMarkup` en el build) | `apps/guide-ssg` |
+| App       | Port | Render | Composition                                                 | Code             |
+| --------- | ---- | ------ | ----------------------------------------------------------- | ---------------- |
+| shell     | 5000 | CSR    | Module Federation host                                      | `apps/shell`     |
+| catalog   | 5001 | CSR    | Module Federation remote                                    | `apps/catalog`   |
+| details   | 5002 | CSR    | Module Federation remote (the details page)                 | `apps/details`   |
+| news-ssr  | 5003 | SSR    | HTML fragment (Express + `renderToString`)                  | `apps/news-ssr`  |
+| guide-ssg | 5004 | SSG    | static HTML fragment (`renderToStaticMarkup` at build time) | `apps/guide-ssg` |
 
-Cada remote también se puede abrir solo en su puerto: así lo desarrollaría su equipo sin el shell.
+Each remote can also be opened on its own port: that's how its team would develop it, without the shell.
 
-## Qué probar
+## Things to try
 
-1. **Inspector** (`I`): bordes por app, con versión, origen y tiempo de carga.
-2. **↻ en Novedades**: la hora de render y el id de request cambian cada vez (SSR), pero los datos dicen "de hace N s":
-   vienen de la caché del servidor.
-3. **↻ en la Guía**: la hora del build no cambia y el inspector marca "caché": la respuesta salió de la caché HTTP del
-   navegador sin ir a la red (SSG). En local, la pestaña Network muestra además que el ETag no cambia.
-4. **Busca en el catálogo**: la búsqueda va de tu navegador a TVmaze (CSR). Mírala en la pestaña Network.
-5. **Elige un título en el catálogo**: la ficha lo recibe por el evento `mfe:select`, sin que ninguno importe al otro, y
-   pide a TVmaze la nota, el resumen y el elenco.
-6. **"tirar" un remote**: su espacio muestra un fallback y el resto sigue vivo. En la Fig 1 su pieza se queda arriba y su hueco muestra el aviso.
+1. **Inspector** (`I`): borders per app, with version, origin and load time.
+2. **↻ on News**: the render time and the request id change every time (SSR), but the data says "N s old": it comes
+   from the server's cache.
+3. **↻ on the Guide**: the build time doesn't change and the inspector shows "cache": the response came from the
+   browser's HTTP cache without going to the network (SSG). Locally, the Network tab also shows the ETag doesn't change.
+4. **Search the catalog**: the search goes from your browser to TVmaze (CSR). Watch it in the Network tab.
+5. **Pick a title in the catalog**: the details page receives it through the `mfe:select` event, without either one
+   importing the other, and fetches the rating, summary and cast from TVmaze.
+6. **"Kill" a remote**: its space shows a fallback and the rest stays alive. In Fig 1 its piece stays up top and its
+   slot shows the notice.
+7. **Click a piece in Fig 1**: it opens what that server serves (the `mf-manifest.json` for Module Federation, the page
+   for the fragments). Both figures have **Pause** and **Replay** buttons.
 
 ## TypeScript
 
-Todo el monorepo es TypeScript estricto (`tsconfig.base.json`, y cada paquete lo extiende).
+The whole monorepo is strict TypeScript (`tsconfig.base.json`, which every package extends).
 
-- Los remotes de Vite (`shell`, `catalog`, `details`) los compila Vite; `tsc` solo revisa tipos (`noEmit`).
-- Los servidores (`news-ssr`, `guide-ssg`) y el generador de figuras corren con [`tsx`](https://tsx.is), sin paso de compilación.
-- **`packages/contracts`** (`@mfe/contracts`) es lo único que los equipos comparten en tiempo de compilación: los tipos
-  de los eventos del bus (`BusEvents`), de la ficha de cada remote (`RemoteMeta`) y helpers tipados `emit()` / `on()`.
-  El catálogo no importa a la ficha ni al revés; los dos importan el contrato. Si alguien cambia el payload de
-  `mfe:select`, el typecheck de los dos remotes falla antes del deploy. Renombrar el evento (antes `mfe:play`) fue un
-  cambio incompatible, por eso el contrato pasó a la 2.0.
-- Del lado del shell, `loadRemote<RemoteModule>()` tipa lo que expone cada remote, y `__FEDERATION__` está declarado en
+- The Vite remotes (`shell`, `catalog`, `details`) are compiled by Vite; `tsc` only checks types (`noEmit`).
+- The servers (`news-ssr`, `guide-ssg`) and the figure generator run with [`tsx`](https://tsx.is), with no build step.
+- **`packages/contracts`** (`@mfe/contracts`) is the only thing the teams share at compile time: the types of the bus
+  events (`BusEvents`), of each remote's metadata (`RemoteMeta`) and the typed `emit()` / `on()` helpers. The catalog
+  doesn't import the details page or vice versa; both import the contract. If someone changes the `mfe:select`
+  payload, both remotes' typecheck fails before the deploy. Renaming the event (formerly `mfe:play`) was a breaking
+  change, which is why the contract went to 2.0.
+- On the shell's side, `loadRemote<RemoteModule>()` types what each remote exposes, and `__FEDERATION__` is declared in
   `apps/shell/src/vite-env.d.ts`.
 
-## Estilos: Tailwind en un micro-frontend
+## Styling: Tailwind in a micro-frontend
 
-Tailwind CSS v4 en todas las apps, con una regla: **se comparten valores, no CSS**.
+Tailwind CSS v4 in every app, with one rule: **share values, not CSS**.
 
-- **`packages/design-tokens`** (`@mfe/design-tokens`) define la paleta, las tipografías y un color por tipo de render
-  como tema de Tailwind (`@theme inline`), con modo claro y oscuro sobre `<html data-theme>`. Es el design system.
-- **Cada app compila su propio CSS** a partir de esos tokens. Ninguna depende del CSS de otra, así que un deploy del
-  catálogo no puede romper los estilos del shell, ni al revés.
-- **Solo el shell** carga el reset de Tailwind (preflight). Los remotes usan un **prefijo** propio (`cat:`, `dtl:`,
-  `nws:`, `gde:`) y no traen reset: sus clases nunca chocan con las del shell ni con las de otro remote.
-- Los remotes de Vite importan su CSS como texto (`import styles from "./catalog.css?inline"`) y lo renderizan dentro de
-  su componente, así viaja con el módulo por Module Federation. Los de SSR y SSG lo compilan con
-  `compileTailwind()` (`@mfe/design-tokens/compile`) y lo incrustan en el fragmento HTML.
-- El costo: todos deben usar la misma versión mayor de Tailwind, porque comparten sus variables internas (`--tw-*`).
+- **`packages/design-tokens`** (`@mfe/design-tokens`) defines the palette, the typefaces and one color per kind of
+  rendering as a Tailwind theme (`@theme inline`), with light and dark modes on `<html data-theme>`. It's the design
+  system.
+- **Each app compiles its own CSS** from those tokens. None depends on another's CSS, so a catalog deploy can't break
+  the shell's styles, or vice versa.
+- **Only the shell** loads Tailwind's reset (preflight). The remotes use their own **prefix** (`cat:`, `dtl:`, `nws:`,
+  `gde:`) and bring no reset: their classes never clash with the shell's or another remote's.
+- The Vite remotes import their CSS as text (`import styles from "./catalog.css?inline"`) and render it inside their
+  component, so it travels with the module through Module Federation. The SSR and SSG ones compile it with
+  `compileTailwind()` (`@mfe/design-tokens/compile`) and embed it in the HTML fragment.
+- The cost: everyone must use the same major version of Tailwind, because they share its internal variables
+  (`--tw-*`).
 
-## Cómo está organizado el shell
+## How the shell is organized
 
 ```
 apps/shell/src
-├── main.tsx          registra los remotes y monta la app
-├── App.tsx           layout de la página
-├── mfe/              todo lo de micro-frontends: registro, Module Federation, fragmentos, fallback
-├── inspector/        el borde y la ficha de cada pieza (Slot) y el contador de remotes
-├── figures/          las dos figuras animadas, su modelo (con tests) y el bucle de animación
-├── lessons/          una sección de la lección por archivo, y el índice que las numera
-├── layout/           barra superior, índice lateral, tema y atajo de teclado
-├── ui/               componentes chicos reutilizables (Button, Card, Chip, Table…)
-├── state/            el store mínimo del shell (con tests)
-└── lib/              utilidades puras (con tests)
+├── main.tsx          registers the remotes and mounts the app
+├── App.tsx           the page layout
+├── mfe/              everything micro-frontend: registry, Module Federation, fragments, fallback, CSP
+├── inspector/        each piece's border and tag (Slot) and the remote counter
+├── figures/          the two animated figures, their model (with tests) and the animation loop
+├── lessons/          one lesson section per file, and the index that numbers them
+├── layout/           top bar, side index, theme and keyboard shortcut
+├── ui/               small reusable components (Button, Card, Chip, Table…)
+├── state/            the shell's minimal store (with tests)
+└── lib/              pure utilities (with tests)
 ```
 
-## Cómo está hecho
+`apps/shell/scripts/discovery.ts` generates the production discovery (see [Deploying](#deploying)).
 
-- **Discovery**: el shell no compila las URLs de sus remotes. Al arrancar lee `remotes.json` (ver más abajo), valida su
-  forma (`mfe/discovery.ts`) y arma su registro (`mfe/registry.ts`).
-- **Module Federation** (`@module-federation/vite`): el shell registra `catalog` y `details` en runtime con
-  `registerRemotes()`, usando el `mf-manifest.json` que publica cada uno, y los carga con `loadRemote()`. React y
-  React DOM son `singleton` compartidos, así que se descargan una sola vez.
-- **Fragmentos HTML**: el shell hace `fetch` al fragmento y lo inserta. En producción esto suele hacerse en el servidor
-  o en el edge (ESI/SSI); aquí se hace en el navegador para que la request se vea.
-- **Contrato de eventos**: `packages/contracts/index.ts`. Es la única "API" entre catálogo y ficha, que se lo pasan por `window` sin pasar por el shell.
-- **Fallos aislados**: si falla la descarga de un remote (módulo o fragmento), el shell atrapa el rechazo de la promesa
-  y muestra el fallback (`mfe/use-remote-request.ts`). Si un remote federado falla al renderizar, lo atrapa un error
-  boundary (`mfe/RemoteBoundary.tsx`).
-  "Tirar" apunta el remote a `offline.invalid`, un dominio reservado que nunca resuelve, así que la falla es real.
+## How it's built
 
-## Los datos: APIs públicas reales
+- **Discovery**: the shell doesn't compile in its remotes' URLs. At startup it reads `remotes.json` (see below),
+  validates its shape (`mfe/discovery.ts`) and builds its registry (`mfe/registry.ts`).
+- **Module Federation** (`@module-federation/vite`): the shell registers `catalog` and `details` at runtime with
+  `registerRemotes()`, using the `mf-manifest.json` each one publishes, and loads them with `loadRemote()`. React and
+  React DOM are shared `singleton`s, so they're downloaded only once.
+- **HTML fragments**: the shell `fetch`es the fragment and inserts it. In production this is usually done on the
+  server or at the edge (ESI/SSI); here it happens in the browser so you can see the request.
+- **Event contract**: `packages/contracts/index.ts`. It's the only "API" between catalog and details, which talk over
+  `window` without going through the shell.
+- **Isolated failures**: if a remote's download fails (module or fragment), the shell catches the promise rejection
+  and shows the fallback (`mfe/use-remote-request.ts`). If a federated remote fails while rendering, an error boundary
+  catches it (`mfe/RemoteBoundary.tsx`). "Kill" points the remote at `offline.invalid`, a reserved domain that never
+  resolves, so the failure is real.
 
-Cada remote consigue sus datos de la forma que corresponde a cómo renderiza. Ninguna API necesita key ni cuenta.
+## The data: real public APIs
 
-| Remote      | API                                                                                 | Cuándo se consulta                                        | Si falla                                     |
-| ----------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------- |
-| `guide-ssg` | [TVmaze](https://www.tvmaze.com/api) `/shows/169?embed=episodes`: Breaking Bad      | **Una vez, en el build** (con un reintento)               | Usa la copia del repo (`snapshot.json`)      |
-| `news-ssr`  | [TheSportsDB](https://www.thesportsdb.com) (fútbol de hoy) y TVmaze `/schedule/web` | **En el servidor**, con una caché en memoria de 60 s      | Esa sección muestra un aviso; la otra sigue  |
-| `catalog`   | TVmaze `/shows` (los más populares) y `/search/shows` (el buscador)                 | **En tu navegador**: es CSR, la request se ve en DevTools | Muestra el catálogo de respaldo (`shows.ts`) |
-| `details`   | TVmaze `/shows/:id` con elenco y temporadas, del título que elegiste                | **En tu navegador**, al recibir `mfe:select`; con caché   | Muestra solo los datos que trajo el evento   |
+Each remote gets its data in the way that matches how it renders. No API needs a key or an account.
 
-Lo que enseña cada caso:
+| Remote      | API                                                                                      | When it's queried                                            | If it fails                                  |
+| ----------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------- |
+| `guide-ssg` | [TVmaze](https://www.tvmaze.com/api) `/shows/169?embed=episodes`: Breaking Bad           | **Once, at build time** (with one retry)                     | Uses the copy in the repo (`snapshot.json`)  |
+| `news-ssr`  | [TheSportsDB](https://www.thesportsdb.com) (today's football) and TVmaze `/schedule/web` | **On the server**, with a 60 s in-memory cache               | That section shows a notice; the other stays |
+| `catalog`   | TVmaze `/shows` (the most popular) and `/search/shows` (the search box)                  | **In your browser**: it's CSR, the request shows in DevTools | Shows the fallback catalog (`shows.ts`)      |
+| `details`   | TVmaze `/shows/:id` with cast and seasons, for the title you picked                      | **In your browser**, on receiving `mfe:select`; cached       | Shows only the data the event brought        |
 
-- **SSG**: los datos se congelan al construir, así que SSG sirve para datos que cambian poco o nada. La guía muestra
-  los episodios de una serie terminada: sus datos no cambian, y la guía solo se reconstruye cuando cambia su código.
-  El build se niega a publicar una serie que sigue en emisión (`seriesProblems`), porque quedaría vieja sin que nadie
-  lo note. Si la API se cae en el build, usa la copia guardada en el repo, que tiene los mismos datos
-  (`npm run snapshot -w guide-ssg` la regenera).
-- **SSR**: el HTML es nuevo en cada request, pero los datos no hace falta pedirlos cada vez (`news-ssr/src/cache.ts`).
-  Las requests simultáneas comparten una llamada, y si la API falla se usa el último dato bueno (_stale-if-error_). Cada
-  API tiene su timeout y las dos se piden en paralelo: una caída degrada una sección, no el fragmento entero. La caché se
-  precalienta al arrancar.
-- **CSR**: el navegador habla directo con la API, así que solo sirve una API pública con CORS y sin secretos. Con una
-  key (TMDB, por ejemplo) habría que pasar por un backend propio, porque cualquier key en el navegador es pública.
-- **Datos de terceros**: todo se valida al entrar (`parseSeries`, `parseEvents`, `toShow`, `parseDetails`…) y solo se usan nombres e
-  imágenes `https`. El resumen de TVmaze llega como HTML y la ficha lo pasa a texto plano (`summaryText`). React escapa los textos antes de que el shell inserte el fragmento
-  con `innerHTML`.
-- **Atribución**: TVmaze (CC BY-SA) y TheSportsDB aparecen con su enlace en cada remote que las usa.
+What each case teaches:
 
-TheSportsDB usa su key pública de prueba (`123`), que devuelve pocos partidos por día. Con una key propia se pasa
-`SPORTSDB_KEY` al servidor. La guía usa `GUIDE_SHOW_ID` (el id de la serie en TVmaze, `169` por defecto); si lo cambias, regenera la copia.
+- **SSG**: the data is frozen at build time, so SSG suits data that changes little or not at all. The guide shows the
+  episodes of a show that has ended: its data doesn't change, and the guide is only rebuilt when its code changes. The
+  build refuses to publish a show that's still airing (`seriesProblems`), because it would go stale without anyone
+  noticing. If the API is down at build time, it uses the copy stored in the repo, which has the same data
+  (`npm run snapshot -w guide-ssg` regenerates it).
+- **SSR**: the HTML is new on every request, but the data doesn't need to be fetched every time
+  (`news-ssr/src/cache.ts`). Simultaneous requests share one call, and if the API fails the last good value is used
+  (_stale-if-error_). Each API has its own timeout and both are fetched in parallel: one outage degrades a section, not
+  the whole fragment. The cache is warmed up at startup.
+- **CSR**: the browser talks to the API directly, so it only works with a public API that has CORS and no secrets.
+  With a key (TMDB, for example) you'd have to go through your own backend, because any key in the browser is public.
+- **Third-party data**: everything is validated on the way in (`parseSeries`, `parseEvents`, `toShow`,
+  `parseDetails`…) and only names and `https` images are used. TVmaze's summary arrives as HTML and the details page
+  turns it into plain text (`summaryText`). React escapes the text before the shell inserts the fragment with
+  `innerHTML`.
+- **Attribution**: TVmaze (CC BY-SA) and TheSportsDB are credited with a link in every remote that uses them.
 
-## Las figuras
+TheSportsDB uses its public test key (`123`), which returns few matches per day. To use your own key, pass
+`SPORTSDB_KEY` to the server. The guide uses `GUIDE_SHOW_ID` (the show's TVmaze id, `169` by default); if you change
+it, regenerate the copy.
 
-`packages/figures` dibuja las dos figuras isométricas con el kit de la skill
-[anatomy](https://skills.wheresryan.sh/anatomy) (MIT, copiado en `packages/figures/kit`).
-`npm run figures` (`tsx build.ts`) genera `dist/figures.js` y sus tipos (`dist/figures.d.ts`) con los SVG y páginas sueltas para revisarlas (`dist/*-light.html`).
-En el shell, `src/figures/` las anima con el estado real de carga:
+## Security and usage limits
 
-- **Fig 1 · Una página, cinco servidores**: una vista explotada de la demo. El shell pone la página con un hueco por
-  remote, y cada remote baja a su hueco cuando termina de cargar, con los tiempos medidos en la página.
-- **Fig 2 · Dónde y cuándo se arma el HTML**: una cuadrícula con el build, el servidor y el navegador como columnas y
-  SSG, SSR y CSR como filas. Las piezas de cada fila se juntan en una página en una sola celda (el build, el servidor o
-  el navegador), y las celdas encendidas forman una diagonal. Los tiempos son los medidos en la página.
+The deployment runs on free plans, so it defends itself against abuse and injected content:
 
-## Cómo se maneja SSR, SSG y CSR en un proyecto real
+- **Content-Security-Policy** in the shell: `npm run discovery -w shell` builds it from the same origins as the
+  discovery (`mfe/csp.ts`) and appends it to the build's `_headers`. The page only runs code from the shell and the
+  federated remotes, only connects to the remotes and TVmaze, and allows `index.html`'s inline script by its hash. A
+  `<script>` or an `onerror` inside an HTML fragment wouldn't run.
+- **Security headers** on every app: `X-Content-Type-Options: nosniff`, and the shell and `news-ssr` also send
+  `X-Frame-Options: DENY` and a strict `Referrer-Policy`. The static apps set them in `public/_headers`.
+- **Usage limit in `news-ssr`** (`src/limits.ts`): a token bucket for the whole server (bursts of 30, 1 per second,
+  8000 renders per day). Over the limit it responds `429` with `Retry-After`, the shell shows News's fallback and the
+  rest of the page carries on. `/health` isn't limited. With that daily cap, outbound traffic stays below Render's
+  free 5 GB per month.
 
-Esta app sigue el reparto que se ve en la mayoría de los proyectos:
+## The figures
 
-| Decisión                         | Quién la toma            | Dónde vive                                                                 |
-| -------------------------------- | ------------------------ | -------------------------------------------------------------------------- |
-| Cómo renderiza (SSR, SSG o CSR)  | El equipo de cada remote | En su propio código o framework. Aquí: Express, el script de build o Vite. |
-| Dónde vive y qué versión corre   | El pipeline del remote   | El discovery: `apps/shell/public/remotes.json`                             |
-| Qué remote va en cada lugar      | El equipo del shell      | El layout del shell: `SLOTS` en `apps/shell/src/mfe/registry.ts`           |
-| Cuánto dura en caché cada página | El equipo de cada remote | Cabeceras `Cache-Control` y reglas del CDN                                 |
+`packages/figures` draws the two isometric figures with the kit from the
+[anatomy](https://skills.wheresryan.sh/anatomy) skill (MIT, copied to `packages/figures/kit`). `npm run figures`
+(`tsx build.ts`) generates `dist/figures.js` and its types (`dist/figures.d.ts`) with the SVGs, plus standalone pages
+to review them (`dist/*-light.html`). In the shell, `src/figures/` animates them with the real load state:
 
-Con un framework, el render se declara por ruta. En Next.js, `export const dynamic = "force-static"` es SSG y
-`export const revalidate = 3600` es ISR. En Nuxt va en `routeRules` (`{ "/guia": { prerender: true } }`). En Astro es
-`export const prerender = true`. El shell nunca lo configura: solo lo ve, por la cabecera `X-Render-Mode` o por la
-`metadata` del discovery.
+- **Fig 1 · One page, five servers**: an exploded view of the demo. The shell lays out the page with a slot per
+  remote, and each remote drops into its slot when it finishes loading, with the timings measured on the page. Each
+  piece is a link to what its server serves.
+- **Fig 2 · Where and when the HTML is built**: a grid with the build, the server and the browser as columns and SSG,
+  SSR and CSR as rows. Each row's pieces come together into a page in a single cell (the build, the server or the
+  browser), and the lit cells form a diagonal. The timings are the ones measured on the page.
 
-## Desplegar
+## How SSR, SSG and CSR are handled in a real project
 
-Cada app es un deploy separado, y el shell se construye **una sola vez para todos los entornos**:
+This app follows the split you see in most projects:
 
-1. Cada remote se publica en su origen (`PUBLIC_URL` define desde dónde se sirve en los de Vite).
-2. Su pipeline actualiza su entrada en el `remotes.json` de ese entorno: URL del `mf-manifest.json` o del fragmento,
-   versión y metadata. En producción ese archivo suele servirlo un servicio de discovery o un CDN; el formato de este
-   proyecto está inspirado en el esquema "Frontend Discovery" que publicó AWS.
-3. El shell lo lee al arrancar, así que publicar o revertir un remote no requiere volver a desplegar el shell.
+| Decision                         | Who makes it          | Where it lives                                                         |
+| -------------------------------- | --------------------- | ---------------------------------------------------------------------- |
+| How it renders (SSR, SSG or CSR) | Each remote's team    | In its own code or framework. Here: Express, the build script or Vite. |
+| Where it lives and which version | The remote's pipeline | The discovery: `apps/shell/public/remotes.json`                        |
+| Which remote goes where          | The shell team        | The shell's layout: `SLOTS` in `apps/shell/src/mfe/registry.ts`        |
+| How long each page stays cached  | Each remote's team    | `Cache-Control` headers and CDN rules                                  |
 
-`SHELL_BASE` define la ruta base del shell si no se sirve desde `/`.
+With a framework, rendering is declared per route. In Next.js, `export const dynamic = "force-static"` is SSG and
+`export const revalidate = 3600` is ISR. In Nuxt it goes in `routeRules` (`{ "/guide": { prerender: true } }`). In
+Astro it's `export const prerender = true`. The shell never configures it: it only observes it, through the
+`X-Render-Mode` header or the discovery's `metadata`.
 
-### Una forma concreta de desplegarlo (con planes gratuitos)
+## Deploying
 
-Cuatro apps son archivos estáticos y van a un hosting estático; solo `news-ssr` necesita un servidor. Los estáticos
-traen un archivo `_headers` (CORS y caché) que Cloudflare (Pages o Workers) y Netlify entienden igual. Todos los comandos se corren
-desde la raíz del repo.
+Each app is a separate deploy, and the shell is built **once for every environment**:
 
-| App         | Dónde                               | Build                                                                     | Publica                | Variables                         |
-| ----------- | ----------------------------------- | ------------------------------------------------------------------------- | ---------------------- | --------------------------------- |
-| `catalog`   | Cloudflare Pages o Netlify          | `npm run build -w catalog`                                                | `apps/catalog/dist`    | `PUBLIC_URL=https://<su-origen>/` |
-| `details`   | Cloudflare Pages o Netlify          | `npm run build -w details`                                                | `apps/details/dist`    | `PUBLIC_URL=https://<su-origen>/` |
-| `guide-ssg` | Cloudflare Pages o Netlify          | `npm run build -w guide-ssg`                                              | `apps/guide-ssg/dist`  | opcional: `GUIDE_SHOW_ID`         |
-| `news-ssr`  | Render, Fly.io, Railway o Cloud Run | `docker build -f apps/news-ssr/Dockerfile .`                              | el contenedor (`PORT`) | opcional: `SPORTSDB_KEY`          |
-| `shell`     | Cloudflare Pages o Netlify          | `npm run figures && npm run build -w shell && npm run discovery -w shell` | `apps/shell/dist`      | `MFE_*_ORIGIN` (abajo)            |
+1. Each remote is published to its own origin (`PUBLIC_URL` sets where the Vite ones are served from).
+2. Its pipeline updates its entry in that environment's `remotes.json`: the URL of the `mf-manifest.json` or the
+   fragment, the version and the metadata. In production that file is usually served by a discovery service or a CDN;
+   this project's format is inspired by the "Frontend Discovery" schema AWS published.
+3. The shell reads it at startup, so shipping or rolling back a remote doesn't require redeploying the shell.
 
-**Cómo está armado en este repo:** los cuatro estáticos van a Cloudflare y `news-ssr` a Render, los dos con plan
-gratis.
+`SHELL_BASE` sets the shell's base path if it isn't served from `/`.
 
-- **Cloudflare**: cada app estática tiene un `wrangler.jsonc` y se publica como un Worker con archivos estáticos (la
-  versión actual de Pages), en `https://mfe-anatomia-<app>.<subdominio>.workers.dev`. El job `deploy` de
-  `.github/workflows/ci.yml` corre en cada push a `main`, después de que pasa la CI: construye y publica primero los
-  remotes y al final el shell, con su discovery. Necesita dos secretos (`CLOUDFLARE_API_TOKEN`, creado con la plantilla
-  _Edit Cloudflare Workers_, y `CLOUDFLARE_ACCOUNT_ID`) y las variables `MFE_{NEWS,CATALOG,DETAILS,GUIDE}_ORIGIN`. Para
-  publicar a mano: `npx wrangler deploy --cwd apps/<app>` después del build.
-- **Render**: `render.yaml` es un Blueprint (New → Blueprint en Render). Se vuelve a desplegar solo cuando un push a
-  `main` toca `news-ssr` o sus dependencias. En el plan gratis se duerme tras 15 minutos sin visitas: la primera visita
-  después espera cerca de un minuto, y mientras tanto Novedades muestra su esqueleto.
+### One concrete way to deploy it (on free plans)
 
-- **El discovery de producción** lo genera `npm run discovery -w shell` (`apps/shell/scripts/discovery.ts`) a partir de
-  `MFE_NEWS_ORIGIN`, `MFE_CATALOG_ORIGIN`, `MFE_DETAILS_ORIGIN` y `MFE_GUIDE_ORIGIN`. Toma las versiones de cada
-  `package.json` y lo valida con el mismo parser que usa el shell, así que un discovery roto falla el deploy y no el
-  navegador. Aquí lo genera el deploy del shell porque todo vive en un repo; con equipos separados, cada pipeline
-  actualizaría solo su entrada.
-- **`news-ssr` en Docker**: compila el CSS al arrancar, precalienta la caché, responde `/health` (lo usa el
-  `HEALTHCHECK`) y con `SIGTERM` cierra ordenado, que es lo que hace el hosting en cada deploy. Corre el TypeScript con
-  `tsx`: el JSX no se puede ejecutar con el _type stripping_ nativo de Node. Su zona horaria (la de la hora de los
-  partidos) se fija con `TZ`.
-- **Pendiente para un producto real**: componer los fragmentos en el servidor o en el edge (para que el HTML de SSR y
-  SSG llegue en el primer documento y lo vean los buscadores) y una Content-Security-Policy con los orígenes del
-  discovery.
+Four apps are static files and go to static hosting; only `news-ssr` needs a server. The static ones ship a `_headers`
+file (CORS, caching and security) that Cloudflare (Pages or Workers) and Netlify both understand. Every command runs
+from the repo root.
+
+| App         | Where                                | Build                                                                     | Publishes              | Variables                          |
+| ----------- | ------------------------------------ | ------------------------------------------------------------------------- | ---------------------- | ---------------------------------- |
+| `catalog`   | Cloudflare or Netlify                | `npm run build -w catalog`                                                | `apps/catalog/dist`    | `PUBLIC_URL=https://<its-origin>/` |
+| `details`   | Cloudflare or Netlify                | `npm run build -w details`                                                | `apps/details/dist`    | `PUBLIC_URL=https://<its-origin>/` |
+| `guide-ssg` | Cloudflare or Netlify                | `npm run build -w guide-ssg`                                              | `apps/guide-ssg/dist`  | optional: `GUIDE_SHOW_ID`          |
+| `news-ssr`  | Render, Fly.io, Railway or Cloud Run | `docker build -f apps/news-ssr/Dockerfile .`                              | the container (`PORT`) | optional: `SPORTSDB_KEY`, `TZ`     |
+| `shell`     | Cloudflare or Netlify                | `npm run figures && npm run build -w shell && npm run discovery -w shell` | `apps/shell/dist`      | `MFE_*_ORIGIN` (below)             |
+
+**How this repo does it:** the four static apps go to Cloudflare and `news-ssr` to Render, both on free plans.
+
+- **Cloudflare**: each static app has a `wrangler.jsonc` and is published as a Worker with static assets (the current
+  version of Pages), at `https://mfe-anatomia-<name>.<subdomain>.workers.dev` (`shell`, `catalog`, `details` and
+  `guide`). The `deploy` job in `.github/workflows/ci.yml` runs on every push to `main`, after CI passes: it builds and
+  publishes the remotes first and the shell last, with its discovery. It needs two secrets (`CLOUDFLARE_API_TOKEN`,
+  created with the _Edit Cloudflare Workers_ template, and `CLOUDFLARE_ACCOUNT_ID`) and the repo variables
+  `MFE_{NEWS,CATALOG,DETAILS,GUIDE}_ORIGIN`; it's skipped until they're set. To publish by hand:
+  `npx wrangler deploy --cwd apps/<app>` after the build.
+- **Render**: `render.yaml` is a Blueprint (New → Blueprint in Render). It redeploys by itself only when a push to
+  `main` touches `news-ssr` or its dependencies. On the free plan it sleeps after 15 minutes without visits: the next
+  visit waits about a minute, and meanwhile News shows its skeleton.
+- **The production discovery** is generated by `npm run discovery -w shell` (`apps/shell/scripts/discovery.ts`) from
+  `MFE_NEWS_ORIGIN`, `MFE_CATALOG_ORIGIN`, `MFE_DETAILS_ORIGIN` and `MFE_GUIDE_ORIGIN` (`https`, or `localhost`), plus
+  `MFE_ENVIRONMENT` (`production` by default). It takes each version from its `package.json` and validates the result
+  with the same parser the shell uses, so a broken discovery fails the deploy rather than the browser. It also
+  generates the Content-Security-Policy. Here the shell's deploy generates it because everything lives in one repo;
+  with separate teams, each pipeline would update only its own entry.
+- **`news-ssr` in Docker**: it compiles the CSS at startup, warms up the cache, answers `/health` (used by the
+  `HEALTHCHECK`) and shuts down gracefully on `SIGTERM`, which is what the host does on every deploy. It runs the
+  TypeScript with `tsx`: JSX can't run with Node's native _type stripping_. Its time zone (the one used for match
+  kickoff times) is set with `TZ`.
+- **Still pending for a real product**: composing the fragments on the server or at the edge, so the SSR and SSG HTML
+  arrives in the first document and search engines can see it.

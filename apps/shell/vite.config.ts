@@ -3,9 +3,9 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { federation } from "@module-federation/vite";
 
-// El shell es el "host". No declara aquí las URLs de sus remotes: las lee al arrancar de
-// public/remotes.json (el discovery), así el mismo build sirve para todos los entornos.
-// Lo que sí fija en el build es qué dependencias comparte con ellos.
+// The shell is the "host". It doesn't declare its remotes' URLs here: it reads them at startup
+// from public/remotes.json (the discovery), so the same build works for every environment.
+// What it does fix at build time is which dependencies it shares with them.
 export default defineConfig({
   plugins: [
     react(),

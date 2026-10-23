@@ -28,17 +28,17 @@ const episode = (season: number, number: number, rating: number | null = 8, name
 
 const series = (episodes: Episode[], status = "Ended"): Series => ({
   id: 1,
-  name: "Prueba",
+  name: "Test",
   status,
   network: "AMC",
   episodes,
 });
 
-test("la copia guardada en el repo sirve para la guía", () => {
+test("the copy stored in the repo is suitable for the guide", () => {
   assert.deepEqual(seriesProblems(snapshot), []);
 });
 
-test("seasonsOf agrupa por temporada y ordena los episodios", () => {
+test("seasonsOf groups by season and sorts the episodes", () => {
   const seasons = seasonsOf([episode(2, 2), episode(1, 1), episode(2, 1)]);
   assert.deepEqual(
     seasons.map((season) => [season.number, season.year, season.episodes.map((e) => e.number)]),
@@ -49,7 +49,7 @@ test("seasonsOf agrupa por temporada y ordena los episodios", () => {
   );
 });
 
-test("ratingLevel reparte las notas de la serie entre los tonos", () => {
+test("ratingLevel spreads the show's ratings across the shades", () => {
   const range = ratingRange([episode(1, 1, 7), episode(1, 2, null), episode(1, 3, 9)]);
   assert.deepEqual(range, { min: 7, max: 9 });
   assert.equal(ratingLevel(7, range), 0);
@@ -60,12 +60,12 @@ test("ratingLevel reparte las notas de la serie entre los tonos", () => {
   assert.equal(ratingLevel(8, { min: 8, max: 8 }), RATING_LEVELS - 1);
 });
 
-test("averageRating promedia solo los episodios con nota", () => {
+test("averageRating averages only the rated episodes", () => {
   assert.equal(averageRating([episode(1, 1, 8), episode(1, 2, null), episode(1, 3, 9)]), 8.5);
   assert.equal(averageRating([episode(1, 1, null)]), null);
 });
 
-test("topEpisodes ordena por nota, desempata por orden de salida y salta los que no tienen nota", () => {
+test("topEpisodes sorts by rating, breaks ties by air order and skips unrated ones", () => {
   const top = topEpisodes(
     [
       episode(1, 1, 8, "A"),
@@ -82,33 +82,33 @@ test("topEpisodes ordena por nota, desempata por orden de salida y salta los que
   );
 });
 
-test("genreLabel traduce los géneros conocidos y deja pasar los demás", () => {
-  assert.equal(genreLabel("Crime"), "Crimen");
+test("genreLabel relabels known genres and passes the rest through", () => {
+  assert.equal(genreLabel("Science-Fiction"), "Sci-Fi");
   assert.equal(genreLabel("Anime"), "Anime");
 });
 
-test("bestEpisode elige la mejor nota y, si empatan, la primera", () => {
+test("bestEpisode picks the best rating and, on a tie, the first one", () => {
   const best = bestEpisode([episode(1, 1, 8, "A"), episode(1, 2, 9, "B"), episode(2, 1, 9, "C"), episode(2, 2, null)]);
   assert.equal(best?.name, "B");
   assert.equal(bestEpisode([episode(1, 1, null)]), null);
 });
 
-test("seriesProblems rechaza una serie que sigue en emisión: la guía quedaría vieja", () => {
+test("seriesProblems rejects a show that is still airing: the guide would go stale", () => {
   assert.deepEqual(seriesProblems(series([episode(1, 1)])), []);
   assert.deepEqual(seriesProblems(series([episode(1, 1)], "Running")), [
-    'Prueba sigue en emisión ("Running"): sus datos cambian y la guía quedaría vieja',
+    'Test is still airing ("Running"): its data changes and the guide would go stale',
   ]);
 });
 
-test("seriesProblems detecta temporadas con huecos y series vacías", () => {
-  assert.deepEqual(seriesProblems(series([episode(1, 1), episode(1, 3)])), ["T1: los episodios no van del 1 al 2"]);
-  assert.deepEqual(seriesProblems(series([])), ["Prueba no tiene episodios"]);
+test("seriesProblems detects seasons with gaps and empty shows", () => {
+  assert.deepEqual(seriesProblems(series([episode(1, 1), episode(1, 3)])), ["S1: the episodes don't run from 1 to 2"]);
+  assert.deepEqual(seriesProblems(series([])), ["Test has no episodes"]);
 });
 
-test("las notas y las fechas se muestran en español", () => {
-  assert.equal(formatRating(8), "8,0");
-  assert.equal(formatRating(9.25), "9,3");
-  assert.match(formatAirdate("2008-01-20"), /^20 ene\.? 2008$/);
-  assert.equal(formatAirdate(""), "sin fecha");
-  assert.match(formatBuiltAt(new Date(2026, 9, 19, 18, 12, 34)), /^19 oct\.? a las 18:12:34$/);
+test("ratings and dates are formatted for display", () => {
+  assert.equal(formatRating(8), "8.0");
+  assert.equal(formatRating(9.25), "9.3");
+  assert.equal(formatAirdate("2008-01-20"), "20 Jan 2008");
+  assert.equal(formatAirdate(""), "no date");
+  assert.match(formatBuiltAt(new Date(2026, 9, 19, 18, 12, 34)), /^19 Oct at 18:12:34$/);
 });

@@ -1,7 +1,7 @@
 import { OFFLINE_ORIGIN } from "./federation.ts";
 import { hostOf, type FragmentApp } from "./registry.ts";
 
-/** Cabeceras de diagnóstico que el shell lee de cada fragmento para mostrarlas en la lección. */
+/** Diagnostic headers the shell reads from each fragment to show them in the lesson. */
 const DIAGNOSTIC_HEADERS = [
   "x-render-mode",
   "x-app-version",
@@ -16,18 +16,18 @@ const DIAGNOSTIC_HEADERS = [
 export interface Fragment {
   html: string;
   headers: Record<string, string>;
-  /** Si lo respondió la caché HTTP del navegador sin ir a la red. */
+  /** Whether the browser's HTTP cache answered it without going to the network. */
   cached: boolean;
-  /** Tiempo hasta el primer byte, en ms. */
+  /** Time to first byte, in ms. */
   ttfb: number | null;
 }
 
-/** Pide un fragmento HTML (SSR o SSG). Con `offline`, lo pide a un origen caído. */
+/** Requests an HTML fragment (SSR or SSG). With `offline`, requests it from a dead origin. */
 export async function fetchFragment(app: FragmentApp, { offline = false } = {}): Promise<Fragment> {
   const url = offline ? `${OFFLINE_ORIGIN}fragment` : app.entry;
-  // SSR: no-store, el servidor debe responder algo nuevo. SSG: dejamos actuar la caché HTTP.
+  // SSR: no-store, the server must respond with something new. SSG: let the HTTP cache do its job.
   const response = await fetch(url, { cache: app.render === "SSR" ? "no-store" : "default" });
-  if (!response.ok) throw new Error(`HTTP ${response.status} desde ${hostOf(url)}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status} from ${hostOf(url)}`);
   const html = await response.text();
 
   const headers: Record<string, string> = {};

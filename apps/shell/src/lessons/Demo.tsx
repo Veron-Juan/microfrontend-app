@@ -9,11 +9,11 @@ import { Table } from "../ui/Table.tsx";
 
 export function Demo() {
   return (
-    <Lesson id="demo" title="La demo en vivo" kicker="Una pantalla de inicio de streaming, armada con cuatro remotes.">
+    <Lesson id="demo" title="The live demo" kicker="A streaming home screen, built from four remotes.">
       <Prose>
         <p>
-          Enciende el <b>inspector</b> y cada pieza muestra su borde, quién la sirve, desde qué origen y cuánto tardó.
-          Con <b>↻</b> la vuelves a pedir y con <b>tirar</b> simulas que su servidor se cae.
+          Turn on the <b>inspector</b> and each piece shows its border, who serves it, from which origin and how long it
+          took. <b>↻</b> requests it again and <b>kill</b> simulates its server going down.
         </p>
       </Prose>
       <BrowserWindow />
@@ -22,7 +22,7 @@ export function Demo() {
   );
 }
 
-/** Una ventana de navegador falsa donde el shell compone los cuatro remotes. */
+/** A fake browser window where the shell composes the four remotes. */
 function BrowserWindow() {
   return (
     <div className="my-[22px] overflow-hidden rounded-2xl border border-line bg-card shadow-lift">
@@ -38,7 +38,7 @@ function BrowserWindow() {
             <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" strokeWidth="1.5" />
           </svg>
           <span className="truncate">
-            localhost:5000<span className="text-strong">/inicio</span>
+            localhost:5000<span className="text-strong">/home</span>
           </span>
         </span>
         <InspectorSwitch variant="mini" hotkey={false} />
@@ -66,7 +66,7 @@ function BrowserWindow() {
   );
 }
 
-/** La barra de la app de streaming. Es del shell: no la sirve ningún remote. */
+/** The streaming app's bar. It belongs to the shell: no remote serves it. */
 function AppNav() {
   return (
     <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-muted">
@@ -76,15 +76,15 @@ function AppNav() {
             <path d="M5 3.5v9l7.5-4.5z" />
           </svg>
         </i>
-        Pantalla
+        Screen
       </b>
       <span className="flex flex-wrap gap-x-5 gap-y-1">
         <span className="relative font-medium text-strong after:absolute after:inset-x-0 after:-bottom-1.5 after:h-0.5 after:rounded-full after:bg-strong">
-          Inicio
+          Home
         </span>
-        <span>En vivo</span>
-        <span>Series</span>
-        <span>Deportes</span>
+        <span>Live</span>
+        <span>Shows</span>
+        <span>Sports</span>
       </span>
       <span className="ml-auto flex items-center gap-3">
         <svg viewBox="0 0 16 16" className="size-4 text-muted" aria-hidden="true">
@@ -106,11 +106,11 @@ function AppsTable() {
       <thead>
         <tr>
           <th>App</th>
-          <th>Equipo</th>
+          <th>Team</th>
           <th>Render</th>
-          <th>Composición</th>
-          <th>Origen</th>
-          <th>Estado</th>
+          <th>Composition</th>
+          <th>Origin</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
@@ -145,6 +145,6 @@ function AppsTable() {
 function statusText(load: Load | undefined, isHost: boolean) {
   if (isHost) return "host";
   if (load?.status === "ready") return `${load.ms} ms`;
-  if (load?.status === "error") return "caído";
-  return "cargando…";
+  if (load?.status === "error") return "down";
+  return "loading…";
 }

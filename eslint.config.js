@@ -19,7 +19,7 @@ export default tseslint.config(
       "no-console": ["warn", { allow: ["info", "warn", "error"] }],
     },
   },
-  // Código React que corre en el navegador: reglas de hooks y Fast Refresh.
+  // React code that runs in the browser: hooks rules and Fast Refresh.
   {
     files: ["apps/{shell,catalog,details}/src/**/*.tsx"],
     plugins: { "react-hooks": reactHooks, "react-refresh": reactRefresh },

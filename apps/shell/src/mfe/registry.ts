@@ -2,11 +2,11 @@ import type { RenderMode } from "@mfe/contracts";
 import { fetchDiscovery, type DiscoveredRemote, type Discovery } from "./discovery.ts";
 
 /*
- * El registro del shell: qué piezas tiene la página y quién sirve cada una.
+ * The shell's registry: which pieces the page has and who serves each one.
  *
- * Se arma al arrancar a partir de dos fuentes:
- * - El discovery (/remotes.json): dónde vive cada remote y qué versión corre. Lo controla cada equipo.
- * - SLOTS, más abajo: qué remotes espera el layout del shell y cómo los nombra. Lo controla el shell.
+ * It's built at startup from two sources:
+ * - Discovery (/remotes.json): where each remote lives and which version it runs. Each team controls it.
+ * - SLOTS, below: which remotes the shell's layout expects and what it calls them. The shell controls it.
  */
 
 export type AppId = "shell" | RemoteId;
@@ -14,49 +14,49 @@ export type RemoteId = "news" | "catalog" | "details" | "guide";
 
 interface AppInfo {
   id: AppId;
-  /** Nombre del paquete o servicio. */
+  /** Package or service name. */
   name: string;
   title: string;
   render: RenderMode;
   version: string;
   team: string;
   composition: string;
-  /** Origen desde el que se sirve. */
+  /** Origin it's served from. */
   url: string;
 }
 
-/** El shell: no se carga, es quien carga a los demás. */
+/** The shell: it isn't loaded, it's the one that loads the others. */
 export interface HostApp extends AppInfo {
   kind: "host";
 }
 
-/** Un remote de Module Federation: el shell lee su mf-manifest.json y monta un componente. */
+/** A Module Federation remote: the shell reads its mf-manifest.json and mounts a component. */
 export interface FederatedApp extends AppInfo {
   kind: "federated";
   id: RemoteId;
-  /** URL de su mf-manifest.json. */
+  /** URL of its mf-manifest.json. */
   entry: string;
-  /** Nombre del módulo expuesto, sin "./" ("Catalog"). */
+  /** Name of the exposed module, without "./" ("Catalog"). */
   expose: string;
 }
 
-/** Un remote que entrega HTML ya renderizado (SSR o SSG): el shell lo pide con fetch y lo inserta. */
+/** A remote that delivers already-rendered HTML (SSR or SSG): the shell fetches it and inserts it. */
 export interface FragmentApp extends AppInfo {
   kind: "fragment";
   id: RemoteId;
-  /** URL del fragmento HTML. */
+  /** URL of the HTML fragment. */
   entry: string;
 }
 
 export type RemoteApp = FederatedApp | FragmentApp;
 export type MicroFrontend = HostApp | RemoteApp;
 
-/** Los lugares del layout. El orden es el de la página. */
+/** The layout's slots. The order is the page's. */
 const SLOTS: Record<RemoteId, { title: string }> = {
-  news: { title: "Novedades" },
-  catalog: { title: "Catálogo" },
-  details: { title: "Ficha" },
-  guide: { title: "Guía" },
+  news: { title: "News" },
+  catalog: { title: "Catalog" },
+  details: { title: "Details" },
+  guide: { title: "Guide" },
 };
 
 const SHELL: Omit<HostApp, "url"> = {
@@ -66,26 +66,26 @@ const SHELL: Omit<HostApp, "url"> = {
   title: "Shell",
   render: "CSR",
   version: "1.0.0",
-  team: "Equipo Plataforma",
+  team: "Platform team",
   composition: "Host",
 };
 
 let registry: { environment: string; apps: readonly MicroFrontend[] } | null = null;
 
 function state() {
-  if (!registry) throw new Error("El registro todavía no se cargó: llama a loadRegistry() antes de montar la app");
+  if (!registry) throw new Error("The registry hasn't loaded yet: call loadRegistry() before mounting the app");
   return registry;
 }
 
-/** Pide el discovery del entorno y arma el registro. Se llama una vez, antes de montar la app. */
+/** Fetches the environment's discovery and builds the registry. Called once, before mounting the app. */
 export async function loadRegistry(discoveryUrl: string) {
   registry = buildRegistry(await fetchDiscovery(discoveryUrl), new URL(import.meta.env.BASE_URL, location.href).href);
 }
 
-/** Cruza el discovery con los lugares del layout. Exportada para poder probarla sin red. */
+/** Matches the discovery against the layout's slots. Exported so it can be tested without a network. */
 export function buildRegistry(discovery: Discovery, shellUrl: string) {
   const missing = Object.keys(SLOTS).filter((id) => !discovery.microFrontends[id]);
-  if (missing.length) throw new Error(`discovery (${discovery.environment}): faltan ${missing.join(", ")}`);
+  if (missing.length) throw new Error(`discovery (${discovery.environment}): missing ${missing.join(", ")}`);
   const remotes = (Object.keys(SLOTS) as RemoteId[]).map((id) =>
     toApp(id, discovery.microFrontends[id] as DiscoveredRemote),
   );
@@ -107,7 +107,7 @@ function toApp(id: RemoteId, remote: DiscoveredRemote): RemoteApp {
   return {
     ...base,
     kind: "fragment",
-    composition: render === "SSG" ? "Fragmento HTML estático" : "Fragmento HTML",
+    composition: render === "SSG" ? "Static HTML fragment" : "HTML fragment",
     entry: remote.url,
   };
 }
@@ -120,13 +120,13 @@ export const remotes = () => apps().filter((app): app is RemoteApp => app.kind !
 
 export function appById(id: AppId): MicroFrontend {
   const app = apps().find((candidate) => candidate.id === id);
-  if (!app) throw new Error(`No hay ninguna app "${id}" en el registro`);
+  if (!app) throw new Error(`There is no app "${id}" in the registry`);
   return app;
 }
 
 export function remoteById(id: RemoteId): RemoteApp {
   const app = appById(id);
-  if (app.kind === "host") throw new Error(`"${id}" no es un remote`);
+  if (app.kind === "host") throw new Error(`"${id}" is not a remote`);
   return app;
 }
 

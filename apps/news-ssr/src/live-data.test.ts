@@ -11,12 +11,12 @@ const sources = (overrides: Partial<Sources> = {}): Sources => ({
   ...overrides,
 });
 
-test("createLiveData junta las dos fuentes y calcula la antigüedad de cada una", async () => {
+test("createLiveData combines both sources and computes the age of each", async () => {
   const data = await createLiveData(sources())(NOW);
   assert.deepEqual(data, SAMPLE_DATA);
 });
 
-test("si una fuente falla, la otra llega igual y la caída se informa", async () => {
+test("if one source fails, the other still arrives and the failure is reported", async () => {
   const errors: unknown[] = [];
   const data = await createLiveData(
     sources({ premieres: () => Promise.reject(new Error("TVmaze: HTTP 503")) }),

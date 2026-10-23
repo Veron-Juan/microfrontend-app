@@ -5,7 +5,7 @@ import { formatRating, minutes, posterBackground, statusLabel, years } from "./f
 import { TVMAZE_SITE, type CastMember, type ShowDetails } from "./tvmaze.ts";
 import { useDetails, type DetailsStatus } from "./use-details.ts";
 
-export const meta: RemoteMeta = { name: "details", version: "3.1.0", team: "Equipo Fichas", render: "CSR" };
+export const meta: RemoteMeta = { name: "details", version: "3.1.0", team: "Details team", render: "CSR" };
 
 const note = "dtl:font-mono dtl:text-[11px] dtl:leading-[normal] dtl:text-muted";
 const caption =
@@ -17,21 +17,21 @@ export default function Details() {
   const [show, setShow] = useState<SelectDetail | null>(null);
   const { details, status, ms } = useDetails(show?.tvmazeId);
 
-  // La ficha solo conoce el contrato del evento, no al emisor.
+  // The details page only knows the event's contract, not the sender.
   useEffect(() => {
     return on("mfe:select", setShow);
   }, []);
 
   return (
     <section className="dtl:grid dtl:h-full dtl:grid-rows-[auto_1fr_auto] dtl:gap-3.5 dtl:font-sans">
-      {/* El CSS compilado viaja dentro del módulo remoto: funciona igual en el shell y en standalone. */}
+      {/* The compiled CSS travels inside the remote module: it works the same in the shell and standalone. */}
       <style>{styles}</style>
       <header className="dtl:flex dtl:min-h-8 dtl:flex-wrap dtl:items-center dtl:justify-between dtl:gap-x-3 dtl:gap-y-1">
-        <h3 className="dtl:m-0 dtl:text-[15px] dtl:font-semibold dtl:tracking-[-.01em] dtl:text-strong">Ficha</h3>
-        <span className={note}>escucha mfe:select</span>
+        <h3 className="dtl:m-0 dtl:text-[15px] dtl:font-semibold dtl:tracking-[-.01em] dtl:text-strong">Details</h3>
+        <span className={note}>listens for mfe:select</span>
       </header>
       {show ? (
-        // La key reinicia la animación de entrada con cada título elegido.
+        // The key restarts the entrance animation with each chosen title.
         <ShowCard key={show.id} show={show} details={details} status={status} />
       ) : (
         <Empty />
@@ -41,15 +41,15 @@ export default function Details() {
       >
         {show && (
           <span>
-            {/* dispatchEvent es síncrono: el evento llega en el mismo instante en que se emite. */}
-            mfe:select de "{show.from}", recibido al instante
+            {/* dispatchEvent is synchronous: the event arrives the very instant it's emitted. */}
+            mfe:select from "{show.from}", received instantly
           </span>
         )}
         {show && status === "ready" && (
-          <span>{ms === null ? "ficha desde la caché" : `TVmaze respondió en ${ms} ms`}</span>
+          <span>{ms === null ? "details from the cache" : `TVmaze responded in ${ms} ms`}</span>
         )}
         <span>
-          datos:{" "}
+          data:{" "}
           <a href={details?.url ?? TVMAZE_SITE} className="dtl:text-text dtl:underline dtl:underline-offset-2">
             TVmaze
           </a>
@@ -65,14 +65,14 @@ interface ShowCardProps {
   status: DetailsStatus;
 }
 
-/** La ficha: arriba lo que trajo el evento (se ve al instante) y debajo lo que se pidió a TVmaze. */
+/** The details card: on top what the event brought (shown instantly) and below what was fetched from TVmaze. */
 function ShowCard({ show, details, status }: ShowCardProps) {
   const background = posterBackground({ hue: show.hue, image: details?.image ?? show.image });
   const loading = status === "loading";
   return (
     <article aria-busy={loading} className="dtl:grid dtl:animate-rise dtl:content-start dtl:gap-4">
       <div className="dtl:relative dtl:isolate dtl:overflow-hidden dtl:rounded-xl dtl:border dtl:border-faint dtl:bg-page/60 dtl:p-3.5">
-        {/* La carátula, agrandada y desenfocada, hace de fondo. */}
+        {/* The poster, enlarged and blurred, serves as the background. */}
         <div
           aria-hidden="true"
           className="dtl:absolute dtl:-inset-6 dtl:-z-10 dtl:scale-110 dtl:opacity-35 dtl:blur-2xl dtl:saturate-150"
@@ -101,41 +101,41 @@ function ShowCard({ show, details, status }: ShowCardProps) {
 
       {show.tvmazeId === undefined ? (
         <p className={`dtl:m-0 dtl:rounded-lg dtl:border dtl:border-dashed dtl:border-faint dtl:p-3 ${note}`}>
-          Es un título del catálogo de respaldo: no tiene ficha en TVmaze.
+          This is a title from the fallback catalog: it has no TVmaze page.
         </p>
       ) : status === "error" ? (
         <p className={`dtl:m-0 dtl:rounded-lg dtl:border dtl:border-dashed dtl:border-faint dtl:p-3 ${note}`}>
-          TVmaze no respondió: solo están los datos que trajo el evento.
+          TVmaze didn't respond: only the data the event brought is here.
         </p>
       ) : (
         <>
           <dl className="dtl:m-0 dtl:grid dtl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.45fr)] dtl:gap-2">
-            <Stat label="nota" loading={loading}>
+            <Stat label="rating" loading={loading}>
               {details?.rating == null ? "—" : `★ ${formatRating(details.rating)}`}
             </Stat>
-            <Stat label="temporadas" loading={loading}>
+            <Stat label="seasons" loading={loading}>
               {details?.seasons ?? "—"}
             </Stat>
-            <Stat label="años" loading={loading}>
+            <Stat label="years" loading={loading}>
               {details ? years(details.premiered, details.ended) || "—" : "—"}
             </Stat>
           </dl>
           {loading ? (
-            <div className="dtl:grid dtl:gap-2" aria-label="Cargando la ficha">
+            <div className="dtl:grid dtl:gap-2" aria-label="Loading details">
               <span className={`${skeleton} dtl:h-3`} />
               <span className={`${skeleton} dtl:h-3`} />
               <span className={`${skeleton} dtl:h-3 dtl:w-3/5`} />
             </div>
           ) : (
             details?.summary && (
-              <p lang="en" className="dtl:m-0 dtl:line-clamp-4 dtl:text-[13px] dtl:leading-relaxed dtl:text-text">
+              <p className="dtl:m-0 dtl:line-clamp-4 dtl:text-[13px] dtl:leading-relaxed dtl:text-text">
                 {details.summary}
               </p>
             )
           )}
           {details && details.cast.length > 0 && (
             <div className="dtl:grid dtl:gap-2">
-              <p className={caption}>Elenco</p>
+              <p className={caption}>Cast</p>
               <ul className="dtl:m-0 dtl:grid dtl:list-none dtl:grid-cols-2 dtl:gap-x-3 dtl:gap-y-2.5 dtl:p-0">
                 {details.cast.map((member) => (
                   <CastItem key={member.person} member={member} />
@@ -196,7 +196,7 @@ function CastItem({ member }: { member: CastMember }) {
   );
 }
 
-/** Antes del primer evento: una ficha vacía que indica qué hacer. */
+/** Before the first event: an empty card that says what to do. */
 function Empty() {
   return (
     <div className="dtl:grid dtl:min-h-80 dtl:place-items-center dtl:rounded-xl dtl:border dtl:border-dashed dtl:border-faint dtl:bg-page/40 dtl:p-6 dtl:text-center">
@@ -216,10 +216,11 @@ function Empty() {
             />
           </svg>
         </span>
-        <b className="dtl:text-[14px] dtl:font-semibold dtl:text-strong">Elige un título del catálogo</b>
+        <b className="dtl:text-[14px] dtl:font-semibold dtl:text-strong">Pick a title from the catalog</b>
         <p className="dtl:m-0 dtl:max-w-60 dtl:text-[12.5px] dtl:leading-relaxed dtl:text-muted">
-          La ficha escucha el evento <code className="dtl:font-mono dtl:text-[11.5px] dtl:text-text">mfe:select</code> y
-          pide a TVmaze la nota, el resumen y el elenco.
+          The details page listens for the{" "}
+          <code className="dtl:font-mono dtl:text-[11.5px] dtl:text-text">mfe:select</code> event and fetches the
+          rating, summary and cast from TVmaze.
         </p>
       </div>
     </div>

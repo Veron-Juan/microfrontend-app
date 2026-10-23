@@ -1,15 +1,15 @@
 /*
- * CSS del remote "details". Todas las utilidades llevan el prefijo dtl: (dtl:grid, dtl:text-muted)
- * para que nunca choquen con las del shell ni con las de otros remotes que comparten la página.
- * No incluye preflight: el reset global es del shell; un remote no debe tocar estilos fuera de
- * su propio árbol. Los valores salen de los tokens compartidos (@mfe/design-tokens).
+ * CSS for the "details" remote. Every utility carries the dtl: prefix (dtl:grid, dtl:text-muted) so
+ * it never clashes with the shell's or with other remotes sharing the page. It doesn't include
+ * preflight: the global reset belongs to the shell; a remote must not touch styles outside its own
+ * tree. The values come from the shared tokens (@mfe/design-tokens).
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme) prefix(dtl);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "@mfe/design-tokens/theme.css";
 
-/* Los keyframes llevan el prefijo a mano: Tailwind no los prefija y podrían chocar con los de otro remote. */
+/* The keyframes are prefixed by hand: Tailwind doesn't prefix them and they could clash with another remote's. */
 @theme {
   --animate-rise: dtl-rise 0.45s cubic-bezier(0.32, 0.72, 0, 1);
   --animate-shimmer: dtl-shimmer 1.2s infinite;

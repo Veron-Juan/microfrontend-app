@@ -1,11 +1,11 @@
-/** Fondo de la carátula con el tono del título, para cuando no hay imagen (es dato, no estilo). */
+/** Poster background in the title's hue, for when there's no image (it's data, not styling). */
 export function posterGradient(hue: number): string {
   return `linear-gradient(140deg,hsl(${hue} 45% 32%),hsl(${hue + 30} 40% 14%))`;
 }
 
 /**
- * Fondo de la carátula: la imagen o el degradado del tono. La URL llega por el bus, así que solo
- * se aceptan https y va entre comillas escapadas para que no pueda inyectar CSS.
+ * Poster background: the image or the hue's gradient. The URL arrives over the bus, so only https
+ * is accepted and it goes inside escaped quotes so it can't inject CSS.
  */
 export function posterBackground(show: { hue: number; image?: string }): string {
   if (!show.image?.startsWith("https://")) return posterGradient(show.hue);
@@ -13,26 +13,26 @@ export function posterBackground(show: { hue: number; image?: string }): string 
 }
 
 const STATUS: Readonly<Record<string, string>> = {
-  Ended: "terminada",
-  Running: "en emisión",
-  "To Be Determined": "sin confirmar",
-  "In Development": "en desarrollo",
+  Ended: "ended",
+  Running: "airing",
+  "To Be Determined": "TBD",
+  "In Development": "in development",
 };
 
-/** El estado de TVmaze en español, o tal cual si es uno nuevo. */
+/** TVmaze's status as a short label, or as is if it's a new one. */
 export const statusLabel = (status: string) => STATUS[status] ?? status;
 
-/** "2008–2019" si terminó, "2015–" si sigue, o "" si no se sabe cuándo empezó. */
+/** "2008–2019" if it ended, "2015–" if it continues, or "" if its start is unknown. */
 export function years(premiered: string | null, ended: string | null): string {
   if (!premiered) return "";
   return `${premiered.slice(0, 4)}–${ended ? ended.slice(0, 4) : ""}`;
 }
 
-/** Duración legible en minutos redondeados: 3600 → "60 min". */
+/** Readable duration in rounded minutes: 3600 → "60 min". */
 export function minutes(seconds: number): string {
   return `${Math.round(seconds / 60)} min`;
 }
 
-/** "9,2": la nota con un decimal, como se escribe en español. */
+/** "9.2": the rating with one decimal. */
 export const formatRating = (rating: number) =>
-  rating.toLocaleString("es", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  rating.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 1 });

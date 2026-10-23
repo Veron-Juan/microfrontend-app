@@ -1,4 +1,4 @@
-// Punto de entrada del "CDN": sirve lo que generó el build, con ETag y caché.
+// Entry point for the "CDN": serves what the build generated, with ETags and caching.
 import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { join } from "node:path";
@@ -9,20 +9,20 @@ async function readMeta(): Promise<BuildMeta> {
   try {
     return JSON.parse(await readFile(join(config.outDir, "build.json"), "utf8")) as BuildMeta;
   } catch {
-    console.warn("guide-ssg: no hay dist/build.json; ¿corriste `npm run build`?");
+    console.warn("guide-ssg: there's no dist/build.json; did you run `npm run build`?");
     return {};
   }
 }
 
 const server = createServer(createStaticHandler(config.outDir, await readMeta()));
 server.listen(config.port, () => {
-  console.info(`guide-ssg (SSG) sirviendo dist/ en http://localhost:${config.port}`);
+  console.info(`guide-ssg (SSG) serving dist/ on http://localhost:${config.port}`);
 });
 
 function shutdown(signal: NodeJS.Signals) {
-  console.info(`guide-ssg: ${signal} recibido, cerrando…`);
+  console.info(`guide-ssg: ${signal} received, shutting down…`);
   server.close(() => process.exit(0));
-  // Si alguna conexión no se cierra a tiempo, salimos igual.
+  // If a connection doesn't close in time, exit anyway.
   setTimeout(() => process.exit(1), 5000).unref();
 }
 

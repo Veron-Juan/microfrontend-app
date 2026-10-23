@@ -1,5 +1,5 @@
-// Texto apoyado sobre la cara superior de una pieza: se inclina con ella y queda alineado con su eje x.
-// El tamaño va en unidades del mundo, así que crece y se encoge con la figura.
+// Text lying on a piece's top face: it tilts with it and stays aligned with its x axis.
+// The size is in world units, so it grows and shrinks with the figure.
 import * as k from "./kit/iso-kit.ts";
 
 export interface Line {
@@ -7,13 +7,13 @@ export interface Line {
   className: string;
   size: number;
   part?: string;
-  /** Atributos extra para el <text>, ya escritos (data-render="SSG"). */
+  /** Extra attributes for the <text>, already written out (data-render="SSG"). */
   attrs?: string;
 }
 
 const tenth = (value: number) => Math.round(value * 10) / 10;
 
-/** Un bloque de líneas centrado en un punto de la cara superior a la altura z. */
+/** A block of lines centered on a point of the top face at height z. */
 export function faceLabel(
   [x, y]: k.Plane,
   z: number,

@@ -2,7 +2,7 @@ import type { RenderMode } from "@mfe/contracts";
 import { serverTimingTotal } from "../lib/server-timing.ts";
 import type { State } from "../state/store.ts";
 
-/** Cuánto tarda cada fase de un carril, en milisegundos medidos en esta página. */
+/** How long each phase of a lane takes, in milliseconds measured on this page. */
 export interface LaneModel {
   server: number;
   transfer: number;
@@ -13,8 +13,8 @@ export interface LaneModel {
 export type RenderModel = Record<RenderMode, LaneModel>;
 
 /**
- * Traduce las cargas reales de la página a las tres fases de cada tipo de render:
- * SSG no trabaja en el servidor, SSR sí (lo dice Server-Timing), y CSR además pinta en el navegador.
+ * Translates the page's real loads into the three phases of each kind of rendering:
+ * SSG does no work on the server, SSR does (Server-Timing says so), and CSR also paints in the browser.
  */
 export function renderModel(loads: State["loads"]): RenderModel {
   const { news, guide, catalog } = loads;
@@ -33,5 +33,5 @@ export function renderModel(loads: State["loads"]): RenderModel {
 
 export const laneTotal = (lane: LaneModel) => lane.server + lane.transfer + lane.browser;
 
-/** Curva ease-in-out cúbica, de 0 a 1. */
+/** Cubic ease-in-out curve, from 0 to 1. */
 export const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);

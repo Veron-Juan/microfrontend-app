@@ -1,11 +1,11 @@
-// Contratos entre micro-frontends.
-// Es lo único que los equipos comparten en tiempo de compilación: tipos y nombres de eventos.
-// No hay código de un remote dentro de otro. Cambiar algo aquí es cambiar una API pública,
-// así que se versiona como tal (un campo nuevo opcional es compatible, renombrar uno no).
+// Contracts between micro-frontends.
+// It's the only thing the teams share at compile time: types and event names.
+// No remote's code lives inside another. Changing something here is changing a public API,
+// so it's versioned as one (a new optional field is compatible, renaming one isn't).
 
 export type RenderMode = "CSR" | "SSR" | "SSG";
 
-/** La ficha que cada remote de Module Federation exporta junto a su componente. */
+/** The metadata each Module Federation remote exports alongside its component. */
 export interface RemoteMeta {
   name: string;
   version: string;
@@ -13,33 +13,33 @@ export interface RemoteMeta {
   render: RenderMode;
 }
 
-/** Un título del catálogo. */
+/** A catalog title. */
 export interface Show {
   id: string;
   title: string;
   kind: string;
-  /** Duración en segundos. */
+  /** Duration in seconds. */
   length: number;
-  /** Tono de color de la carátula, de 0 a 360. Se usa cuando no hay imagen. */
+  /** The poster's hue, from 0 to 360. Used when there's no image. */
   hue: number;
-  /** URL https de la carátula. Opcional: se agregó en la 1.1 sin romper a quien no la usa. */
+  /** https URL of the poster. Optional: added in 1.1 without breaking anyone who doesn't use it. */
   image?: string;
-  /** Id del programa en TVmaze, si viene de ahí. Con él, la ficha pide el resto de los datos. */
+  /** The show's TVmaze id, if it comes from there. With it, the details page fetches the rest of the data. */
   tvmazeId?: number;
 }
 
 /**
- * Payload de "mfe:select": el catálogo lo emite al elegir un título y la ficha lo escucha.
- * En la 1.x se llamaba "mfe:play". Renombrar un evento rompe a quien lo escucha, por eso es la 2.0.
+ * Payload of "mfe:select": the catalog emits it when a title is picked and the details page listens.
+ * In 1.x it was called "mfe:play". Renaming an event breaks whoever listens to it, which is why this is 2.0.
  */
 export interface SelectDetail extends Show {
-  /** Nombre del remote que emitió el evento. */
+  /** Name of the remote that emitted the event. */
   from: string;
-  /** Date.now() al emitirlo. */
+  /** Date.now() when it was emitted. */
   at: number;
 }
 
-/** Todos los eventos del bus y su payload. */
+/** Every event on the bus and its payload. */
 export interface BusEvents {
   "mfe:select": SelectDetail;
 }
@@ -50,12 +50,12 @@ export const BUS_EVENTS: Record<BusEventName, string> = {
   "mfe:select": "{ id, title, kind, length, hue, image?, tvmazeId?, from, at }",
 };
 
-/** Publica un evento tipado en el bus del navegador (window). */
+/** Publishes a typed event on the browser's bus (window). */
 export function emit<K extends BusEventName>(name: K, detail: BusEvents[K]): void {
   window.dispatchEvent(new CustomEvent(name, { detail }));
 }
 
-/** Escucha un evento tipado. Devuelve la función para dejar de escuchar. */
+/** Listens for a typed event. Returns the function to stop listening. */
 export function on<K extends BusEventName>(name: K, handler: (detail: BusEvents[K]) => void): () => void {
   const listener = (event: Event) => handler((event as CustomEvent<BusEvents[K]>).detail);
   window.addEventListener(name, listener);

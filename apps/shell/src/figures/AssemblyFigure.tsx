@@ -11,17 +11,17 @@ import { useAnimationLoop } from "./use-animation-loop.ts";
 
 const { P, HOVER, TILES } = FIGURES.assembly.data;
 
-/** Tiempos de la secuencia, en segundos. */
-const SHELL_FIRST = 1.1; // la página vacía, solo con el shell
-const REQUEST = 0.6; // las piezas aparecen arriba: el shell las pidió
-const SPREAD = 2.4; // la pieza más lenta llega en este tiempo después de pedirla
+/** Sequence timings, in seconds. */
+const SHELL_FIRST = 1.1; // the empty page, with only the shell
+const REQUEST = 0.6; // the pieces appear up top: the shell requested them
+const SPREAD = 2.4; // the slowest piece arrives this long after being requested
 const DROP = 0.55;
 const HOLD = 3.2;
 const FADE = 0.5;
 
 interface Run {
   t: number;
-  /** Cuándo baja cada pieza, según lo que tardó su remote en esta página. */
+  /** When each piece drops, based on how long its remote took on this page. */
   land: Record<string, number>;
 }
 
@@ -38,19 +38,19 @@ function startRun(): Run {
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
 /**
- * El dibujo muestra siempre el puerto local de cada app: los orígenes de producción son largos, no
- * entran en las piezas y localhost:500x deja ver mejor que son cinco servidores distintos.
+ * The drawing always shows each app's local port: production origins are long, don't fit on the
+ * pieces, and localhost:500x makes it clearer that these are five different servers.
  */
 const LOCAL_PORT: Record<AppId, number> = { shell: 5000, catalog: 5001, details: 5002, news: 5003, guide: 5004 };
 const localHost = (id: AppId) => `localhost:${LOCAL_PORT[id]}`;
 
-/** Lo que se abre al hacer clic en una pieza: el manifiesto si es Module Federation, si no su página. */
+/** What opens when a piece is clicked: the manifest for Module Federation, otherwise its page. */
 function linkOf(id: AppId) {
   const app = appById(id);
   return app.kind === "federated" ? app.entry : app.url;
 }
 
-// Fig 1: una vista explotada de la demo. El shell pone la página y cada remote baja a su hueco al llegar.
+// Fig 1: an exploded view of the demo. The shell lays out the page and each remote drops into its slot on arrival.
 export function AssemblyFigure() {
   const stage = useRef<HTMLDivElement>(null);
   const readout = useRef<HTMLSpanElement>(null);
@@ -64,17 +64,17 @@ export function AssemblyFigure() {
     setPaused(false);
   };
 
-  // La primera vuelta se arma con los tiempos medidos, así que empieza de nuevo cuando terminan las cargas.
+  // The first loop is built from the measured timings, so it starts over once the loads finish.
   useEffect(() => {
     if (settled) run.current = startRun();
   }, [settled]);
 
   useEffect(() => {
     const svg = stage.current;
-    if (svg) say(part(svg, "origin-shell"), `${localHost("shell")} · layout y navegación`);
+    if (svg) say(part(svg, "origin-shell"), `${localHost("shell")} · layout and navigation`);
   }, []);
 
-  // Cada pieza, y la etiqueta del shell, es un enlace a lo que sirve su servidor en este entorno.
+  // Each piece, and the shell's label, is a link to what its server serves in this environment.
   useEffect(() => {
     const svg = stage.current;
     if (!svg) return undefined;
@@ -84,13 +84,13 @@ export function AssemblyFigure() {
       const id = group.dataset.slot as AppId;
       group.setAttribute("role", "link");
       group.setAttribute("tabindex", "0");
-      group.setAttribute("aria-label", `${appById(id).title}: abrir ${linkOf(id)} en una pestaña nueva`);
+      group.setAttribute("aria-label", `${appById(id).title}: open ${linkOf(id)} in a new tab`);
     }
     const click = (event: MouseEvent) => {
       const id = slotOf(event);
       if (!id) return;
       open(id);
-      // Al volver de la otra pestaña la pieza no debe seguir enfocada ni resaltada.
+      // When coming back from the other tab the piece shouldn't stay focused or highlighted.
       (event.target as Element).closest<SVGElement>("[data-slot]")?.blur();
       setFocus(null);
     };
@@ -106,8 +106,8 @@ export function AssemblyFigure() {
     };
   }, []);
 
-  // Pasar el cursor por una pieza, o llegar a ella con Tab, resalta su remote en toda la página.
-  // Se escucha pointermove y no pointerover para que vuelva a resaltarse al regresar de otra pestaña.
+  // Hovering over a piece, or reaching it with Tab, highlights its remote across the whole page.
+  // It listens to pointermove rather than pointerover so it highlights again after returning from another tab.
   useEffect(() => {
     const svg = stage.current;
     if (!svg) return undefined;
@@ -135,11 +135,11 @@ export function AssemblyFigure() {
     const { loads, focus } = store.get();
     const still = prefersReducedMotion();
     const r = run.current;
-    // En pausa el tiempo no avanza, pero se sigue dibujando para que el resaltado y las caídas se vean.
+    // While paused time doesn't advance, but it keeps drawing so highlights and outages still show.
     if (!paused) r.t += dt;
     const t = still ? Infinity : r.t;
     const lastLand = Math.max(...Object.values(r.land));
-    // Al final de la vuelta las piezas se desvanecen y la página vuelve a quedar vacía.
+    // At the end of the loop the pieces fade out and the page is empty again.
     const fade = still ? 1 : 1 - clamp((t - lastLand - DROP - HOLD) / FADE);
     const shown = still ? 1 : clamp((t - SHELL_FIRST) / REQUEST);
 
@@ -149,7 +149,7 @@ export function AssemblyFigure() {
       const id = tile.id as AppId;
       const status = loads[id]?.status ?? "idle";
       const failed = status === "error";
-      // Una pieza solo baja si su remote cargó de verdad: si está cargando o caído se queda arriba.
+      // A piece only drops if its remote really loaded: if it's loading or down it stays up top.
       const drop = status === "ready" ? easeInOutCubic(clamp((t - (r.land[tile.id] ?? 0)) / DROP)) : 0;
       const height = HOVER * (1 - drop);
       const home = drop === 1;
@@ -166,7 +166,7 @@ export function AssemblyFigure() {
       group.querySelector(".iso-solid")?.toggleAttribute("data-lit", focus === id);
       part(svg, `ring-${tile.id}`).dataset.on = String(home);
       const app = remoteById(tile.id as RemoteId);
-      say(part(svg, `meta-${tile.id}`), `${failed ? "sin respuesta" : app.render} · ${localHost(app.id)}`);
+      say(part(svg, `meta-${tile.id}`), `${failed ? "no response" : app.render} · ${localHost(app.id)}`);
 
       const lines = part(svg, `guides-${tile.id}`);
       lines.setAttribute("d", guides(P, tile.plan, height));
@@ -185,28 +185,28 @@ export function AssemblyFigure() {
   return (
     <Plate
       fig="Fig 1"
-      title="Una página, cinco servidores"
-      hint="Clic en una pieza para abrirla"
+      title="One page, five servers"
+      hint="Click a piece to open it"
       readoutRef={readout}
       stageRef={stage}
       svg={FIGURES.assembly.svg}
-      label="Vista explotada de la demo: el shell pone la página y cada remote baja a su hueco al llegar. Cada pieza abre su servidor en una pestaña nueva."
+      label="Exploded view of the demo: the shell lays out the page and each remote drops into its slot on arrival. Each piece opens its server in a new tab."
       controls={
         <>
           <Button variant="mini" onClick={() => setPaused(!paused)}>
-            {paused ? "Reanudar" : "Detener"}
+            {paused ? "Resume" : "Pause"}
           </Button>
           <Button variant="mini" onClick={restart}>
-            Repetir
+            Replay
           </Button>
         </>
       }
       keys={[
-        { render: "SSR", label: "Novedades: HTML hecho en cada request (SSR)" },
-        { render: "CSR", label: "Catálogo y Ficha: se arman en el navegador (CSR)" },
-        { render: "SSG", label: "Guía: HTML generado en el build (SSG)" },
+        { render: "SSR", label: "News: HTML made on every request (SSR)" },
+        { render: "CSR", label: "Catalog and Details: built in the browser (CSR)" },
+        { render: "SSG", label: "Guide: HTML generated at build time (SSG)" },
       ]}
-      caption="Abajo, la página que pone el shell: el marco, la navegación y un hueco punteado por remote. Arriba, las cuatro piezas que pide, cada una a su propio servidor. Cada pieza baja a su lugar cuando llega, en el orden y con los tiempos medidos en esta página. Si tiras un servidor desde el inspector, su pieza se queda arriba, su hueco muestra el aviso y el resto de la página se arma igual."
+      caption="At the bottom, the page the shell lays out: the frame, the navigation and a dotted slot per remote. Above it, the four pieces it requests, each from its own server. Each piece drops into place when it arrives, in the order and with the timings measured on this page. If you kill a server from the inspector, its piece stays up top, its slot shows the notice and the rest of the page is built anyway."
     />
   );
 }
@@ -216,19 +216,20 @@ function readoutText(t: number, landed: number, latest: AppId | undefined) {
   if (focus && focus !== "shell") {
     const app = appById(focus);
     const load = loads[focus];
-    const state = load?.status === "ready" ? `${load.ms} ms` : load?.status === "error" ? "caído" : "cargando";
+    const state = load?.status === "ready" ? `${load.ms} ms` : load?.status === "error" ? "down" : "loading";
     return `${app.title} · ${app.render} · ${state}`;
   }
   const failed = TILES.filter((tile) => loads[tile.id as AppId]?.status === "error").length;
-  if (t < SHELL_FIRST) return "1 · el shell pone la página y sus huecos";
-  if (landed === 0) return `2 · pide ${TILES.length} remotes, cada uno a su servidor`;
-  if (landed + failed < TILES.length && latest) return `3 · llegó ${appById(latest).title} · ${landed}/${TILES.length}`;
+  if (t < SHELL_FIRST) return "1 · the shell lays out the page and its slots";
+  if (landed === 0) return `2 · requests ${TILES.length} remotes, each from its server`;
+  if (landed + failed < TILES.length && latest)
+    return `3 · ${appById(latest).title} arrived · ${landed}/${TILES.length}`;
   return failed
-    ? `${landed}/${TILES.length} en su lugar · ${failed} caído, el resto funciona`
-    : `${landed}/${TILES.length} remotes en su lugar`;
+    ? `${landed}/${TILES.length} in place · ${failed} down, the rest works`
+    : `${landed}/${TILES.length} remotes in place`;
 }
 
-/** Las aristas verticales que unen una pieza a la altura z con su hueco, como en un plano de ensamble. */
+/** The vertical edges joining a piece at height z to its slot, like in an assembly drawing. */
 function guides(projection: Projection, plan: Plan, z: number) {
   if (z < 0.5) return "";
   return corners(plan, 1)

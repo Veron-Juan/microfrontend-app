@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-// Registro de dependencias compartidas que expone el runtime de Module Federation.
+// Shared dependency registry exposed by the Module Federation runtime.
 interface FederationShareInfo {
   from?: string;
   loaded?: boolean;

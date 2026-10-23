@@ -13,7 +13,7 @@ const remote = (
   url,
   module,
   version: "1.0.0",
-  metadata: { name: "x", team: "Equipo", render },
+  metadata: { name: "x", team: "Team", render },
 });
 
 const discovery: Discovery = {
@@ -26,7 +26,7 @@ const discovery: Discovery = {
   },
 };
 
-test("cruza el discovery con los lugares del layout", () => {
+test("matches the discovery against the layout's slots", () => {
   const { apps } = buildRegistry(discovery, "https://shell.example.com/");
   assert.deepEqual(
     apps.map((app) => [app.id, app.kind]),
@@ -40,11 +40,11 @@ test("cruza el discovery con los lugares del layout", () => {
   );
   const catalog = apps.find((app) => app.id === "catalog");
   assert.equal(catalog?.kind === "federated" && catalog.expose, "Catalog");
-  assert.equal(apps.find((app) => app.id === "guide")?.composition, "Fragmento HTML estático");
+  assert.equal(apps.find((app) => app.id === "guide")?.composition, "Static HTML fragment");
 });
 
-test("falla si al discovery le falta un remote que el layout necesita", () => {
+test("fails if the discovery is missing a remote the layout needs", () => {
   const microFrontends = { ...discovery.microFrontends };
   delete microFrontends.guide;
-  assert.throws(() => buildRegistry({ ...discovery, microFrontends }, "https://shell.example.com/"), /faltan guide/);
+  assert.throws(() => buildRegistry({ ...discovery, microFrontends }, "https://shell.example.com/"), /missing guide/);
 });

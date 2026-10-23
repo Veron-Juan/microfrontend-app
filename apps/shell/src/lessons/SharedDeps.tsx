@@ -10,7 +10,7 @@ interface SharedPackage {
   loaded: boolean;
 }
 
-/** Lee el registro de dependencias compartidas del runtime de Module Federation (solo React). */
+/** Reads the shared dependency registry from the Module Federation runtime (React only). */
 function readSharedReact(): SharedPackage[] {
   const scopes = globalThis.__FEDERATION__?.__SHARE__ ?? {};
   const unique = new Map<string, SharedPackage>();
@@ -33,26 +33,26 @@ function readSharedReact(): SharedPackage[] {
 }
 
 export function SharedDeps() {
-  // El registro cambia cuando carga un remote federado: suscribirse a su estado hace que se vuelva a leer.
+  // The registry changes when a federated remote loads: subscribing to its status makes it get read again.
   useStore((s) => `${s.loads.catalog?.status}:${s.loads.details?.status}`);
   const shared = readSharedReact();
 
   return (
-    <Lesson id="dependencias" title="Dependencias compartidas" kicker="Un solo React para todos, negociado en runtime.">
+    <Lesson id="shared-deps" title="Shared dependencies" kicker="A single React for everyone, negotiated at runtime.">
       <Prose>
         <p>
-          Si cada remote trajera su propio React, el usuario descargaría la librería tres veces y los hooks fallarían al
-          mezclarse. Por eso el shell y los remotes declaran React como <b>singleton compartido</b>: el runtime de
-          Module Federation elige una versión compatible y todos usan esa misma instancia.
+          If each remote brought its own React, the user would download the library three times and hooks would break
+          when mixed. That's why the shell and the remotes declare React as a <b>shared singleton</b>: the Module
+          Federation runtime picks a compatible version and everyone uses that same instance.
         </p>
       </Prose>
       <Table>
         <thead>
           <tr>
-            <th>Paquete</th>
-            <th>Versión</th>
-            <th>La ofrece</th>
-            <th>Cargada</th>
+            <th>Package</th>
+            <th>Version</th>
+            <th>Provided by</th>
+            <th>Loaded</th>
           </tr>
         </thead>
         <tbody>
@@ -62,31 +62,31 @@ export function SharedDeps() {
                 <td className="font-mono text-[0.86em]">{share.pkg}</td>
                 <td className="font-mono text-[0.86em]">{share.version}</td>
                 <td>{share.from}</td>
-                <td className="font-mono text-[0.86em]">{share.loaded ? "sí, en uso" : "registrada"}</td>
+                <td className="font-mono text-[0.86em]">{share.loaded ? "yes, in use" : "registered"}</td>
               </tr>
             ))
           ) : (
             <tr>
               <td colSpan={4} className="text-muted">
-                Leyendo el registro de Module Federation…
+                Reading the Module Federation registry…
               </td>
             </tr>
           )}
         </tbody>
       </Table>
       <Note>
-        Leído en vivo de <code>__FEDERATION__.__SHARE__</code>. Catálogo y ficha también declaran React, pero el runtime
-        les entrega la copia que ya cargó el shell: React se descarga una sola vez.
+        Read live from <code>__FEDERATION__.__SHARE__</code>. Catalog and details also declare React, but the runtime
+        hands them the copy the shell already loaded: React is downloaded only once.
       </Note>
       <Cards columns="three">
         <Card title="singleton">
-          Una sola instancia en toda la página. Imprescindible para React, routers y librerías con estado global.
+          A single instance across the whole page. Essential for React, routers and libraries with global state.
         </Card>
         <Card title="requiredVersion">
-          Cada app dice qué rango acepta (^18.3.1). Si no hay una versión compatible, el runtime avisa.
+          Each app states which range it accepts (^18.3.1). If there's no compatible version, the runtime warns.
         </Card>
-        <Card title="El costo">
-          Compartir acopla: subir React de versión exige coordinar a todos los equipos. Comparte lo mínimo.
+        <Card title="The cost">
+          Sharing couples: upgrading React requires coordinating every team. Share as little as possible.
         </Card>
       </Cards>
     </Lesson>

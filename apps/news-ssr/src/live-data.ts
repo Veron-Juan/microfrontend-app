@@ -1,15 +1,15 @@
-// Los datos en vivo del fragmento: partidos del día (TheSportsDB) y novedades de streaming
-// (TVmaze). Separado del render para poder probarlo sin servidor y sin red.
+// The fragment's live data: today's matches (TheSportsDB) and streaming news (TVmaze).
+// Kept apart from the render so it can be tested without a server or a network.
 import { cached, type Cached } from "./cache.ts";
 import { fetchMatches, type Match } from "./sportsdb.ts";
 import { fetchPremieres, type Premiere } from "./tvmaze.ts";
 
-/** Lo que llegó de una API para este render. */
+/** What arrived from an API for this render. */
 export interface Feed<T> {
   items: T[];
-  /** false si la API falló y no había nada guardado: el fragmento muestra un aviso en su lugar. */
+  /** false if the API failed and nothing was stored: the fragment shows a notice in its place. */
   ok: boolean;
-  /** Segundos desde que se pidieron estos datos a la API (0 si se acaban de pedir). */
+  /** Seconds since this data was fetched from the API (0 if it was just fetched). */
   age: number;
 }
 
@@ -18,14 +18,14 @@ export interface LiveData {
   premieres: Feed<Premiere>;
 }
 
-/** Cuántos partidos y novedades muestra el fragmento. */
+/** How many matches and news items the fragment shows. */
 export const MATCH_COUNT = 3;
 export const PREMIERE_COUNT = 3;
 
-/** Cuánto se reutiliza una respuesta antes de volver a pedirla. */
+/** How long a response is reused before fetching it again. */
 export const DATA_TTL_MS = 60_000;
 
-/** Una consulta ya envuelta en la caché. */
+/** A query already wrapped in the cache. */
 export type Source<T> = () => Promise<Cached<T[]>>;
 
 export interface Sources {
@@ -33,10 +33,10 @@ export interface Sources {
   premieres: Source<Premiere>;
 }
 
-/** La fecha UTC de hoy, como la esperan las dos APIs. */
+/** Today's UTC date, as both APIs expect it. */
 const today = () => new Date().toISOString().slice(0, 10);
 
-/** Las fuentes reales, cada una con su caché. */
+/** The real sources, each with its cache. */
 export function liveSources({ sportsDbKey }: { sportsDbKey?: string } = {}): Sources {
   return {
     matches: cached(async () => {
@@ -58,12 +58,12 @@ async function toFeed<T>(source: Source<T>, now: number, onError: (error: unknow
 }
 
 /**
- * Pide las dos fuentes en paralelo. Si una falla, el fragmento sale igual con la otra: una API
- * caída degrada una sección, no tumba el render.
+ * Fetches both sources in parallel. If one fails, the fragment still goes out with the other: an API
+ * that's down degrades one section, it doesn't take down the render.
  */
 export function createLiveData(
   sources: Sources,
-  onError: (error: unknown) => void = (error) => console.warn("news-ssr: una API no respondió", error),
+  onError: (error: unknown) => void = (error) => console.warn("news-ssr: an API didn't respond", error),
 ) {
   return async (now: number): Promise<LiveData> => {
     const [matches, premieres] = await Promise.all([

@@ -4,13 +4,13 @@ import { Lesson, Note, Prose } from "../ui/Lesson.tsx";
 
 export function Failures() {
   return (
-    <Lesson id="fallos" title="Fallos aislados" kicker="Un remote caído no debería tumbar la página.">
+    <Lesson id="failures" title="Isolated failures" kicker="A remote going down shouldn't take the page with it.">
       <Prose>
         <p>
-          Tira un servidor. El shell apunta ese remote a un origen que no existe, la carga falla y su espacio muestra un
-          aviso con un botón para reintentar. El resto sigue funcionando porque cada pieza maneja sus propios errores:
-          si falla la descarga (del módulo o del fragmento), el shell atrapa el rechazo de esa promesa; si un remote de
-          Module Federation falla al renderizar, lo atrapa un <em>error boundary</em>.
+          Kill a server. The shell points that remote at an origin that doesn't exist, the load fails and its space
+          shows a notice with a retry button. The rest keeps working because each piece handles its own errors: if the
+          download fails (of the module or the fragment), the shell catches that promise's rejection; if a Module
+          Federation remote fails while rendering, an <em>error boundary</em> catches it.
         </p>
       </Prose>
       <div className="mt-[22px] mb-2.5 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5">
@@ -18,16 +18,16 @@ export function Failures() {
           <Breaker key={app.id} app={app} />
         ))}
       </div>
-      <Note>Mira la demo y la Fig 1 mientras lo haces: su pieza se queda arriba y las demás siguen en su lugar.</Note>
+      <Note>Watch the demo and Fig 1 while you do it: its piece stays up top and the others stay in place.</Note>
     </Lesson>
   );
 }
 
-/** Un interruptor por remote, como los de un tablero eléctrico. */
+/** One switch per remote, like the breakers in an electrical panel. */
 function Breaker({ app }: { app: RemoteApp }) {
   const broken = useStore((s) => !!s.broken[app.id]);
   const status = useStore((s) => s.loads[app.id]?.status ?? "idle");
-  const label = broken ? "caído · clic para levantar" : status === "ready" ? "en línea · clic para tirar" : "cargando…";
+  const label = broken ? "down · click to restore" : status === "ready" ? "online · click to kill" : "loading…";
   return (
     <button
       type="button"

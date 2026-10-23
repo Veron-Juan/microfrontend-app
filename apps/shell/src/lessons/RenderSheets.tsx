@@ -5,36 +5,36 @@ import { apps, hostOf, type AppId } from "../mfe/registry.ts";
 import { Chip } from "../ui/Chip.tsx";
 
 /*
- * Las cinco apps de la página, cada una como una "hoja" que cuenta con una animación cómo se
- * renderiza. Las ilustraciones se miden en cqw (ancho del contenedor), así que escalan con la
- * tarjeta sin cambiar de forma. Las animaciones están en styles.css (las que empiezan con sh-).
+ * The page's five apps, each one as a "sheet" whose animation shows how it renders. The
+ * illustrations are sized in cqw (container width), so they scale with the card without changing
+ * shape. The animations live in styles.css (the ones starting with sh-).
  */
 
 interface SheetInfo {
-  /** Qué hace, en pocas palabras. */
+  /** What it does, in a few words. */
   text: string;
   Art: () => ReactNode;
 }
 
 const SHEETS: Record<AppId, SheetInfo> = {
   shell: {
-    text: "El host. Arma el layout y monta a los otros cuatro en tu navegador, cada uno en su lugar.",
+    text: "The host. It builds the layout and mounts the other four in your browser, each in its place.",
     Art: ShellArt,
   },
   news: {
-    text: "El servidor imprime el HTML en cada visita: la hora cambia cada vez; los datos, cuando vence su caché de 60 s.",
+    text: "The server prints the HTML on every visit: the time changes every time; the data, when its 60 s cache expires.",
     Art: NewsArt,
   },
   catalog: {
-    text: "Llegan archivos JavaScript y React arma la grilla en tu pantalla.",
+    text: "JavaScript files arrive and React builds the grid on your screen.",
     Art: CatalogArt,
   },
   details: {
-    text: "Escucha el evento del catálogo y pide los datos a TVmaze desde tu navegador.",
+    text: "It listens for the catalog's event and fetches the data from TVmaze in your browser.",
     Art: DetailsArt,
   },
   guide: {
-    text: "Se imprimió una vez, en el build. El CDN le entrega a todos la misma copia.",
+    text: "Printed once, at build time. The CDN hands everyone the same copy.",
     Art: GuideArt,
   },
 };
@@ -43,7 +43,7 @@ export function RenderSheets() {
   return (
     <div>
       <p className="mb-3 font-mono text-[11px] tracking-[.12em] text-muted uppercase">
-        Las cinco apps, y cómo pinta cada una
+        The five apps, and how each one paints
       </p>
       <ul className="grid grid-cols-5 gap-3 max-[1180px]:grid-cols-3 max-[700px]:grid-cols-2 max-[440px]:grid-cols-1">
         {apps().map((app) => {
@@ -80,9 +80,9 @@ export function RenderSheets() {
   );
 }
 
-// ── Piezas comunes ───────────────────────────────────────────────────────────────
+// ── Shared pieces ────────────────────────────────────────────────────────────────
 
-/** Una hoja de papel: la superficie donde se "imprime" cada ilustración. */
+/** A sheet of paper: the surface each illustration is "printed" on. */
 function Sheet({ className, style, children }: { className: string; style?: CSSProperties; children?: ReactNode }) {
   return (
     <div
@@ -97,14 +97,14 @@ function Sheet({ className, style, children }: { className: string; style?: CSSP
   );
 }
 
-/** Una línea de texto dibujada. */
+/** A drawn line of text. */
 function Bar({ className }: { className: string }) {
   return <i className={cx("block h-[2.2cqw] rounded-full", className)} />;
 }
 
 const delay = (seconds: number): CSSProperties => ({ animationDelay: `${seconds}s` });
 
-// ── Shell: compone ───────────────────────────────────────────────────────────────
+// ── Shell: composes ──────────────────────────────────────────────────────────────
 
 function ShellArt() {
   return (
@@ -138,9 +138,9 @@ function MountSlot({ render, order, className }: { render: RenderMode; order: nu
   );
 }
 
-// ── SSR: imprime en cada request ─────────────────────────────────────────────────
+// ── SSR: prints on every request ─────────────────────────────────────────────────
 
-/** Las horas que muestra la hoja: una distinta por cada request. */
+/** The times the sheet shows: a different one per request. */
 const TIMES = ["12:08:19", "12:08:22", "12:08:25", "12:08:28"];
 
 function NewsArt() {
@@ -154,7 +154,7 @@ function NewsArt() {
         <i className="size-[2cqw] rounded-full bg-ssr/35" />
         <span className="ml-auto font-mono text-[2.8cqw] tracking-[.1em] text-white/55 uppercase">server</span>
       </div>
-      {/* La hoja sale por debajo del servidor: el contenedor recorta lo que todavía no salió. */}
+      {/* The sheet comes out from under the server: the container clips what hasn't come out yet. */}
       <div className="absolute inset-x-[18cqw] top-[17cqw] bottom-0 overflow-hidden">
         <Sheet className="inset-x-0 top-0 h-[62cqw] animate-sh-print p-[4cqw]">
           <div className="mb-[3cqw] flex items-center justify-between">
@@ -184,9 +184,9 @@ function NewsArt() {
   );
 }
 
-// ── CSR: se arma en el navegador ─────────────────────────────────────────────────
+// ── CSR: built in the browser ────────────────────────────────────────────────────
 
-// React no está: el catálogo usa la copia que ya cargó el shell (ver "Dependencias compartidas").
+// React isn't here: the catalog uses the copy the shell already loaded (see "Shared dependencies").
 const CHUNKS = ["remoteEntry.js", "catalog.js", "a3f.js"];
 const TILES = [
   "from-csr/70 to-csr/25",
@@ -231,7 +231,7 @@ function CatalogArt() {
           ))}
         </div>
       </Sheet>
-      {/* El cursor elige el segundo título. */}
+      {/* The cursor picks the second title. */}
       <svg
         viewBox="0 0 16 16"
         className="absolute top-[31cqw] left-[38cqw] z-20 size-[7cqw] animate-sh-cursor opacity-0 drop-shadow-[0_1px_1px_rgb(0_0_0/.3)]"
@@ -246,7 +246,7 @@ function CatalogArt() {
   );
 }
 
-// ── La ficha: escucha un evento y pide los datos ─────────────────────────────────
+// ── Details: listens for an event and fetches the data ───────────────────────────
 
 function DetailsArt() {
   return (
@@ -263,14 +263,14 @@ function DetailsArt() {
         <i className="size-[1.6cqw] rounded-full bg-csr" />
         TVmaze
       </span>
-      {/* El pedido a la API y su respuesta. */}
+      {/* The API request and its response. */}
       <span
         className="absolute top-[17cqw] left-[72cqw] z-20 size-[2.4cqw] animate-sh-roundtrip rounded-full bg-csr opacity-0"
         style={{ "--tx": "12cqw", "--ty": "-11cqw" } as CSSProperties}
       />
       <Sheet className="top-[16cqw] right-[6cqw] bottom-[-4cqw] left-[30cqw] p-[3.5cqw]">
         <div className="grid *:col-start-1 *:row-start-1">
-          {/* Mientras llegan los datos: el esqueleto. */}
+          {/* While the data arrives: the skeleton. */}
           <div className="grid animate-sh-skeleton grid-cols-[14cqw_1fr] gap-[2.5cqw] opacity-0">
             <span className="aspect-[2/3] rounded-[1.2cqw] bg-faint" />
             <span className="grid content-start gap-[2cqw] pt-[1cqw]">
@@ -279,7 +279,7 @@ function DetailsArt() {
               <Bar className="w-1/2 bg-faint" />
             </span>
           </div>
-          {/* Con los datos. */}
+          {/* With the data. */}
           <div className="grid animate-sh-filled grid-cols-[14cqw_1fr] gap-[2.5cqw]">
             <span className="aspect-[2/3] rounded-[1.2cqw] bg-linear-160 from-csr/80 to-csr/30" />
             <span className="grid content-start gap-[1.8cqw] pt-[1cqw]">
@@ -299,9 +299,9 @@ function DetailsArt() {
   );
 }
 
-// ── SSG: impreso una vez, repartido igual ────────────────────────────────────────
+// ── SSG: printed once, handed out the same ───────────────────────────────────────
 
-/** El mapa de calor de la hoja: datos planos, siempre los mismos. */
+/** The sheet's heat map: flat data, always the same. */
 const HEAT = [2, 1, 3, 1, 2, 4, 1, 3, 2, 4, 1, 2, 3, 2, 1, 3, 4, 4, 2, 1, 2, 3, 1, 3, 4, 3, 2, 4, 1, 2];
 const LEVELS = ["bg-ssg/12", "bg-ssg/28", "bg-ssg/48", "bg-ssg/72", "bg-ssg"];
 const SCREENS = [

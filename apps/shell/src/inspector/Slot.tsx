@@ -4,9 +4,9 @@ import { appById, apps, hostOf, type AppId } from "../mfe/registry.ts";
 import { reload, setBroken, setFocus, useStore } from "../state/store.ts";
 
 /**
- * Dónde va la ficha del inspector: montada sobre el borde de arriba (a la izquierda o a la
- * derecha), o debajo de la pieza (la barra del shell). Sobre el borde no empuja el contenido, así
- * que encender el inspector no mueve nada de lugar.
+ * Where the inspector tag goes: sitting on the top border (on the left or on the right), or below
+ * the piece (the shell's bar). On the border it doesn't push the content, so turning on the
+ * inspector doesn't move anything.
  */
 export type TagPlacement = "start" | "end" | "below";
 
@@ -14,12 +14,12 @@ interface SlotProps {
   id: AppId;
   children: ReactNode;
   className?: string;
-  /** Muestra los botones para volver a pedir o tirar el remote. */
+  /** Shows the buttons to request the remote again or kill it. */
   tools?: boolean;
   tag?: TagPlacement;
-  /** Queda fija arriba al hacer scroll (la barra del shell). */
+  /** Stays pinned to the top when scrolling (the shell's bar). */
   sticky?: boolean;
-  /** Se ve como un panel (con borde) aunque el inspector esté apagado. */
+  /** Looks like a panel (with a border) even when the inspector is off. */
   panel?: boolean;
 }
 
@@ -29,12 +29,12 @@ const TAG_PLACEMENT: Record<TagPlacement, string> = {
   below: "absolute top-[calc(100%+6px)] right-1",
 };
 
-/** Cuánto se demora cada pieza al encender el inspector: aparecen en cascada, en el orden de la página. */
+/** How long each piece waits when the inspector turns on: they cascade in, in page order. */
 const STAGGER_MS = 70;
 
 /**
- * Envuelve cada pieza de la página. Con el inspector encendido dibuja su borde y su ficha:
- * quién la sirve, desde dónde, con qué tipo de render y cuánto tardó.
+ * Wraps each piece of the page. With the inspector on it draws its border and its tag: who serves
+ * it, from where, with which kind of rendering and how long it took.
  */
 export function Slot({
   id,
@@ -53,7 +53,7 @@ export function Slot({
   const isShell = app.kind === "host";
   const status = isShell ? "ready" : (load?.status ?? "idle");
   const focused = inspector && focus === id;
-  // Al pasar el mouse por una pieza, las demás se apagan un poco. La barra fija nunca.
+  // Hovering over a piece dims the others a little. Never the pinned bar.
   const dimmed = inspector && !sticky && focus !== null && focus !== id;
   const delay = {
     animationDelay: `${
@@ -82,7 +82,7 @@ export function Slot({
       onPointerLeave={() => inspector && setFocus(null)}
     >
       {inspector && !sticky && <Scan delay={delay} isShell={isShell} />}
-      {/* Un destello en el borde cada vez que el remote termina de cargar (por ejemplo, después de ↻). */}
+      {/* A flash on the border every time the remote finishes loading (for example, after ↻). */}
       {inspector && !isShell && status === "ready" && (
         <span
           key={load?.end ?? 0}
@@ -114,18 +114,18 @@ export function Slot({
           <span className="opacity-85 @max-[440px]:hidden">{hostOf(app.url)}</span>
           {status === "ready" && load?.ms != null && (
             <span className="text-strong">
-              {load.ms} ms{load.cached ? " · caché" : ""}
+              {load.ms} ms{load.cached ? " · cache" : ""}
             </span>
           )}
-          {status === "loading" && <span className="text-strong">cargando…</span>}
-          {status === "error" && <span className="text-danger">caído</span>}
+          {status === "loading" && <span className="text-strong">loading…</span>}
+          {status === "error" && <span className="text-danger">down</span>}
           {tools && !isShell && (
             <span className="inline-flex gap-1">
-              <SlotTool onClick={() => reload(id)} title="Volver a pedirlo">
+              <SlotTool onClick={() => reload(id)} title="Request it again">
                 ↻
               </SlotTool>
-              <SlotTool onClick={() => setBroken(id, !broken)} pressed={broken} title="Simular que su servidor se cae">
-                {broken ? "levantar" : "tirar"}
+              <SlotTool onClick={() => setBroken(id, !broken)} pressed={broken} title="Simulate its server going down">
+                {broken ? "restore" : "kill"}
               </SlotTool>
             </span>
           )}
@@ -136,7 +136,7 @@ export function Slot({
   );
 }
 
-/** Un barrido de luz del color de la pieza que la recorre una vez al encender el inspector. */
+/** A sweep of light in the piece's color that runs across it once when the inspector turns on. */
 function Scan({ delay, isShell }: { delay: CSSProperties; isShell: boolean }) {
   return (
     <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">

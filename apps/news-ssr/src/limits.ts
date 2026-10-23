@@ -1,13 +1,13 @@
-// Límites de uso del servidor. En un plan gratis la salida de red es poca (Render Hobby: 5 GB por
-// mes), así que si alguien lo bombardea es mejor que Novedades deje de responder a que el tráfico se
-// convierta en gasto. El shell muestra su aviso de fallo y el resto de la página sigue igual.
+// The server's usage limits. On a free plan outbound traffic is scarce (Render Hobby: 5 GB per
+// month), so if someone floods it, it's better for News to stop responding than for the traffic to
+// turn into a bill. The shell shows its failure notice and the rest of the page stays the same.
 
 export interface LimitOptions {
-  /** Cuántas requests pueden llegar de golpe. */
+  /** How many requests can arrive at once. */
   burst: number;
-  /** Cuántas se reponen por segundo. */
+  /** How many are replenished per second. */
   perSecond: number;
-  /** Tope de renders por día (UTC), pase lo que pase. */
+  /** Cap on renders per day (UTC), no matter what. */
   perDay: number;
   now?: () => number;
 }
@@ -16,9 +16,9 @@ const DAY_MS = 86_400_000;
 const dayOf = (ms: number) => Math.floor(ms / DAY_MS);
 
 /**
- * Un balde de fichas para todo el servidor, no por visitante: detrás del proxy de Render la IP del
- * cliente se puede falsificar, así que un límite por IP se saltaría fácil. Devuelve una función que
- * consume una ficha y responde cuántos segundos hay que esperar (0 si la request puede pasar).
+ * One token bucket for the whole server, not per visitor: behind Render's proxy the client IP can
+ * be spoofed, so a per-IP limit would be easy to dodge. Returns a function that takes a token and
+ * answers how many seconds to wait (0 if the request can go through).
  */
 export function createLimiter({ burst, perSecond, perDay, now = Date.now }: LimitOptions): () => number {
   let tokens = burst;
