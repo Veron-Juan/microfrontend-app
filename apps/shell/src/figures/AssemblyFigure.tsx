@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FIGURES } from "@mfe/figures/figures";
 import { corners, segment, translateAlong, type Plan, type Projection } from "@mfe/figures/kit";
-import { appById, hostOf, remoteById, type AppId, type RemoteId } from "../mfe/registry.ts";
+import { appById, remoteById, type AppId, type RemoteId } from "../mfe/registry.ts";
 import { setFocus, store, useStore } from "../state/store.ts";
+import { Button } from "../ui/Button.tsx";
 import { part, prefersReducedMotion, say } from "./dom.ts";
 import { Plate } from "./Plate.tsx";
 import { easeInOutCubic } from "./render-model.ts";
@@ -36,16 +37,31 @@ function startRun(): Run {
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
+/**
+ * El dibujo muestra siempre el puerto local de cada app: los orígenes de producción son largos, no
+ * entran en las piezas y localhost:500x deja ver mejor que son cinco servidores distintos.
+ */
+const LOCAL_PORT: Record<AppId, number> = { shell: 5000, catalog: 5001, details: 5002, news: 5003, guide: 5004 };
+const localHost = (id: AppId) => `localhost:${LOCAL_PORT[id]}`;
+
+/** Lo que se abre al hacer clic en una pieza: el manifiesto si es Module Federation, si no su página. */
+function linkOf(id: AppId) {
+  const app = appById(id);
+  return app.kind === "federated" ? app.entry : app.url;
+}
+
 // Fig 1: una vista explotada de la demo. El shell pone la página y cada remote baja a su hueco al llegar.
 export function AssemblyFigure() {
   const stage = useRef<HTMLDivElement>(null);
   const readout = useRef<HTMLSpanElement>(null);
   const run = useRef<Run>(startRun());
+  const [paused, setPaused] = useState(false);
   const settled = useStore((s) =>
     TILES.every((tile) => ["ready", "error"].includes(s.loads[tile.id as AppId]?.status ?? "idle")),
   );
   const restart = () => {
     run.current = startRun();
+    setPaused(false);
   };
 
   // La primera vuelta se arma con los tiempos medidos, así que empieza de nuevo cuando terminan las cargas.
@@ -53,26 +69,65 @@ export function AssemblyFigure() {
     if (settled) run.current = startRun();
   }, [settled]);
 
-  // El origen cambia con el entorno, así que se escribe al montar y no en el build.
   useEffect(() => {
     const svg = stage.current;
-    if (svg) say(part(svg, "origin-shell"), `${hostOf(appById("shell").url)} · layout y navegación`);
+    if (svg) say(part(svg, "origin-shell"), `${localHost("shell")} · layout y navegación`);
   }, []);
 
-  // Pasar el cursor por una pieza resalta su remote en toda la página.
+  // Cada pieza, y la etiqueta del shell, es un enlace a lo que sirve su servidor en este entorno.
   useEffect(() => {
     const svg = stage.current;
     if (!svg) return undefined;
-    const enter = (event: PointerEvent) => {
-      const group = (event.target as Element).closest<SVGElement>("[data-slot]");
-      setFocus(group ? (group.dataset.slot as AppId) : null);
+    const slotOf = (event: Event) => (event.target as Element).closest<SVGElement>("[data-slot]")?.dataset.slot;
+    const open = (id: string) => window.open(linkOf(id as AppId), "_blank", "noopener");
+    for (const group of svg.querySelectorAll<SVGElement>("[data-slot]")) {
+      const id = group.dataset.slot as AppId;
+      group.setAttribute("role", "link");
+      group.setAttribute("tabindex", "0");
+      group.setAttribute("aria-label", `${appById(id).title}: abrir ${linkOf(id)} en una pestaña nueva`);
+    }
+    const click = (event: MouseEvent) => {
+      const id = slotOf(event);
+      if (!id) return;
+      open(id);
+      // Al volver de la otra pestaña la pieza no debe seguir enfocada ni resaltada.
+      (event.target as Element).closest<SVGElement>("[data-slot]")?.blur();
+      setFocus(null);
     };
-    const leave = () => setFocus(null);
-    svg.addEventListener("pointerover", enter);
-    svg.addEventListener("pointerleave", leave);
+    const key = (event: KeyboardEvent) => {
+      const id = slotOf(event);
+      if (id && event.key === "Enter") open(id);
+    };
+    svg.addEventListener("click", click);
+    svg.addEventListener("keydown", key);
     return () => {
-      svg.removeEventListener("pointerover", enter);
+      svg.removeEventListener("click", click);
+      svg.removeEventListener("keydown", key);
+    };
+  }, []);
+
+  // Pasar el cursor por una pieza, o llegar a ella con Tab, resalta su remote en toda la página.
+  // Se escucha pointermove y no pointerover para que vuelva a resaltarse al regresar de otra pestaña.
+  useEffect(() => {
+    const svg = stage.current;
+    if (!svg) return undefined;
+    const show = (id: AppId | null) => {
+      if (store.get().focus !== id) setFocus(id);
+    };
+    const enter = (event: Event) => {
+      const group = (event.target as Element).closest<SVGElement>("[data-slot]");
+      show(group ? (group.dataset.slot as AppId) : null);
+    };
+    const leave = () => show(null);
+    svg.addEventListener("pointermove", enter);
+    svg.addEventListener("pointerleave", leave);
+    svg.addEventListener("focusin", enter);
+    svg.addEventListener("focusout", leave);
+    return () => {
+      svg.removeEventListener("pointermove", enter);
       svg.removeEventListener("pointerleave", leave);
+      svg.removeEventListener("focusin", enter);
+      svg.removeEventListener("focusout", leave);
     };
   }, []);
 
@@ -80,7 +135,8 @@ export function AssemblyFigure() {
     const { loads, focus } = store.get();
     const still = prefersReducedMotion();
     const r = run.current;
-    r.t += dt;
+    // En pausa el tiempo no avanza, pero se sigue dibujando para que el resaltado y las caídas se vean.
+    if (!paused) r.t += dt;
     const t = still ? Infinity : r.t;
     const lastLand = Math.max(...Object.values(r.land));
     // Al final de la vuelta las piezas se desvanecen y la página vuelve a quedar vacía.
@@ -110,12 +166,12 @@ export function AssemblyFigure() {
       group.querySelector(".iso-solid")?.toggleAttribute("data-lit", focus === id);
       part(svg, `ring-${tile.id}`).dataset.on = String(home);
       const app = remoteById(tile.id as RemoteId);
-      say(part(svg, `meta-${tile.id}`), `${failed ? "sin respuesta" : app.render} · ${hostOf(app.url)}`);
+      say(part(svg, `meta-${tile.id}`), `${failed ? "sin respuesta" : app.render} · ${localHost(app.id)}`);
 
       const lines = part(svg, `guides-${tile.id}`);
       lines.setAttribute("d", guides(P, tile.plan, height));
       lines.style.opacity = String(shown * fade);
-      lines.toggleAttribute("data-flow", status === "loading" && !still);
+      lines.toggleAttribute("data-flow", status === "loading" && !still && !paused);
 
       const shadow = part(svg, `shadow-${tile.id}`);
       shadow.style.opacity = String(drop * fade);
@@ -130,12 +186,21 @@ export function AssemblyFigure() {
     <Plate
       fig="Fig 1"
       title="Una página, cinco servidores"
-      hint="Clic para repetir"
+      hint="Clic en una pieza para abrirla"
       readoutRef={readout}
       stageRef={stage}
       svg={FIGURES.assembly.svg}
-      label="Vista explotada de la demo: el shell pone la página y cada remote baja a su hueco al llegar. Activa para repetir."
-      onClick={restart}
+      label="Vista explotada de la demo: el shell pone la página y cada remote baja a su hueco al llegar. Cada pieza abre su servidor en una pestaña nueva."
+      controls={
+        <>
+          <Button variant="mini" onClick={() => setPaused(!paused)}>
+            {paused ? "Reanudar" : "Detener"}
+          </Button>
+          <Button variant="mini" onClick={restart}>
+            Repetir
+          </Button>
+        </>
+      }
       keys={[
         { render: "SSR", label: "Novedades: HTML hecho en cada request (SSR)" },
         { render: "CSR", label: "Catálogo y Ficha: se arman en el navegador (CSR)" },

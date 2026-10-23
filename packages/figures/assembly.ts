@@ -133,7 +133,7 @@ function tile(t: Tile) {
 function shellCallout() {
   const anchor = at([PAGE.x + 34, PAGE.y + PAGE.d, -PAGE_H / 2]);
   const [x, y] = [anchor[0] + 18, anchor[1] + 56];
-  return `<g class="fig-callout">${[
+  return `<g class="fig-callout" data-slot="shell">${[
     `<path class="iso-line" data-tone="mid" d="M${tenth(anchor[0])} ${tenth(anchor[1])}L${tenth(x)} ${tenth(y - 14)}"/>`,
     D([anchor], { size: 1.4, tone: "hi" }),
     `<text class="fig-name" x="${tenth(x)}" y="${tenth(y)}" text-anchor="middle">Shell (host)</text>`,

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { BusEventName, BusEvents, RemoteMeta } from "@mfe/contracts";
+import type { RemoteMeta } from "@mfe/contracts";
 import type { AppId } from "../mfe/registry.ts";
 
 export type LoadStatus = "idle" | "loading" | "ready" | "error";
@@ -27,31 +27,22 @@ export interface Load {
   painted?: number;
 }
 
-export interface BusLogEntry<K extends BusEventName = BusEventName> {
-  name: K;
-  at: number;
-  detail: BusEvents[K];
-  key: number;
-}
-
 export interface State {
   inspector: boolean;
   focus: AppId | null;
   broken: Partial<Record<AppId, boolean>>;
   nonce: Partial<Record<AppId, number>>;
   loads: Partial<Record<AppId, Load>>;
-  events: BusLogEntry[];
 }
 
 // Un store mínimo del shell. Solo el shell lo usa: los remotes no comparten estado,
-// se comunican por eventos (ver bus.ts). Esa separación es una regla clave de la arquitectura.
+// se comunican por eventos (ver @mfe/contracts). Esa separación es una regla clave de la arquitectura.
 export const initialState: State = {
   inspector: false,
   focus: null,
   broken: {},
   nonce: {},
   loads: {},
-  events: [],
 };
 let state = initialState;
 const listeners = new Set<() => void>();

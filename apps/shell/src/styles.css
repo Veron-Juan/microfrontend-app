@@ -16,22 +16,6 @@
   --animate-shimmer: shimmer 1.2s infinite;
   --animate-scan: scan 0.95s cubic-bezier(0.45, 0, 0.25, 1) both;
   --animate-flash: flash 0.9s ease-out both;
-  --animate-bus-pulse: bus-pulse 0.55s cubic-bezier(0.45, 0, 0.25, 1) both;
-
-  @keyframes bus-pulse {
-    from {
-      left: 0;
-      opacity: 0;
-    }
-    15%,
-    85% {
-      opacity: 1;
-    }
-    to {
-      left: 100%;
-      opacity: 0;
-    }
-  }
 
   @keyframes tag-in {
     from {
@@ -125,8 +109,14 @@
       0 0 0 1px --theme(--color-line),
       --theme(--shadow-lift);
   }
+  /* El contorno del navegador es un rectángulo que no sigue a la pieza al animarse: el foco se ve
+     como el hover, resaltando la pieza (AssemblyFigure), y en la etiqueta del shell subrayándola. */
   .iso-figure [data-slot] {
     cursor: pointer;
+    outline: none;
+  }
+  .iso-figure .fig-callout:focus-visible .fig-name {
+    text-decoration: underline;
   }
 }
 

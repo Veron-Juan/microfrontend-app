@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import type { ReactNode, RefObject } from "react";
 import type { RenderMode } from "@mfe/contracts";
 import { cx } from "../lib/cx.ts";
 
@@ -19,10 +19,25 @@ interface PlateProps {
   readoutRef: RefObject<HTMLSpanElement>;
   stageRef: RefObject<HTMLDivElement>;
   onClick?: () => void;
+  /** Botones debajo del SVG. Si los hay, el SVG tiene sus propios enlaces y se expone como grupo. */
+  controls?: ReactNode;
 }
 
 /** La lámina de una figura: esquinas con datos, el SVG y la leyenda. Las clases iso-* vienen del kit. */
-export function Plate({ fig, title, hint, readoutRef, keys, caption, stageRef, svg, label, onClick }: PlateProps) {
+export function Plate({
+  fig,
+  title,
+  hint,
+  readoutRef,
+  keys,
+  caption,
+  stageRef,
+  svg,
+  label,
+  onClick,
+  controls,
+}: PlateProps) {
+  const role = onClick ? "button" : controls ? "group" : "img";
   return (
     <figure className="iso-figure my-[30px]">
       <div className="iso-plate">
@@ -40,8 +55,8 @@ export function Plate({ fig, title, hint, readoutRef, keys, caption, stageRef, s
         </div>
         <div
           ref={stageRef}
-          tabIndex={0}
-          role={onClick ? "button" : "img"}
+          tabIndex={role === "group" ? undefined : 0}
+          role={role}
           aria-label={label}
           onClick={onClick}
           onKeyDown={(event) => onClick && (event.key === "Enter" || event.key === " ") && onClick()}
@@ -51,6 +66,7 @@ export function Plate({ fig, title, hint, readoutRef, keys, caption, stageRef, s
           )}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
+        {controls && <div className="mt-3 flex justify-center gap-2">{controls}</div>}
       </div>
       <figcaption className="iso-legend">
         <span className="iso-keys">

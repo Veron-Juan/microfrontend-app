@@ -1,7 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
-import { watchBus } from "./mfe/bus.ts";
 import { registerFederatedRemotes } from "./mfe/federation.ts";
 import { loadRegistry } from "./mfe/registry.ts";
 import "./styles.css";
@@ -10,11 +9,10 @@ const root = document.getElementById("root");
 if (!root) throw new Error("Falta el elemento #root en index.html");
 
 // Arranque del shell: primero averigua dónde vive cada remote (discovery), después los registra
-// en Module Federation, escucha el bus y recién entonces monta la página.
+// en Module Federation y recién entonces monta la página.
 try {
   await loadRegistry(`${import.meta.env.BASE_URL}remotes.json`);
   registerFederatedRemotes();
-  watchBus();
   createRoot(root).render(
     <StrictMode>
       <App />

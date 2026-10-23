@@ -4,7 +4,6 @@ export const LESSONS = [
   { id: "demo", label: "La demo en vivo" },
   { id: "composicion", label: "Cómo se compone" },
   { id: "render", label: "SSR, SSG y CSR" },
-  { id: "comunicacion", label: "Comunicación" },
   { id: "dependencias", label: "Dependencias compartidas" },
   { id: "fallos", label: "Fallos aislados" },
   { id: "cuando", label: "¿Cuándo conviene?" },

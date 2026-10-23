@@ -93,7 +93,7 @@ Tailwind CSS v4 en todas las apps, con una regla: **se comparten valores, no CSS
 
 ```
 apps/shell/src
-├── main.tsx          registra los remotes, escucha el bus y monta la app
+├── main.tsx          registra los remotes y monta la app
 ├── App.tsx           layout de la página
 ├── mfe/              todo lo de micro-frontends: registro, Module Federation, fragmentos, fallback
 ├── inspector/        el borde y la ficha de cada pieza (Slot) y el contador de remotes
@@ -114,7 +114,7 @@ apps/shell/src
   React DOM son `singleton` compartidos, así que se descargan una sola vez.
 - **Fragmentos HTML**: el shell hace `fetch` al fragmento y lo inserta. En producción esto suele hacerse en el servidor
   o en el edge (ESI/SSI); aquí se hace en el navegador para que la request se vea.
-- **Contrato de eventos**: `packages/contracts/index.ts`. Es la única "API" entre catálogo y ficha; el shell solo lo escucha (`apps/shell/src/mfe/bus.ts`).
+- **Contrato de eventos**: `packages/contracts/index.ts`. Es la única "API" entre catálogo y ficha, que se lo pasan por `window` sin pasar por el shell.
 - **Fallos aislados**: si falla la descarga de un remote (módulo o fragmento), el shell atrapa el rechazo de la promesa
   y muestra el fallback (`mfe/use-remote-request.ts`). Si un remote federado falla al renderizar, lo atrapa un error
   boundary (`mfe/RemoteBoundary.tsx`).

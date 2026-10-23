@@ -2,7 +2,6 @@ import { Toc } from "./layout/Toc.tsx";
 import { TopBar } from "./layout/TopBar.tsx";
 import { useHotkey } from "./layout/use-hotkey.ts";
 import { useTheme } from "./layout/use-theme.ts";
-import { Communication } from "./lessons/Communication.tsx";
 import { Composition } from "./lessons/Composition.tsx";
 import { Demo } from "./lessons/Demo.tsx";
 import { Failures } from "./lessons/Failures.tsx";
@@ -33,7 +32,6 @@ export default function App() {
           <Demo />
           <Composition />
           <Rendering />
-          <Communication />
           <SharedDeps />
           <Failures />
           <WhenToUse />
