@@ -52,7 +52,7 @@ Each remote can also be opened on its own port: that's how its team would develo
 
 ## Things to try
 
-1. **Inspector** (`I`): borders per app, with version, origin and load time.
+1. **Inspector** (`I`): borders per app, with version, origin and load time. Turning it on scrolls to the demo.
 2. **↻ on News**: the render time and the request id change every time (SSR), but the data says "N s old": it comes
    from the server's cache.
 3. **↻ on the Guide**: the build time doesn't change and the inspector shows "cache": the response came from the

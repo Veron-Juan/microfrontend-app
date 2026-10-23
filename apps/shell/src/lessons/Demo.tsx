@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "../figures/dom.ts";
 import { InspectorSwitch } from "../inspector/InspectorSwitch.tsx";
 import { Slot } from "../inspector/Slot.tsx";
 import { Remote } from "../mfe/Remote.tsx";
@@ -24,8 +26,21 @@ export function Demo() {
 
 /** A fake browser window where the shell composes the four remotes. */
 function BrowserWindow() {
+  const frame = useRef<HTMLDivElement>(null);
+  const inspector = useStore((s) => s.inspector);
+
+  // Turning on the inspector, from anywhere on the page, brings the demo into view: that's where it has the most to show.
+  useEffect(() => {
+    if (!inspector) return;
+    frame.current?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+  }, [inspector]);
+
   return (
-    <div className="my-[22px] overflow-hidden rounded-2xl border border-line bg-card shadow-lift">
+    // scroll-mt leaves room for the sticky top bar and the shell's inspector tag below it.
+    <div
+      ref={frame}
+      className="my-[22px] scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-card shadow-lift"
+    >
       <div className="flex items-center gap-3 border-b border-line-soft bg-page/50 px-3.5 py-2.5">
         <span className="flex gap-1.5" aria-hidden="true">
           <i className="size-2.5 rounded-full bg-[#ff5f57]/80" />
