@@ -1,10 +1,18 @@
+const LINK = "underline underline-offset-2 hover:text-strong";
+
 export function Footer() {
   return (
-    <footer className="mt-[72px] border-t border-line-soft pt-6 text-[13px] text-muted">
+    <footer className="mt-[72px] grid gap-1.5 border-t border-line-soft pt-6 text-[13px] text-muted">
       <p>
-        Five servers on your machine: <code>npm install</code> and then <code>npm run dev</code>. The isometric figures
-        were drawn with the kit from the{" "}
-        <a className="underline underline-offset-2 hover:text-strong" href="https://skills.wheresryan.sh/anatomy">
+        Built by <b className="font-medium">Juan</b>. The code is on{" "}
+        <a className={LINK} href="https://github.com/Veron-Juan/microfrontend-app">
+          GitHub
+        </a>
+        .
+      </p>
+      <p>
+        The isometric figures were drawn with the kit from the{" "}
+        <a className={LINK} href="https://skills.wheresryan.sh/anatomy">
           anatomy
         </a>{" "}
         skill (MIT).
