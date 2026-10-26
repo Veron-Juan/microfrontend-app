@@ -42,10 +42,10 @@ test("the fragment has News's structure: matches, news, credits and footer", asy
   assert.ok(html.includes("Where&#x27;s Wanda?"));
   assert.ok(html.includes("Ellie &amp; Natasia"));
   assert.ok(html.includes(">full time<") && html.includes(">live<"));
-  // The live match carries the blinking dot; badges and posters are <img> with their URL.
+  // The live match carries the blinking dot; badges are <img> and posters a background, with their URL.
   assert.match(html, /nws:animate-live/);
   assert.ok(html.includes('<img src="https://r2.thesportsdb.com/images/media/team/badge/riestra.png/tiny"'));
-  assert.ok(html.includes('<img src="https://static.tvmaze.com/10.jpg"'));
+  assert.ok(html.includes("background-image:url(&quot;https://static.tvmaze.com/10.jpg&quot;)"));
   assert.match(html, /<a href="https:\/\/www\.thesportsdb\.com"[^>]*>TheSportsDB<\/a>/);
   assert.match(html, /<a href="https:\/\/www\.tvmaze\.com"[^>]*>TVmaze<\/a>/);
   assert.match(html, /12 s old/);

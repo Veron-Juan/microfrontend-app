@@ -132,27 +132,32 @@ function TeamRow({ name, badge, goals, winner }: TeamRowProps) {
   );
 }
 
+/**
+ * A show's poster. It's a background over a placeholder with the initial rather than an <img>: if
+ * TVmaze has no poster, or its URL is broken, nothing paints and the placeholder shows instead of
+ * the broken-image icon. (The fragment can't use onerror: the shell's CSP doesn't run inline handlers.)
+ */
+function Poster({ src, show }: { src: string | null; show: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="nws:grid nws:aspect-[2/3] nws:w-11.5 nws:overflow-hidden nws:rounded-md nws:*:col-start-1 nws:*:row-start-1"
+    >
+      <span className="nws:grid nws:place-items-center nws:bg-faint nws:font-serif nws:text-lg nws:text-muted">
+        {show.charAt(0)}
+      </span>
+      {src && (
+        <span className="nws:bg-cover nws:bg-center" style={{ backgroundImage: `url(${JSON.stringify(src)})` }} />
+      )}
+    </span>
+  );
+}
+
 /** A premiere: the poster, the title, the episode and the platform. */
 function PremiereCard({ item }: { item: Premiere }) {
   return (
     <li className={`${tile} nws:grid nws:grid-cols-[46px_minmax(0,1fr)] nws:items-center nws:gap-3 nws:p-2 nws:pr-3`}>
-      {item.image ? (
-        <img
-          src={item.image}
-          alt=""
-          width={46}
-          height={64}
-          loading="lazy"
-          className="nws:block nws:aspect-[2/3] nws:w-11.5 nws:rounded-md nws:object-cover"
-        />
-      ) : (
-        <span
-          aria-hidden="true"
-          className="nws:grid nws:aspect-[2/3] nws:w-11.5 nws:place-items-center nws:rounded-md nws:bg-faint nws:font-serif nws:text-lg nws:text-muted"
-        >
-          {item.show.charAt(0)}
-        </span>
-      )}
+      <Poster src={item.image} show={item.show} />
       <div className="nws:grid nws:min-w-0 nws:gap-1">
         <b className="nws:truncate nws:font-serif nws:text-[16px] nws:leading-[1.2] nws:font-semibold nws:text-strong">
           {item.show}
