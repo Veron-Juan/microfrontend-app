@@ -1,0 +1,7 @@
+# Every text file is LF, in the repo and in the working copy, whatever core.autocrlf says: Prettier
+# requires LF (npm run check), and with autocrlf=true each checkout on Windows wrote CRLF.
+* text=auto eol=lf
+
+# The images, said outright so they're never touched.
+*.png binary
+*.webp binary
