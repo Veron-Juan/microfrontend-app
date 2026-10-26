@@ -3,8 +3,8 @@ import { FIGURES } from "@mfe/figures/figures";
 import { corners, segment, translateAlong, type Plan, type Projection } from "@mfe/figures/kit";
 import { appById, remoteById, type AppId, type RemoteId } from "../mfe/registry.ts";
 import { setFocus, store, useStore } from "../state/store.ts";
-import { Button } from "../ui/Button.tsx";
 import { part, prefersReducedMotion, say } from "./dom.ts";
+import { PlaybackControls } from "./PlaybackControls.tsx";
 import { Plate } from "./Plate.tsx";
 import { easeInOutCubic } from "./render-model.ts";
 import { useAnimationLoop } from "./use-animation-loop.ts";
@@ -44,10 +44,15 @@ const clamp = (value: number) => Math.min(1, Math.max(0, value));
 const LOCAL_PORT: Record<AppId, number> = { shell: 5000, catalog: 5001, details: 5002, news: 5003, guide: 5004 };
 const localHost = (id: AppId) => `localhost:${LOCAL_PORT[id]}`;
 
-/** What opens when a piece is clicked: the manifest for Module Federation, otherwise its page. */
+/**
+ * What opens when a piece is clicked: the manifest for Module Federation, otherwise its page. The
+ * SSG one asks for index.html by name, the file itself: its host serves it at / only through a
+ * rewrite (its _redirects, since html_handling "none" serves /fragment/guide.html as is).
+ */
 function linkOf(id: AppId) {
   const app = appById(id);
-  return app.kind === "federated" ? app.entry : app.url;
+  if (app.kind === "federated") return app.entry;
+  return app.render === "SSG" ? new URL("index.html", app.url).href : app.url;
 }
 
 // Fig 1: an exploded view of the demo. The shell lays out the page and each remote drops into its slot on arrival.
@@ -191,16 +196,7 @@ export function AssemblyFigure() {
       stageRef={stage}
       svg={FIGURES.assembly.svg}
       label="Exploded view of the demo: the shell lays out the page and each remote drops into its slot on arrival. Each piece opens its server in a new tab."
-      controls={
-        <>
-          <Button variant="mini" onClick={() => setPaused(!paused)}>
-            {paused ? "Resume" : "Pause"}
-          </Button>
-          <Button variant="mini" onClick={restart}>
-            Replay
-          </Button>
-        </>
-      }
+      controls={<PlaybackControls paused={paused} onToggle={() => setPaused(!paused)} onReplay={restart} />}
       keys={[
         { render: "SSR", label: "News: HTML made on every request (SSR)" },
         { render: "CSR", label: "Catalog and Details: built in the browser (CSR)" },

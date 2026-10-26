@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { FIGURES } from "@mfe/figures/figures";
 import { store, useStore } from "../state/store.ts";
-import { Button } from "../ui/Button.tsx";
 import { part, prefersReducedMotion, say } from "./dom.ts";
+import { PlaybackControls } from "./PlaybackControls.tsx";
 import { Plate } from "./Plate.tsx";
 import { easeInOutCubic, laneTotal, renderModel, type RenderModel } from "./render-model.ts";
 import { useAnimationLoop } from "./use-animation-loop.ts";
@@ -142,16 +142,7 @@ export function RenderFigure() {
       stageRef={stage}
       svg={FIGURES.render.svg}
       label="Rendering board: columns build, server and browser; rows SSG, SSR and CSR."
-      controls={
-        <>
-          <Button variant="mini" onClick={() => setPaused(!paused)}>
-            {paused ? "Resume" : "Pause"}
-          </Button>
-          <Button variant="mini" onClick={restart}>
-            Replay
-          </Button>
-        </>
-      }
+      controls={<PlaybackControls paused={paused} onToggle={() => setPaused(!paused)} onReplay={restart} />}
       keys={[
         { render: "SSG", label: "SSG: built at build time, before any request" },
         { render: "SSR", label: "SSR: built on the server, on every request" },

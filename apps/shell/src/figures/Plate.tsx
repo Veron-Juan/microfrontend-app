@@ -66,7 +66,7 @@ export function Plate({
           )}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
-        {controls && <div className="mt-3 flex justify-center gap-2">{controls}</div>}
+        {controls && <div className="mt-3 flex justify-end gap-2">{controls}</div>}
       </div>
       <figcaption className="iso-legend">
         <span className="iso-keys">
