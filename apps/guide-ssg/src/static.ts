@@ -50,6 +50,16 @@ export function headersFile(meta: BuildMeta): string {
 }
 
 /**
+ * The `_redirects` file for Cloudflare: the root shows the full page, as resolveFile does here. The
+ * deploy turns off Cloudflare's own HTML handling (wrangler.jsonc, so it serves
+ * /fragment/guide.html as is), and that also stops it from mapping / to index.html. A 200 is a
+ * rewrite, not a redirect: the address stays /.
+ */
+export function redirectsFile(): string {
+  return "/ /index.html 200\n";
+}
+
+/**
  * Maps the URL path to a file inside `root`. Returns null if the path is invalid or tries to leave
  * the folder (e.g. with "../").
  */

@@ -5,7 +5,15 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
-import { contentTypeOf, createStaticHandler, etagOf, headersFile, isNotModified, resolveFile } from "./static.ts";
+import {
+  contentTypeOf,
+  createStaticHandler,
+  etagOf,
+  headersFile,
+  isNotModified,
+  redirectsFile,
+  resolveFile,
+} from "./static.ts";
 
 const ROOT = join(tmpdir(), "dist");
 
@@ -63,6 +71,10 @@ test("headersFile generates the CDN's _headers with the same headers and no empt
   assert.ok(lines.includes("  Access-Control-Allow-Origin: *"));
   assert.ok(lines.some((line) => line.startsWith("  Cache-Control: public, max-age=300")));
   assert.ok(!lines.some((line) => line.startsWith("  X-App-Version:")));
+});
+
+test("redirectsFile makes the CDN serve index.html at the root, with a rewrite and nothing else", () => {
+  assert.equal(redirectsFile(), "/ /index.html 200\n");
 });
 
 // The full handler, over a temporary folder with a fake build.

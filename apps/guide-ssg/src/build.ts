@@ -13,7 +13,7 @@ import type { GuideSource } from "./Guide.tsx";
 import { renderGuideFragment, standalonePage } from "./render.tsx";
 import { formatBuiltAt, seriesProblems, type Series } from "./series.ts";
 import snapshot from "./snapshot.json" with { type: "json" };
-import { headersFile } from "./static.ts";
+import { headersFile, redirectsFile } from "./static.ts";
 import { fetchSeries, TVMAZE_SITE } from "./tvmaze.ts";
 
 const t0 = performance.now();
@@ -67,6 +67,7 @@ await Promise.all([
   ...Object.entries(files).map(([name, html]) => writeFile(join(config.outDir, name), html)),
   // The same headers serve.ts sets, for a real CDN (Cloudflare Pages or Netlify).
   writeFile(join(config.outDir, "_headers"), headersFile(meta)),
+  writeFile(join(config.outDir, "_redirects"), redirectsFile()),
   writeFile(
     join(config.outDir, "build.json"),
     JSON.stringify(

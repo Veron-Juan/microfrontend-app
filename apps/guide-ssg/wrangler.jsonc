@@ -1,4 +1,5 @@
-// Cloudflare deploy (Workers with static assets): publishes dist/ as is, with its _headers.
+// Cloudflare deploy (Workers with static assets): publishes dist/ as is, with its _headers and
+// _redirects (the latter serves index.html at /, which html_handling "none" no longer does).
 {
   "name": "mfe-anatomia-guide",
   "compatibility_date": "2026-10-01",
