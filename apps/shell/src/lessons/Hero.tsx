@@ -15,7 +15,7 @@ const CONTAINER = "mx-auto w-[min(1180px,100%-32px)]";
  * the buttons leave. On a phone it's smaller and the hero simply scrolls.
  */
 const SIZES =
-  "[--art-w:min(42vw,600px,(100svh_-_190px)*994/1119)] portrait-tablet:[--art-w:min(64vw,520px,(100svh_-_540px)*994/1119)] max-[700px]:[--art-w:min(80vw,320px)]";
+  "[--art-w:min(42vw,600px,(100svh_-_190px)*994/1119)] portrait-tablet:[--art-w:min(64vw,520px,(100svh_-_540px)*994/1119)] max-[700px]:[--art-w:min(64vw,260px)]";
 
 /*
  * Side by side: the text and the buttons on the left, centered against the painting on the right.
@@ -100,7 +100,7 @@ function HeroArt() {
       <img
         src={heroStudy560}
         srcSet={`${heroStudy560} 560w, ${heroStudy994} 994w`}
-        sizes="(max-width: 700px) min(80vw, 320px), (orientation: portrait) and (max-width: 1100px) min(64vw, 520px), min(42vw, 600px)"
+        sizes="(max-width: 700px) min(64vw, 260px), (orientation: portrait) and (max-width: 1100px) min(64vw, 520px), min(42vw, 600px)"
         width={994}
         height={1119}
         alt="A woman from a Baroque painting leans on a wooden desk, head in one hand and a skull in the other, puzzling over a laptop."

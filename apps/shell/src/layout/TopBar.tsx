@@ -31,16 +31,20 @@ export function TopBar({ theme, onToggleTheme }: TopBarProps) {
   );
 }
 
-/** Four modules in a chassis, in miniature. */
+/*
+ * Fig. 1 in miniature: the page taken apart into isometric sheets, one per kind of rendering, with
+ * the dotted guides of an exploded view. The sheets are opaque (tinted with the page), so each one
+ * hides the back edges of the one under it.
+ */
 function BrandMark() {
-  const module = "fill-(--c) stroke-none opacity-90";
+  const sheet =
+    "fill-[color-mix(in_srgb,var(--c)_20%,var(--mfe-page))] stroke-(--c) stroke-[1.1] [stroke-linejoin:round]";
   return (
     <svg className="size-[22px]" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="2.5" y="3" width="19" height="3" rx="1" className="fill-none stroke-strong stroke-[1.1]" />
-      <rect x="3.5" y="8" width="3.4" height="12" rx="0.8" data-render="SSR" className={module} />
-      <rect x="8.2" y="8" width="3.4" height="12" rx="0.8" data-render="CSR" className={module} />
-      <rect x="12.9" y="8" width="3.4" height="12" rx="0.8" data-render="CSR" className={module} />
-      <rect x="17.6" y="8" width="3.4" height="12" rx="0.8" data-render="SSG" className={module} />
+      <path d="M3 6.5v11M21 6.5v11" className="fill-none stroke-mid stroke-[0.8] [stroke-dasharray:1.2_1.4]" />
+      <path d="M12 13l9 4.5-9 4.5-9-4.5z" data-render="SSG" className={sheet} />
+      <path d="M12 7.5l9 4.5-9 4.5-9-4.5z" data-render="CSR" className={sheet} />
+      <path d="M12 2l9 4.5-9 4.5-9-4.5z" data-render="SSR" className={sheet} />
     </svg>
   );
 }
