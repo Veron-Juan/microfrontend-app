@@ -1,8 +1,19 @@
+import { cx } from "../lib/cx.ts";
 import { LESSONS } from "../lessons/lessons.ts";
+import { useScrolledPast } from "./use-scrolled-past.ts";
 
 export function Toc() {
+  // The hero has the whole width to itself: the index shows up once it's left behind. Hidden it
+  // isn't focusable either (visibility), so the keyboard doesn't land on links you can't see.
+  const pastHero = useScrolledPast("hero");
   return (
-    <nav className="sticky top-[76px] self-start pt-14 max-[900px]:hidden" aria-label="Lessons">
+    <nav
+      className={cx(
+        "sticky top-[76px] self-start pt-14 transition-[opacity,translate,visibility] duration-500 ease-out-soft motion-reduce:transition-none max-[900px]:hidden",
+        !pastHero && "invisible -translate-x-2 opacity-0",
+      )}
+      aria-label="Lessons"
+    >
       <ol className="grid gap-0.5">
         {LESSONS.map(({ id, label }, index) => (
           <li key={id}>

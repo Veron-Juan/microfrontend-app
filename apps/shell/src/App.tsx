@@ -7,6 +7,7 @@ import { Demo } from "./lessons/Demo.tsx";
 import { Failures } from "./lessons/Failures.tsx";
 import { Footer } from "./lessons/Footer.tsx";
 import { Hero } from "./lessons/Hero.tsx";
+import { Intro } from "./lessons/Intro.tsx";
 import { Rendering } from "./lessons/Rendering.tsx";
 import { SharedDeps } from "./lessons/SharedDeps.tsx";
 import { WhatIs } from "./lessons/WhatIs.tsx";
@@ -19,25 +20,26 @@ export default function App() {
 
   return (
     // "iso" and data-theme are for the figures kit, which defines its palette on that element.
-    <div className="iso min-h-screen overflow-x-clip bg-page text-text" data-theme={theme}>
+    <div className="iso min-h-screen overflow-x-clip bg-page text-text" data-theme={theme} id="top">
       <TopBar theme={theme} onToggleTheme={toggle} />
-      <div
-        className="mx-auto grid w-[min(1180px,100%-32px)] grid-cols-[200px_minmax(0,1fr)] gap-14 max-[900px]:grid-cols-1 max-[900px]:gap-0"
-        id="top"
-      >
-        <Toc />
-        <main className="min-w-0 pb-24">
-          <Hero />
-          <WhatIs />
-          <Demo />
-          <Composition />
-          <Rendering />
-          <SharedDeps />
-          <Failures />
-          <WhenToUse />
-          <Footer />
-        </main>
-      </div>
+      <main>
+        {/* The hero spans the whole width; the table of contents shows up once it's left behind. */}
+        <Hero />
+        <div className="mx-auto grid w-[min(1180px,100%-32px)] grid-cols-[200px_minmax(0,1fr)] gap-14 max-[900px]:grid-cols-1 max-[900px]:gap-0">
+          <Toc />
+          <div className="min-w-0 pb-24">
+            <Intro />
+            <WhatIs />
+            <Demo />
+            <Composition />
+            <Rendering />
+            <SharedDeps />
+            <Failures />
+            <WhenToUse />
+            <Footer />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

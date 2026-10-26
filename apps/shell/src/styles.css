@@ -10,6 +10,22 @@
 /* The figures kit brings its own CSS; it goes in the components layer so utilities can adjust it. */
 @import "@mfe/figures/iso.css" layer(components);
 
+/*
+ * The hero's layout depends on the screen's shape, not only its width (lessons/Hero.tsx): it stacks
+ * the text and the painting on a phone and on a tablet held upright, where side by side the painting
+ * would end up small at the bottom of a tall screen.
+ */
+@custom-variant stacked {
+  @media (max-width: 700px), (orientation: portrait) and (max-width: 1100px) {
+    @slot;
+  }
+}
+@custom-variant portrait-tablet {
+  @media (orientation: portrait) and (min-width: 701px) and (max-width: 1100px) {
+    @slot;
+  }
+}
+
 @theme {
   /* "both": with the cascade delay, the piece stays invisible until its turn. */
   --animate-tag-in: tag-in 0.4s cubic-bezier(0.32, 0.72, 0, 1) both;
